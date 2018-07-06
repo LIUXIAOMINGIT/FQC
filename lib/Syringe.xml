@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Syringe Brand. -->
+<SyringeBrand>
+  <GrasebyC6Brand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-龙德</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-JMS</Brand11>
+      <Brand12>-12-龙心</Brand12>
+      <Brand13>-13-洪达</Brand13>
+    </ZH>
+  </GrasebyC6Brand>
+  <GrasebyF6Brand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-龙德</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-JMS</Brand11>
+      <Brand12>-12-龙心</Brand12>
+      <Brand13>-13-洪达</Brand13>
+    </ZH>
+  </GrasebyF6Brand>
+  <GrasebyC8Brand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-康康</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-三鑫</Brand11>
+      <Brand12>-12-事丰</Brand12>
+      <Brand13>-13-洪达</Brand13>
+      <CustomBrand1>-14-自定义</CustomBrand1>
+      <CustomBrand2>-15-自定义</CustomBrand2>
+      <CustomBrand3>-16-自定义</CustomBrand3>
+      <CustomBrand4>-17-自定义</CustomBrand4>
+      <CustomBrand5>-18-自定义</CustomBrand5>
+    </ZH>
+  </GrasebyC8Brand>
+  <Graseby1200Brand>
+    <ZH>
+      <Brand1>-01-威高</Brand1>
+      <Brand2>-02-玉升</Brand2>
+      <Brand3>-03-新华</Brand3>
+      <CustomBrand1>-04-自定义</CustomBrand1>
+      <CustomBrand2>-05-自定义</CustomBrand2>
+      <CustomBrand3>-06-自定义</CustomBrand3>
+      <CustomBrand4>-07-自定义</CustomBrand4>
+      <CustomBrand5>-08-自定义</CustomBrand5>
+      <CustomBrand6>-09-自定义</CustomBrand6>
+    </ZH>
+    <EN>
+      <Brand1>-01-B.Braun</Brand1>
+      <Brand2>-02-Lifeline</Brand2>
+      <Brand3>-03-Romsons</Brand3>
+      <Brand4>-04-Polymed</Brand4>
+      <Brand5>-05-JMS</Brand5>
+      <CustomBrand1>-06-Custom</CustomBrand1>
+      <CustomBrand2>-07-Custom</CustomBrand2>
+      <CustomBrand3>-08-Custom</CustomBrand3>
+      <CustomBrand4>-09-Custom</CustomBrand4>
+    </EN>
+  </Graseby1200Brand>
+  <GrasebyC6TBrand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-龙德</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-JMS</Brand11>
+      <Brand12>-12-龙心</Brand12>
+      <Brand13>-13-洪达</Brand13>
+    </ZH>
+  </GrasebyC6TBrand>
+  <GrasebyF8Brand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-康康</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-三鑫</Brand11>
+      <Brand12>-12-事丰</Brand12>
+      <Brand13>-13-洪达</Brand13>
+      <CustomBrand1>-14-自定义</CustomBrand1>
+      <CustomBrand2>-15-自定义</CustomBrand2>
+      <CustomBrand3>-16-自定义</CustomBrand3>
+      <CustomBrand4>-17-自定义</CustomBrand4>
+      <CustomBrand5>-18-自定义</CustomBrand5>
+    </ZH>
+  </GrasebyF8Brand>
+
+  <Graseby2000Brand>
+    <EN>
+      <Brand1>-01-AYSET</Brand1>
+      <Brand2>-02-Fresenius Injectomat®</Brand2>
+      <Brand3>-03-BD PlastipakTM</Brand3>
+      <Brand4>-04-Romsons Junior</Brand4>
+      <Brand5>-05-B.Braun Omnifix®</Brand5>
+      <Brand6>-06-NIPRO</Brand6>
+      <Brand7>-07-Polfa</Brand7>
+      <Brand8>-08-TERUMO®</Brand8>
+      <Brand9>-09-Apexmed</Brand9>
+      <Brand10>-10-Unolok</Brand10>
+      <Brand11>-11-BD Precise</Brand11>
+      <Brand12>-12-Dispovan</Brand12>
+    </EN>
+  </Graseby2000Brand>
+  
+  <Graseby2100Brand>
+    <EN>
+      <Brand1>-01-AYSET</Brand1>
+      <Brand2>-02-Fresenius Injectomat®</Brand2>
+      <Brand3>-03-BD PlastipakTM</Brand3>
+      <Brand4>-04-Romsons Junior</Brand4>
+      <Brand5>-05-B.Braun Omnifix®</Brand5>
+      <Brand6>-06-NIPRO</Brand6>
+      <Brand7>-07-Polfa</Brand7>
+      <Brand8>-08-TERUMO®</Brand8>
+      <Brand9>-09-Apexmed</Brand9>
+      <Brand10>-10-Unolok</Brand10>
+      <Brand11>-11-BD Precise</Brand11>
+      <Brand12>-12-Dispovan</Brand12>
+    </EN>
+  </Graseby2100Brand>
+ </SyringeBrand>
