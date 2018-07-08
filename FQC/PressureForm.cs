@@ -51,9 +51,9 @@ namespace FQC
 
         private void PressureForm_Load(object sender, EventArgs e)
         {
-            InitPumpType();
             LoadSettings();
             LoadConfig();
+            InitPumpType();
         }
 
         /// <summary>
@@ -439,6 +439,10 @@ namespace FQC
         {
             StartOrStopArgs args = e as StartOrStopArgs;
             cbPumpType.Enabled = args.IsStart;
+            chart1.ToolingNo = tbToolingNo.Text;
+            chart2.ToolingNo = tbToolingNo2.Text;
+            chart1.PumpNo = tbPumpNo.Text;
+            chart2.PumpNo = tbPumpNo.Text;
         }
 
         private void tlpTitle_MouseDown(object sender, MouseEventArgs e)
@@ -497,6 +501,13 @@ namespace FQC
         {
             SaveLastToolingNo();
             this.Close();
+        }
+
+        private void PressureForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            chart1.Close();
+            chart2.Close();
+            Thread.Sleep(1000);
         }
        
     }//end class

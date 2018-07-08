@@ -35,7 +35,7 @@ namespace FQC
         GrasebyF6_2, //F6双道
         WZS50F6_2,   //WZS50F6双道
         GrasebyF8_2, //F8双道
-        None = 0xFF,
+        None = 0xFF
     }
 
     public class ProductIDConvertor
@@ -157,25 +157,21 @@ namespace FQC
         public static List<string> GetAllPumpIDString()
         {
             List<string> pumps = new List<string>();
-            pumps.Add("GrasebyC8");
+            //pumps.Add("GrasebyC8");
             pumps.Add("GrasebyF8单道");
-            pumps.Add("GrasebyF8双道");
-            pumps.Add("GrasebyC6");
-            pumps.Add("GrasebyC6T");
-            pumps.Add("Graseby2000");
-            pumps.Add("Graseby2100");
-            pumps.Add("WZ50C6");
-            pumps.Add("WZ50C6T");
-            pumps.Add("GrasebyF6单道");
-            pumps.Add("GrasebyF6双道");
-            pumps.Add("WZS50F6单道");
-            pumps.Add("WZS50F6双道");
+            //pumps.Add("GrasebyF8双道");
+            //pumps.Add("GrasebyC6");
+            //pumps.Add("GrasebyC6T");
+            //pumps.Add("Graseby2000");
+            //pumps.Add("Graseby2100");
+            //pumps.Add("WZ50C6");
+            //pumps.Add("WZ50C6T");
+            //pumps.Add("GrasebyF6单道");
+            //pumps.Add("GrasebyF6双道");
+            //pumps.Add("WZS50F6单道");
+            //pumps.Add("WZS50F6双道");
             return pumps;
         }
-
-
-
-
 
     }
 

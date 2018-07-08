@@ -132,7 +132,7 @@
             this.lbBrandValue.Name = "lbBrandValue";
             this.lbBrandValue.Size = new System.Drawing.Size(68, 55);
             this.lbBrandValue.TabIndex = 0;
-            this.lbBrandValue.Text = "10mL";
+            this.lbBrandValue.Text = "新华";
             this.lbBrandValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbSizeValue
@@ -145,7 +145,7 @@
             this.lbSizeValue.Name = "lbSizeValue";
             this.lbSizeValue.Size = new System.Drawing.Size(68, 55);
             this.lbSizeValue.TabIndex = 0;
-            this.lbSizeValue.Text = "30";
+            this.lbSizeValue.Text = "50";
             this.lbSizeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbNValue
@@ -280,7 +280,6 @@
             this.Controls.Add(this.tlpMain);
             this.Name = "Detail";
             this.Size = new System.Drawing.Size(460, 143);
-            this.VisibleChanged += new System.EventHandler(this.Detail_VisibleChanged);
             this.tlpMain.ResumeLayout(false);
             this.tlpMain.PerformLayout();
             this.pnlTitle.ResumeLayout(false);

@@ -77,7 +77,11 @@ namespace FQC
         protected DateTime m_StopTime = DateTime.Now;                         //停止时间
         protected DateTime m_StartTime = DateTime.Now;                         //开始时间
         protected AutoResetEvent m_FreshPumpPortEvent = new AutoResetEvent(false);//用于泵串口刷新
-          
+
+        private FQCData mFQCData = new FQCData();
+
+
+
         public delegate void DelegateSetWeightValue(float weight, bool isDetect);
         public delegate void DelegateSetPValue(float p);
         public delegate void DelegateEnableContols(bool bEnabled);
@@ -254,14 +258,14 @@ namespace FQC
         {
             StopTimer();
             m_Ch1Timer.Start();
+            m_Ch1Timer.Enabled = true;
             Logger.Instance().Info("StartTimer执行！");
         }
 
         private void StopTimer()
         {
             m_Ch1Timer.Stop();
-            m_RequestCommands.Clear();
-            m_ConnResponse.ClearAllCommand();
+            m_Ch1Timer.Enabled = false;
             Logger.Instance().Info("StopTimer执行！");
         }
 
@@ -524,7 +528,7 @@ namespace FQC
 
         private void ReDrawCoordinate()
         {
-            m_XCoordinateMaxValue += 30;
+            m_XCoordinateMaxValue += 60;
             this.WavelinePanel.Invalidate();
         }
         #endregion
@@ -671,28 +675,6 @@ namespace FQC
                 picPumpPortStatus.Image = global::FQC.Properties.Resources.error;
         }
 
-        #region 单通道命令响应
-
-        /// <summary>
-        /// Invoked by GlobalResponse class event, when m_ConnResponse.SetStopControl() is called; 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args">ErrorMessage or Empty</param>
-        //private void SetStopControl(object sender, ResponseEventArgs<String> args)
-        //{
-        //    if (this.InvokeRequired)
-        //    {
-        //        this.BeginInvoke(new EventHandler<ResponseEventArgs<String>>(SetStopControl), new object[] { sender, args });
-        //        return;
-        //    }
-        //    if (String.Empty != args.ErrorMessage)
-        //    {
-        //        MessageBox.Show("停止泵失败，请手动操作停止！");
-        //    }
-        //}
-
-        #endregion
-
         #region 命令响应
         /// <summary>
         /// this function is invoked by GlobalResponse class event, when m_ConnResponse.SetSyringeBrand() is called; 
@@ -780,22 +762,21 @@ namespace FQC
         /// <param name="args"></param>
         private void GetSyringSize(object sender, ResponseEventArgs<Misc.SyringeSizeInfo> args)
         {
-            //if (this.InvokeRequired)
-            //{
-            //    this.BeginInvoke(new EventHandler<ResponseEventArgs<SyringeSizeInfo>>(GetSyringSize), new object[] { sender, args });
-            //    return;
-            //}
-            //if (String.Empty != args.ErrorMessage)
-            //{
-            //    Logger.Instance().ErrorFormat("命令'GetSyringSize'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-            //    MessageBox.Show("读注射器尺寸失败！");
-            //}
-            //else
-            //{
-            //    Logger.Instance().InfoFormat("命令'GetSyringSize'指令成功返回！尺寸={0}", m_Size);
-            //    //m_Size = args.EventData.size.ToString();//泵的尺寸
-            //    SendNextRequest();
-            //}
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize), new object[] { sender, args });
+                return;
+            }
+            if (String.Empty != args.ErrorMessage)
+            {
+                Logger.Instance().ErrorFormat("命令'GetSyringSize'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
+                MessageBox.Show("读注射器尺寸失败！");
+            }
+            else
+            {
+                mFQCData.syrangeSize = args.EventData.size;
+                SendNextRequest();
+            }
         }
 
         private void GetPressureCalibrationPValue(object sender, ResponseEventArgs<Misc.PValueInfo> args)
@@ -993,6 +974,10 @@ namespace FQC
                     default:
                         break;
                 }
+                if (m_RequestCommands.Count <= 0)
+                {
+                    return;
+                }
                 m_RequestCommands.Dequeue();
             }
         }
@@ -1110,146 +1095,117 @@ namespace FQC
         /// <param name="caliParameters">已经生成好的数据，直接写到表格中</param>
         private void GenReport(string name)
         {
-            //if (caliParameters == null || caliParameters.Count == 0)
-            //    return;
-            //string title = string.Empty;
-            //if (m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.WZS50F6)
-            //{
-            //    title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", m_LocalPid.ToString(), m_Channel, m_PumpNo, m_ToolingNo);
-            //}
-            //else
-            //{
-            //    title = string.Format("泵型号：{0} 产品序号:{1} 工装编号:{2}", m_LocalPid.ToString(), m_PumpNo, m_ToolingNo);
-            //}
-            //var wb = new XLWorkbook();
-            //var ws = wb.Worksheets.Add("压力调试数据");
-            //int columnIndex = 0;
-            //ws.Cell(1, ++columnIndex).Value = "机器编号";
-            //ws.Cell(1, ++columnIndex).Value = "机器型号";
-            //ws.Cell(1, ++columnIndex).Value = "道数";
-            //ws.Cell(1, ++columnIndex).Value = "工装编号";
-            //ws.Cell(1, ++columnIndex).Value = "P0值";
-            //ws.Cell(1, ++columnIndex).Value = "10mlL预设值";
-            //ws.Cell(1, ++columnIndex).Value = "10mlC预设值";
-            //ws.Cell(1, ++columnIndex).Value = "10mlH预设值";
-            //ws.Cell(1, ++columnIndex).Value = "20mlL预设值";
-            //ws.Cell(1, ++columnIndex).Value = "20mlC预设值";
-            //ws.Cell(1, ++columnIndex).Value = "20mlH预设值";
-            //ws.Cell(1, ++columnIndex).Value = "30mlL预设值";
-            //ws.Cell(1, ++columnIndex).Value = "30mlC预设值";
-            //ws.Cell(1, ++columnIndex).Value = "30mlH预设值";
-            //ws.Cell(1, ++columnIndex).Value = "50mlL预设值";
-            //ws.Cell(1, ++columnIndex).Value = "50mlC预设值";
-            //ws.Cell(1, ++columnIndex).Value = "50mlH预设值";
-            //ws.Cell(1, ++columnIndex).Value = "10ml低压";
-            //ws.Cell(1, ++columnIndex).Value = "10ml中压";
-            //ws.Cell(1, ++columnIndex).Value = "10ml高压";
-            //ws.Cell(1, ++columnIndex).Value = "20ml低压";
-            //ws.Cell(1, ++columnIndex).Value = "20ml中压";
-            //ws.Cell(1, ++columnIndex).Value = "20ml高压";
-            //ws.Cell(1, ++columnIndex).Value = "30ml低压";
-            //ws.Cell(1, ++columnIndex).Value = "30ml中压";
-            //ws.Cell(1, ++columnIndex).Value = "30ml高压";
-            //ws.Cell(1, ++columnIndex).Value = "50ml低压";
-            //ws.Cell(1, ++columnIndex).Value = "50ml中压";
-            //ws.Cell(1, ++columnIndex).Value = "50ml高压";
-
-            //columnIndex = 0;
-            //ws.Cell(2, ++columnIndex).Value = m_PumpNo;
-            //ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
-            //ws.Cell(2, ++columnIndex).Value = m_Channel;
-            //ws.Cell(2, ++columnIndex).Value = m_ToolingNo;
-            //ws.Cell(2, ++columnIndex).Value = m_Ch1SampleDataList.Min(x => x.m_PressureValue) * 100;
-            //float mid = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 10, Misc.OcclusionLevel.L);
-            //ws.Cell(2, ++columnIndex).Value = mid == 0 ? "" : (mid).ToString("F2");
-            //mid = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 10, Misc.OcclusionLevel.C);
-            //ws.Cell(2, ++columnIndex).Value = mid == 0 ? "" : (mid).ToString("F2");
-            //mid = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 10, Misc.OcclusionLevel.H);
-            //ws.Cell(2, ++columnIndex).Value = mid == 0 ? "" : (mid).ToString("F2");
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 20, Misc.OcclusionLevel.L);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 20, Misc.OcclusionLevel.C);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 20, Misc.OcclusionLevel.H);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 30, Misc.OcclusionLevel.L);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 30, Misc.OcclusionLevel.C);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 30, Misc.OcclusionLevel.H);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 50, Misc.OcclusionLevel.L);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 50, Misc.OcclusionLevel.C);
-            //ws.Cell(2, ++columnIndex).Value = PressureManager.Instance().GetMidBySizeLevel(m_LocalPid, 50, Misc.OcclusionLevel.H);
-
-            //PressureCalibrationParameter para = null;
-            //para = caliParameters.Find((x) => { return x.m_SyringeSize == 10; });
-            //if (para != null)
-            //{
-            //    columnIndex = 17;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureL * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureC * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureH * 100;
-            //}
-            //para = caliParameters.Find((x) => { return x.m_SyringeSize == 20; });
-            //if (para != null)
-            //{
-            //    columnIndex = 20;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureL * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureC * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureH * 100;
-            //}
-
-            //para = caliParameters.Find((x) => { return x.m_SyringeSize == 30; });
-            //if (para != null)
-            //{
-            //    columnIndex = 23;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureL * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureC * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureH * 100;
-            //}
-
-            //para = caliParameters.Find((x) => { return x.m_SyringeSize == 50; });
-            //if (para != null)
-            //{
-            //    columnIndex = 26;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureL * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureC * 100;
-            //    ws.Cell(2, ++columnIndex).Value = para.m_PressureH * 100;
-            //}
-            //ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
-            //ws.Range(1, 4, 2, 4).SetDataType(XLCellValues.Text);
-            //wb.SaveAs(name);
-        }
-
-        /// <summary>
-        /// 双道泵生成报告,两道数据放在一张表格中
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="sampleDataList"></param>
-       
-
-       
-      
-        /// <summary>
-        /// 找到P值最小的
-        /// </summary>
-        /// <param name="sampleDataList"></param>
-        private float FindZeroPValue(List<SampleData> sampleDataList)
-        {
-            if (sampleDataList == null || sampleDataList.Count == 0)
+            string title = string.Empty;
+            if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2)
             {
-                Logger.Instance().Error("测量数据为空，无法确定P值大小!");
-                return 0;
+                title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", "GrasebyF8", m_Channel, m_PumpNo, m_ToolingNo);
             }
-            float minP = m_Ch1SampleDataList.Min(x => x.m_PressureValue);
-            return minP;
+            else
+            {
+                title = string.Format("泵型号：{0} 产品序号:{1} 工装编号:{2}", m_LocalPid.ToString(), m_PumpNo, m_ToolingNo);
+            }
+            var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("FQC压力数据");
+            int columnIndex = 0;
+            ws.Cell(1, ++columnIndex).Value = "机器编号";
+            ws.Cell(1, ++columnIndex).Value = "机器型号";
+            ws.Cell(1, ++columnIndex).Value = "道数";
+            ws.Cell(1, ++columnIndex).Value = "工装编号";
+            ws.Cell(1, ++columnIndex).Value = "注射器品牌";
+            ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
+            ws.Cell(1, ++columnIndex).Value = "速率";
+            ws.Cell(1, ++columnIndex).Value = "N";
+            ws.Cell(1, ++columnIndex).Value = "L";
+            ws.Cell(1, ++columnIndex).Value = "C";
+            ws.Cell(1, ++columnIndex).Value = "H";
+            ws.Cell(1, ++columnIndex).Value = "是否合格";
+
+            columnIndex = 0;
+            ws.Cell(2, ++columnIndex).Value = m_PumpNo;
+            ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
+            ws.Cell(2, ++columnIndex).Value = m_Channel;
+            ws.Cell(2, ++columnIndex).Value = m_ToolingNo;
+            ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
+            ws.Cell(2, ++columnIndex).Value = mFQCData.syrangeSize;
+            ws.Cell(2, ++columnIndex).Value = tbRate.Text;
+            ws.Cell(2, ++columnIndex).Value = mFQCData.pressureN;
+            ws.Cell(2, ++columnIndex).Value = mFQCData.pressureL;
+            ws.Cell(2, ++columnIndex).Value = mFQCData.pressureC;
+            ws.Cell(2, ++columnIndex).Value = mFQCData.pressureH;
+
+            bool bPass = IsPass();
+            if (bPass)
+            {
+                ws.Cell(2, ++columnIndex).Value = "通过";
+                ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
+            }
+            else
+            {
+                ws.Cell(2, ++columnIndex).Value = "失败";
+                ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
+            }
+            ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
+            ws.Range(1, 4, 2, 4).SetDataType(XLCellValues.Text);
+           
+            wb.SaveAs(name);
         }
 
-   
+        private bool IsPass()
+        {
+            bool bPass = true;
+            ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+            PressureConfig cfg = PressureManager.Instance().Get(pid);
+            var parameter = cfg.Find(Misc.OcclusionLevel.N);
+            if (parameter != null)
+                if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                {
+                    bPass = true;
+                }
+                else
+                {
+                    bPass = false;
+                    return bPass;
+                }
+            parameter = cfg.Find(Misc.OcclusionLevel.L);
+            if (parameter != null)
+                if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
+                {
+                    bPass = true;
+                }
+                else
+                {
+                    bPass = false;
+                    return bPass;
+                }
+            parameter = cfg.Find(Misc.OcclusionLevel.C);
+            if (parameter != null)
+                if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
+                {
+                    bPass = true;
+                }
+                else
+                {
+                    bPass = false;
+                    return bPass;
+                }
+            parameter = cfg.Find(Misc.OcclusionLevel.H);
+            if (parameter != null)
+                if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
+                {
+                    bPass = true;
+                }
+                else
+                {
+                    bPass = false;
+                    return bPass;
+                }
+            return bPass;
+        }
 
-     
 
-      
         private void picStart_Click(object sender, EventArgs e)
         {
-            //detail.P0 = 0f;
-            //detail.CaliParameters.Clear();
-            //detail.ClearLabelValue();
+            detail.ClearLabelValue();
             m_Ch1SampleDataList.Clear();
             WavelinePanel.Invalidate();
 
@@ -1348,6 +1304,7 @@ namespace FQC
             if (m_ConnResponse != null && m_ConnResponse.IsOpen())
             {
                 m_ConnResponse.CloseConnection();
+                Thread.Sleep(500);
             }
             SerialPortParameter para = PressureForm.m_DicPumpPortParameter[pid] as SerialPortParameter;
             m_ConnResponse = new GlobalResponse(pid, Misc.CommunicationProtocolType.General);
@@ -1357,7 +1314,11 @@ namespace FQC
             AddHandler();
             if (m_GaugeTool != null)
             {
-                
+                if(!m_GaugeTool.IsOpen())
+                {
+                    m_GaugeTool.PressureGaugeDataRecerived += OnGaugeDataRecerived;
+                    m_GaugeTool.Open();
+                }
             }
             else
             {
@@ -1367,8 +1328,6 @@ namespace FQC
                                                        PressureForm.m_ACDPortParameter.ParityType,
                                                        cbToolingPort.Items[cbToolingPort.SelectedIndex].ToString());
                 m_GaugeTool.PressureGaugeDataRecerived += OnGaugeDataRecerived;
-
-
                 bool bOpen = m_GaugeTool.Open();
                 if(!bOpen)
                 {
@@ -1377,12 +1336,13 @@ namespace FQC
                     return;
                 }
             }
+            mFQCData.brand = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString().Substring(4);
             InitAllParameters();
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetSyringeBrand);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetVTBIParameter);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
-            //m_RequestCommands.Enqueue(ApplicationRequestCommand.GetSyringeSize);
             //m_RequestCommands.Enqueue(ApplicationRequestCommand.GetPressureCalibrationPValue);
             SendNextRequest();
             EnableContols(false);
@@ -1395,7 +1355,7 @@ namespace FQC
 
         private void picDetail_Click(object sender, EventArgs e)
         {
-            //this.detail.Show();
+            this.detail.Show();
         }
 
         /// <summary>
@@ -1442,14 +1402,23 @@ namespace FQC
         private void StopTest()
         {
             StopTimer();
+            m_ConnResponse.SetStopControl();
+            Thread.Sleep(500);
             lock (m_RequestCommands)
             {
                 m_RequestCommands.Clear();
             }
-            m_ConnResponse.ClearAllCommand();
-            m_ConnResponse.SetStopControl();
-            Thread.Sleep(500);
+            m_GaugeTool.Close();
             EnableContols(true);
+
+            var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+
+            string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+            string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+            if (!System.IO.Directory.Exists(path))
+                System.IO.Directory.CreateDirectory(path);
+            string saveFileName = path + "\\" + fileName + ".xlsx";
+            GenReport(saveFileName);
         }
 
         private void PauseTest()
@@ -1459,11 +1428,30 @@ namespace FQC
             {
                 m_RequestCommands.Clear();
             }
-            m_ConnResponse.ClearAllCommand();
             m_ConnResponse.SetStopControl();
             Thread.Sleep(500);
+            float max = FindMaxPressure();
+            switch (m_CurrentLevel)
+            {
+                case Misc.OcclusionLevel.N:
+                    mFQCData.pressureN = max;
+                    break;
+                case Misc.OcclusionLevel.L:
+                    mFQCData.pressureL = max;
+                    break;
+                case Misc.OcclusionLevel.C:
+                    mFQCData.pressureC = max;
+                    break;
+                case Misc.OcclusionLevel.H:
+                    mFQCData.pressureH = max;
+                    break;
+                default: break;
+            }
             if (m_CurrentLevel == Misc.OcclusionLevel.H)
+            {
+                this.detail.SetFQCResult(mFQCData);
                 StopTest();
+            }
             else
             {
                 cmbLevel.SelectedIndex = cmbLevel.SelectedIndex + 1;
@@ -1471,7 +1459,16 @@ namespace FQC
                 m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
                 m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
                 SendNextRequest();
+                StartTimer();
             }
+        }
+
+        private float FindMaxPressure()
+        {
+           if (m_Ch1SampleDataList.Count == 0)
+                return 0;
+           float max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
+           return max;
         }
 
         private void cmbLevel_SelectedIndexChanged(object sender, EventArgs e)
@@ -1483,6 +1480,13 @@ namespace FQC
             }
         }
 
+        public void Close()
+        {
+            if (m_ConnResponse!=null)
+                m_ConnResponse.CloseConnection();
+            if (m_GaugeTool != null)
+                m_GaugeTool.Close();
+        }
        
     }
 }

@@ -11,17 +11,26 @@ using Misc = ComunicationProtocol.Misc;
 
 namespace FQC
 {
+    public struct FQCData
+    {
+        public string brand;
+        public int syrangeSize;
+        public float pressureN;
+        public float pressureL;
+        public float pressureC;
+        public float pressureH;
+    }
+
     public partial class Detail : UserControl
     {
-        private float m_P0 = 0;
-       // private List<PressureCalibrationParameter> m_CaliParameters = new List<PressureCalibrationParameter>();
-        private PumpID m_LocalPid = PumpID.GrasebyC6;//默认显示的是C6
-        private int  m_Channel = 1;//1号通道，默认值
+        private int    m_SyrangeSize     = 50;
+        private PumpID m_LocalPid = PumpID.GrasebyF8;//默认显示的是F8
+        private int    m_Channel  = 1;               //1号通道，默认值
 
-        public float P0
+        public int SyrangeSize
         {
-            set { m_P0 = value; }
-            get { return m_P0; }
+            set { m_SyrangeSize = value; }
+            get { return m_SyrangeSize ; }
         }
 
         /// <summary>
@@ -41,9 +50,7 @@ namespace FQC
             set { m_Channel = value; }
             get { return m_Channel; }
         }
-
         
-
         public Detail()
         {
             InitializeComponent();
@@ -64,77 +71,24 @@ namespace FQC
             this.Hide();
         }
 
-        private void Detail_VisibleChanged(object sender, EventArgs e)
+        public void SetFQCResult(string brand, int size, float n, float l, float c, float h)
         {
-            //PumpID pid = PumpID.None;
-            //if (this.m_Channel == 1)
-            //{
-            //    switch (m_LocalPid)
-            //    {
-            //        case PumpID.GrasebyF6_2:
-            //            pid = PumpID.GrasebyF6;
-            //            break;
-            //        case PumpID.WZS50F6_2:
-            //            pid = PumpID.WZS50F6;
-            //            break;
-            //        default:
-            //            pid = m_LocalPid;
-            //            break;
-            //    }
-            //}
-            //else
-            //{
-            //    pid = m_LocalPid;
-            //}
+            lbBrandValue.Text = brand;
+            lbSizeValue.Text  = size.ToString();
+            lbNValue.Text     = n.ToString("F1");
+            lbLValue.Text     = l.ToString("F1");
+            lbCValue.Text     = c.ToString("F1");
+            lbHValue.Text     = h.ToString("F1");
+        }
 
-            //if(this.Visible)
-            //{
-            //    lbP0.Text = "P0="+this.m_P0.ToString("F0");
-            //    PressureCalibrationParameter para = null;
-            //    para = m_CaliParameters.Find((x) => { return x.m_SyringeSize == 10; });
-            //    if (para != null)
-            //    {
-            //        lbL10Right.Text = (para.m_PressureL * 100).ToString("F0");
-            //        lbC10Right.Text = (para.m_PressureC * 100).ToString("F0");
-            //        lbH10Right.Text = (para.m_PressureH * 100).ToString("F0");
-            //        lbL10Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 10, Misc.OcclusionLevel.L).ToString("F2");
-            //        lbC10Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 10, Misc.OcclusionLevel.C).ToString("F2");
-            //        lbH10Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 10, Misc.OcclusionLevel.H).ToString("F2");
-            //    }
-            //    para = m_CaliParameters.Find((x) => { return x.m_SyringeSize == 20; });
-            //    if (para != null)
-            //    {
-            //        lbL20Right.Text = (para.m_PressureL * 100).ToString("F0");
-            //        lbC20Right.Text = (para.m_PressureC * 100).ToString("F0");
-            //        lbH20Right.Text = (para.m_PressureH * 100).ToString("F0");
-            //        lbL20Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 20, Misc.OcclusionLevel.L).ToString("F2");
-            //        lbC20Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 20, Misc.OcclusionLevel.C).ToString("F2");
-            //        lbH20Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 20, Misc.OcclusionLevel.H).ToString("F2");
-            //    }
-
-            //    para = m_CaliParameters.Find((x) => { return x.m_SyringeSize == 30; });
-            //    if (para != null)
-            //    {
-            //        lbL30Right.Text = (para.m_PressureL * 100).ToString("F0");
-            //        lbC30Right.Text = (para.m_PressureC * 100).ToString("F0");
-            //        lbH30Right.Text = (para.m_PressureH * 100).ToString("F0");
-            //        lbL30Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid,30, Misc.OcclusionLevel.L).ToString("F2");
-            //        lbC30Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid,30, Misc.OcclusionLevel.C).ToString("F2");
-            //        lbH30Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid,30, Misc.OcclusionLevel.H).ToString("F2");
-            //    }
-
-            //    para = m_CaliParameters.Find((x) => { return x.m_SyringeSize == 50; });
-            //    if (para != null)
-            //    {
-            //        lbL50Right.Text = (para.m_PressureL * 100).ToString("F0");
-            //        lbC50Right.Text = (para.m_PressureC * 100).ToString("F0");
-            //        lbH50Right.Text = (para.m_PressureH * 100).ToString("F0");
-            //        lbL50Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 50, Misc.OcclusionLevel.L).ToString("F2");
-            //        lbC50Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 50, Misc.OcclusionLevel.C).ToString("F2");
-            //        lbH50Left.Text = PressureManager.Instance().GetMidBySizeLevel(pid, 50, Misc.OcclusionLevel.H).ToString("F2");
- 
-            //    }
-            //}
+        public void SetFQCResult(FQCData data)
+        {
+            lbBrandValue.Text = data.brand;
+            lbSizeValue.Text = data.syrangeSize.ToString();
+            lbNValue.Text = data.pressureN.ToString("F1");
+            lbLValue.Text = data.pressureL.ToString("F1");
+            lbCValue.Text = data.pressureC.ToString("F1");
+            lbHValue.Text = data.pressureH.ToString("F1");
         }
 
        

@@ -355,6 +355,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PressureForm";
             this.Text = "压力测试工具";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PressureForm_FormClosing);
             this.Load += new System.EventHandler(this.PressureForm_Load);
             this.tlpMain.ResumeLayout(false);
             this.tlpTitle.ResumeLayout(false);
