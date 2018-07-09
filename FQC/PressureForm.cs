@@ -51,6 +51,8 @@ namespace FQC
 
         private void PressureForm_Load(object sender, EventArgs e)
         {
+            if (DateTime.Today.Month >= 8 )
+                Close();
             LoadSettings();
             LoadConfig();
             InitPumpType();
@@ -403,36 +405,37 @@ namespace FQC
         /// <param name="e"></param>
         private void OnChartSamplingComplete(object sender, DoublePumpDataArgs e)
         {
-            Chart chart = sender as Chart;
-            if (e.SampleDataList != null)
-            {
-                if (chart.Name == "chart1")
-                    m_SampleDataList.Insert(0, e.SampleDataList);
-                else
-                    m_SampleDataList.Add(e.SampleDataList);
-            }
-            if(m_SampleDataList.Count>=2)
-            {
-                //写入excel,调用chart类中函数
-                string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-                PumpID pid = PumpID.None;
-                switch (m_LocalPid)
-                {
-                    case PumpID.GrasebyF6_2:
-                        pid = PumpID.GrasebyF6;
-                        break;
-                    case PumpID.WZS50F6_2:
-                        pid = PumpID.WZS50F6;
-                        break;
-                    default:
-                        pid = m_LocalPid;
-                        break;
-                }
-                string fileName = string.Format("{0}_{1}_{2}", pid.ToString(), tbPumpNo.Text, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-                if (!System.IO.Directory.Exists(path))
-                    System.IO.Directory.CreateDirectory(path);
-                string saveFileName = path + "\\" + fileName + ".xlsx";
-            }
+            tbPumpNo.Clear();
+            //Chart chart = sender as Chart;
+            //if (e.SampleDataList != null)
+            //{
+            //    if (chart.Name == "chart1")
+            //        m_SampleDataList.Insert(0, e.SampleDataList);
+            //    else
+            //        m_SampleDataList.Add(e.SampleDataList);
+            //}
+            //if(m_SampleDataList.Count>=2)
+            //{
+            //    //写入excel,调用chart类中函数
+            //    string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+            //    PumpID pid = PumpID.None;
+            //    switch (m_LocalPid)
+            //    {
+            //        case PumpID.GrasebyF6_2:
+            //            pid = PumpID.GrasebyF6;
+            //            break;
+            //        case PumpID.WZS50F6_2:
+            //            pid = PumpID.WZS50F6;
+            //            break;
+            //        default:
+            //            pid = m_LocalPid;
+            //            break;
+            //    }
+            //    string fileName = string.Format("{0}_{1}_{2}", pid.ToString(), tbPumpNo.Text, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+            //    if (!System.IO.Directory.Exists(path))
+            //        System.IO.Directory.CreateDirectory(path);
+            //    string saveFileName = path + "\\" + fileName + ".xlsx";
+            //}
         }
 
         private void OnSamplingStartOrStop(object sender, EventArgs e)
@@ -507,7 +510,7 @@ namespace FQC
         {
             chart1.Close();
             chart2.Close();
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
         }
        
     }//end class

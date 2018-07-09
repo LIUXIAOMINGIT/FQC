@@ -36,7 +36,7 @@ namespace FQC
         private System.Drawing.Rectangle m_Rect;
         private Pen m_WaveLinePen = new Pen(Color.FromArgb(19, 113, 185));
         private SolidBrush m_WaveLineBrush = new SolidBrush(Color.FromArgb(19, 113, 185));
-        private float m_XCoordinateMaxValue = 240;//X轴最大长度：秒
+        private float m_XCoordinateMaxValue = 300;//X轴最大长度：秒
         private int m_YCoordinateMaxValue = 150;//y轴最大Kpa
         private int m_XSectionCount = 20;
         private int m_YSectionCount = 15;
@@ -480,15 +480,6 @@ namespace FQC
                 //画X坐标值
                 float xValueInerval = xMax / xSectionCount;
                 m_ValueInervalX = xValueInerval;
-                //for (int i = 0; i <= xSectionCount; i++)
-                //{
-                //    if (i == 0)
-                //    {
-                //        // m_gh.DrawString("0", xValuefont, Brushes.Black, new PointF(originalpoint.X - 5, originalpoint.Y + 5));
-                //    }
-                //    else
-                //        m_gh.DrawString((i * xValueInerval).ToString(), xValuefont, Brushes.Black, new PointF(originalpoint.X + intervalX * i - 8, originalpoint.Y + 5));
-                //}
                 //画Y轴
                 PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
                 //写图形描述字符
@@ -522,7 +513,7 @@ namespace FQC
             }
             catch (Exception e)
             {
-                MessageBox.Show("DrawHomeostasisMap Error:" + e.Message);
+                //MessageBox.Show("DrawCoordinate Error:" + e.Message);
             }
         }
 
@@ -1210,6 +1201,18 @@ namespace FQC
             WavelinePanel.Invalidate();
 
             #region 参数输入检查
+
+            if (SamplingStartOrStop != null)
+            {
+                SamplingStartOrStop(this, new StartOrStopArgs(true));
+            }
+
+            if (string.IsNullOrEmpty(PumpNo))
+            {
+                MessageBox.Show("请输入产品序号");
+                return;
+            }
+
             float rate = 0;
             if (cbToolingPort.SelectedIndex < 0)
             {
@@ -1410,7 +1413,7 @@ namespace FQC
             }
             m_GaugeTool.Close();
             EnableContols(true);
-
+            OnSamplingComplete(this, null);
             var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
 
             string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
