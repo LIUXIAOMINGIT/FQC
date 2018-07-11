@@ -382,26 +382,36 @@ namespace FQC
         /// <param name="ySectionCount">Y轴坐标数量</param>
         private void DrawSingleAccuracyMap(int xSectionCount = 20, int ySectionCount = 15)
         {
-            if (m_Ch1SampleDataList.Count <= 1)
-                return;
-            Rectangle rect = m_Rect;
-            Font xValuefont = new Font("宋体", 7);
-            Font fontTitle = new Font("宋体", 8);
-            //X轴原点
-            PointF xOriginalPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
-            //X轴终点
-            PointF xEndPoint = new PointF((float)rect.Right - RIGHTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
-            //Y轴最下面的点位置
-            PointF yOriginalPoint = xOriginalPoint;
-            //Y轴终点（由下向上）
-            PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
-            float y0 = 0, y1 = 0, x0 = 0, x1 = 0;
-            int i = m_Ch1SampleDataList.Count - 1;
-            y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i - 1].m_PressureValue / m_ValueInervalY)));
-            y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i].m_PressureValue / m_ValueInervalY)));
-            x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i) + xOriginalPoint.X;
-            x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i + 1) + xOriginalPoint.X;
-            m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
+            lock (m_Ch1SampleDataList)
+            {
+                if (m_Ch1SampleDataList.Count <= 1)
+                    return;
+                Rectangle rect = m_Rect;
+                Font xValuefont = new Font("宋体", 7);
+                Font fontTitle = new Font("宋体", 8);
+                //X轴原点
+                PointF xOriginalPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
+                //X轴终点
+                PointF xEndPoint = new PointF((float)rect.Right - RIGHTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
+                //Y轴最下面的点位置
+                PointF yOriginalPoint = xOriginalPoint;
+                //Y轴终点（由下向上）
+                PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
+                float y0 = 0, y1 = 0, x0 = 0, x1 = 0;
+                int i = m_Ch1SampleDataList.Count - 1;
+                y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i - 1].m_PressureValue / m_ValueInervalY)));
+                y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i].m_PressureValue / m_ValueInervalY)));
+                x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i) + xOriginalPoint.X;
+                x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i + 1) + xOriginalPoint.X;
+                try
+                {
+                    m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("画单个点时报错：" + e.Message);
+                }
+            }
         }
 
         /// <summary>
@@ -411,30 +421,40 @@ namespace FQC
         /// <param name="ySectionCount"></param>
         private void DrawAccuracyMap(int xSectionCount = 20, int ySectionCount = 15)
         {
-            if (m_Ch1SampleDataList.Count <= 1)
-                return;
-            Rectangle rect = m_Rect;
-            Font xValuefont = new Font("宋体", 7);
-            Font fontTitle = new Font("宋体", 8);
-            //画X轴
-            //X轴原点
-            PointF xOriginalPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
-            //X轴终点
-            PointF xEndPoint = new PointF((float)rect.Right - RIGHTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
-            //Y轴最下面的点位置
-            PointF yOriginalPoint = xOriginalPoint;
-            //Y轴终点（由下向上）
-            PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
-            string strMsg = string.Empty;
-            float y0 = 0, y1 = 0, x0 = 0, x1 = 0;
-            int count = m_Ch1SampleDataList.Count;
-            for (int iLoop = 1; iLoop < count; iLoop++)
+            lock (m_Ch1SampleDataList)
             {
-                y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop - 1].m_PressureValue / m_ValueInervalY)));
-                y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop].m_PressureValue / m_ValueInervalY)));
-                x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop) + xOriginalPoint.X;
-                x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop + 1) + xOriginalPoint.X;
-                m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
+                try
+                {
+                    if (m_Ch1SampleDataList.Count <= 1)
+                        return;
+                    Rectangle rect = m_Rect;
+                    Font xValuefont = new Font("宋体", 7);
+                    Font fontTitle = new Font("宋体", 8);
+                    //画X轴
+                    //X轴原点
+                    PointF xOriginalPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
+                    //X轴终点
+                    PointF xEndPoint = new PointF((float)rect.Right - RIGHTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
+                    //Y轴最下面的点位置
+                    PointF yOriginalPoint = xOriginalPoint;
+                    //Y轴终点（由下向上）
+                    PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
+                    string strMsg = string.Empty;
+                    float y0 = 0, y1 = 0, x0 = 0, x1 = 0;
+                    int count = m_Ch1SampleDataList.Count;
+                    for (int iLoop = 1; iLoop < count; iLoop++)
+                    {
+                        y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop - 1].m_PressureValue / m_ValueInervalY)));
+                        y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop].m_PressureValue / m_ValueInervalY)));
+                        x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop) + xOriginalPoint.X;
+                        x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop + 1) + xOriginalPoint.X;
+                        m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
+                    }
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show("重绘曲线时报错:"+e.Message);
+                }
             }
         }
 
