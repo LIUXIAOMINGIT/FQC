@@ -69,9 +69,6 @@
     <Reference Include="ConnectionDevice">
       <HintPath>..\lib\ConnectionDevice.dll</HintPath>
     </Reference>
-    <Reference Include="CSkin">
-      <HintPath>CSkin4.0\CSkin.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\lib\log4net.dll</HintPath>
     </Reference>
