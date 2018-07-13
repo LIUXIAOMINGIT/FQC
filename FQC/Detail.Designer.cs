@@ -113,11 +113,11 @@
             // 
             this.lbTitle.AutoSize = true;
             this.lbTitle.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lbTitle.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbTitle.ForeColor = System.Drawing.Color.White;
             this.lbTitle.Location = new System.Drawing.Point(0, 0);
             this.lbTitle.Name = "lbTitle";
-            this.lbTitle.Size = new System.Drawing.Size(70, 22);
+            this.lbTitle.Size = new System.Drawing.Size(68, 18);
             this.lbTitle.TabIndex = 0;
             this.lbTitle.Text = "压力峰值";
             this.lbTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -126,7 +126,7 @@
             // 
             this.lbBrandValue.AutoSize = true;
             this.lbBrandValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbBrandValue.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 10F);
+            this.lbBrandValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.lbBrandValue.ForeColor = System.Drawing.Color.White;
             this.lbBrandValue.Location = new System.Drawing.Point(5, 86);
             this.lbBrandValue.Name = "lbBrandValue";
@@ -139,7 +139,7 @@
             // 
             this.lbSizeValue.AutoSize = true;
             this.lbSizeValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbSizeValue.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 10F);
+            this.lbSizeValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.lbSizeValue.ForeColor = System.Drawing.Color.White;
             this.lbSizeValue.Location = new System.Drawing.Point(81, 86);
             this.lbSizeValue.Name = "lbSizeValue";
@@ -152,7 +152,7 @@
             // 
             this.lbNValue.AutoSize = true;
             this.lbNValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbNValue.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 10F);
+            this.lbNValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.lbNValue.ForeColor = System.Drawing.Color.White;
             this.lbNValue.Location = new System.Drawing.Point(157, 86);
             this.lbNValue.Name = "lbNValue";
@@ -165,7 +165,7 @@
             // 
             this.lbLValue.AutoSize = true;
             this.lbLValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbLValue.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 10F);
+            this.lbLValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.lbLValue.ForeColor = System.Drawing.Color.White;
             this.lbLValue.Location = new System.Drawing.Point(233, 86);
             this.lbLValue.Name = "lbLValue";
@@ -178,7 +178,7 @@
             // 
             this.lbCValue.AutoSize = true;
             this.lbCValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbCValue.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 10F);
+            this.lbCValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.lbCValue.ForeColor = System.Drawing.Color.White;
             this.lbCValue.Location = new System.Drawing.Point(309, 86);
             this.lbCValue.Name = "lbCValue";
@@ -191,7 +191,7 @@
             // 
             this.lbHValue.AutoSize = true;
             this.lbHValue.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbHValue.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 10F);
+            this.lbHValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.lbHValue.ForeColor = System.Drawing.Color.White;
             this.lbHValue.Location = new System.Drawing.Point(385, 86);
             this.lbHValue.Name = "lbHValue";
@@ -204,11 +204,11 @@
             // 
             this.lbH.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbH.AutoSize = true;
-            this.lbH.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbH.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbH.ForeColor = System.Drawing.Color.White;
-            this.lbH.Location = new System.Drawing.Point(409, 45);
+            this.lbH.Location = new System.Drawing.Point(410, 47);
             this.lbH.Name = "lbH";
-            this.lbH.Size = new System.Drawing.Size(21, 22);
+            this.lbH.Size = new System.Drawing.Size(19, 18);
             this.lbH.TabIndex = 0;
             this.lbH.Text = "H";
             // 
@@ -216,11 +216,11 @@
             // 
             this.lbC.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbC.AutoSize = true;
-            this.lbC.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbC.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbC.ForeColor = System.Drawing.Color.White;
-            this.lbC.Location = new System.Drawing.Point(333, 45);
+            this.lbC.Location = new System.Drawing.Point(333, 47);
             this.lbC.Name = "lbC";
-            this.lbC.Size = new System.Drawing.Size(20, 22);
+            this.lbC.Size = new System.Drawing.Size(19, 18);
             this.lbC.TabIndex = 0;
             this.lbC.Text = "C";
             // 
@@ -228,11 +228,11 @@
             // 
             this.lbL.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbL.AutoSize = true;
-            this.lbL.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbL.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbL.ForeColor = System.Drawing.Color.White;
-            this.lbL.Location = new System.Drawing.Point(258, 45);
+            this.lbL.Location = new System.Drawing.Point(259, 47);
             this.lbL.Name = "lbL";
-            this.lbL.Size = new System.Drawing.Size(18, 22);
+            this.lbL.Size = new System.Drawing.Size(16, 18);
             this.lbL.TabIndex = 0;
             this.lbL.Text = "L";
             // 
@@ -240,11 +240,11 @@
             // 
             this.lbN.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbN.AutoSize = true;
-            this.lbN.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbN.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbN.ForeColor = System.Drawing.Color.White;
-            this.lbN.Location = new System.Drawing.Point(180, 45);
+            this.lbN.Location = new System.Drawing.Point(181, 47);
             this.lbN.Name = "lbN";
-            this.lbN.Size = new System.Drawing.Size(21, 22);
+            this.lbN.Size = new System.Drawing.Size(19, 18);
             this.lbN.TabIndex = 0;
             this.lbN.Text = "N";
             // 
@@ -252,11 +252,11 @@
             // 
             this.lbSize.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbSize.AutoSize = true;
-            this.lbSize.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbSize.ForeColor = System.Drawing.Color.White;
-            this.lbSize.Location = new System.Drawing.Point(95, 45);
+            this.lbSize.Location = new System.Drawing.Point(96, 47);
             this.lbSize.Name = "lbSize";
-            this.lbSize.Size = new System.Drawing.Size(40, 22);
+            this.lbSize.Size = new System.Drawing.Size(38, 18);
             this.lbSize.TabIndex = 0;
             this.lbSize.Text = "尺寸";
             // 
@@ -264,11 +264,11 @@
             // 
             this.lbBrand.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbBrand.AutoSize = true;
-            this.lbBrand.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 11F);
+            this.lbBrand.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.lbBrand.ForeColor = System.Drawing.Color.White;
-            this.lbBrand.Location = new System.Drawing.Point(19, 45);
+            this.lbBrand.Location = new System.Drawing.Point(20, 47);
             this.lbBrand.Name = "lbBrand";
-            this.lbBrand.Size = new System.Drawing.Size(40, 22);
+            this.lbBrand.Size = new System.Drawing.Size(38, 18);
             this.lbBrand.TabIndex = 0;
             this.lbBrand.Text = "品牌";
             // 

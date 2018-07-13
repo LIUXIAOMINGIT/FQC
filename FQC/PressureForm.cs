@@ -512,7 +512,13 @@ namespace FQC
             chart2.Close();
             Thread.Sleep(500);
         }
-       
+
+        private void picSetting_Click(object sender, EventArgs e)
+        {
+            ResultDialog dlg = new ResultDialog(true);
+            dlg.ShowDialog();
+        }
+
     }//end class
 
     public class SampleData

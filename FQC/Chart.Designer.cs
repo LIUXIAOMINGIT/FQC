@@ -122,11 +122,11 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label1.Location = new System.Drawing.Point(43, 65);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label1.Location = new System.Drawing.Point(43, 69);
             this.label1.Name = "label1";
             this.tlpChannel.SetRowSpan(this.label1, 2);
-            this.label1.Size = new System.Drawing.Size(26, 48);
+            this.label1.Size = new System.Drawing.Size(25, 40);
             this.label1.TabIndex = 1;
             this.label1.Text = "道\r\n泵";
             // 
@@ -138,7 +138,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 33F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
@@ -169,11 +169,11 @@
             // 
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label2.Location = new System.Drawing.Point(0, 17);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label2.Location = new System.Drawing.Point(0, 19);
             this.label2.Margin = new System.Windows.Forms.Padding(0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(74, 24);
+            this.label2.Size = new System.Drawing.Size(73, 20);
             this.label2.TabIndex = 1;
             this.label2.Text = "工装串口";
             // 
@@ -181,10 +181,10 @@
             // 
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label3.Location = new System.Drawing.Point(239, 17);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label3.Location = new System.Drawing.Point(238, 19);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(58, 24);
+            this.label3.Size = new System.Drawing.Size(57, 20);
             this.label3.TabIndex = 1;
             this.label3.Text = "泵串口";
             // 
@@ -192,11 +192,11 @@
             // 
             this.label4.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label4.Location = new System.Drawing.Point(0, 76);
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label4.Location = new System.Drawing.Point(0, 78);
             this.label4.Margin = new System.Windows.Forms.Padding(0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(42, 24);
+            this.label4.Size = new System.Drawing.Size(41, 20);
             this.label4.TabIndex = 1;
             this.label4.Text = "品牌";
             // 
@@ -204,11 +204,11 @@
             // 
             this.label7.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label7.Location = new System.Drawing.Point(0, 136);
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label7.Location = new System.Drawing.Point(0, 138);
             this.label7.Margin = new System.Windows.Forms.Padding(0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(42, 24);
+            this.label7.Size = new System.Drawing.Size(41, 20);
             this.label7.TabIndex = 1;
             this.label7.Text = "速率";
             // 
@@ -216,11 +216,11 @@
             // 
             this.label8.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label8.Location = new System.Drawing.Point(182, 136);
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label8.Location = new System.Drawing.Point(181, 138);
             this.label8.Margin = new System.Windows.Forms.Padding(0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(50, 24);
+            this.label8.Size = new System.Drawing.Size(44, 20);
             this.label8.TabIndex = 1;
             this.label8.Text = "mL/h";
             // 
@@ -228,12 +228,12 @@
             // 
             this.cbToolingPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbToolingPort.BackColor = System.Drawing.Color.White;
-            this.cbToolingPort.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.cbToolingPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbToolingPort.FormattingEnabled = true;
-            this.cbToolingPort.Location = new System.Drawing.Point(81, 13);
+            this.cbToolingPort.Location = new System.Drawing.Point(81, 15);
             this.cbToolingPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbToolingPort.Name = "cbToolingPort";
-            this.cbToolingPort.Size = new System.Drawing.Size(101, 32);
+            this.cbToolingPort.Size = new System.Drawing.Size(100, 28);
             this.cbToolingPort.TabIndex = 2;
             this.cbToolingPort.Tag = "";
             this.cbToolingPort.SelectedIndexChanged += new System.EventHandler(this.cbToolingPort_SelectedIndexChanged);
@@ -242,12 +242,12 @@
             // 
             this.cbPumpPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbPumpPort.BackColor = System.Drawing.Color.White;
-            this.cbPumpPort.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.cbPumpPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbPumpPort.FormattingEnabled = true;
-            this.cbPumpPort.Location = new System.Drawing.Point(302, 13);
+            this.cbPumpPort.Location = new System.Drawing.Point(300, 15);
             this.cbPumpPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbPumpPort.Name = "cbPumpPort";
-            this.cbPumpPort.Size = new System.Drawing.Size(85, 32);
+            this.cbPumpPort.Size = new System.Drawing.Size(85, 28);
             this.cbPumpPort.TabIndex = 2;
             this.cbPumpPort.SelectedIndexChanged += new System.EventHandler(this.cbPumpPort_SelectedIndexChanged);
             // 
@@ -255,11 +255,11 @@
             // 
             this.tbRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbRate.BackColor = System.Drawing.Color.White;
-            this.tbRate.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 16F, System.Drawing.FontStyle.Bold);
-            this.tbRate.Location = new System.Drawing.Point(81, 128);
+            this.tbRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
+            this.tbRate.Location = new System.Drawing.Point(81, 132);
             this.tbRate.Margin = new System.Windows.Forms.Padding(0);
             this.tbRate.Name = "tbRate";
-            this.tbRate.Size = new System.Drawing.Size(101, 39);
+            this.tbRate.Size = new System.Drawing.Size(100, 32);
             this.tbRate.TabIndex = 3;
             this.tbRate.Text = "300";
             // 
@@ -267,12 +267,12 @@
             // 
             this.cmbSetBrand.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbSetBrand.BackColor = System.Drawing.Color.White;
-            this.cmbSetBrand.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.cmbSetBrand.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbSetBrand.FormattingEnabled = true;
-            this.cmbSetBrand.Location = new System.Drawing.Point(81, 72);
+            this.cmbSetBrand.Location = new System.Drawing.Point(81, 74);
             this.cmbSetBrand.Margin = new System.Windows.Forms.Padding(0);
             this.cmbSetBrand.Name = "cmbSetBrand";
-            this.cmbSetBrand.Size = new System.Drawing.Size(101, 32);
+            this.cmbSetBrand.Size = new System.Drawing.Size(100, 28);
             this.cmbSetBrand.TabIndex = 2;
             this.cmbSetBrand.SelectedIndexChanged += new System.EventHandler(this.cmbSetBrand_SelectedIndexChanged);
             // 
@@ -280,12 +280,12 @@
             // 
             this.cmbLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbLevel.BackColor = System.Drawing.Color.White;
-            this.cmbLevel.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.cmbLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbLevel.FormattingEnabled = true;
-            this.cmbLevel.Location = new System.Drawing.Point(302, 72);
+            this.cmbLevel.Location = new System.Drawing.Point(300, 74);
             this.cmbLevel.Margin = new System.Windows.Forms.Padding(0);
             this.cmbLevel.Name = "cmbLevel";
-            this.cmbLevel.Size = new System.Drawing.Size(85, 32);
+            this.cmbLevel.Size = new System.Drawing.Size(85, 28);
             this.cmbLevel.TabIndex = 2;
             this.cmbLevel.SelectedIndexChanged += new System.EventHandler(this.cmbLevel_SelectedIndexChanged);
             // 
@@ -293,17 +293,17 @@
             // 
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label5.Location = new System.Drawing.Point(239, 76);
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label5.Location = new System.Drawing.Point(238, 78);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(42, 24);
+            this.label5.Size = new System.Drawing.Size(41, 20);
             this.label5.TabIndex = 1;
             this.label5.Text = "压力";
             // 
             // picPumpPortStatus
             // 
             this.picPumpPortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picPumpPortStatus.Location = new System.Drawing.Point(387, 0);
+            this.picPumpPortStatus.Location = new System.Drawing.Point(385, 0);
             this.picPumpPortStatus.Margin = new System.Windows.Forms.Padding(0);
             this.picPumpPortStatus.Name = "picPumpPortStatus";
             this.picPumpPortStatus.Size = new System.Drawing.Size(30, 59);
@@ -315,7 +315,7 @@
             // picGaugePortStatus
             // 
             this.picGaugePortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picGaugePortStatus.Location = new System.Drawing.Point(182, 0);
+            this.picGaugePortStatus.Location = new System.Drawing.Point(181, 0);
             this.picGaugePortStatus.Margin = new System.Windows.Forms.Padding(0);
             this.picGaugePortStatus.Name = "picGaugePortStatus";
             this.picGaugePortStatus.Size = new System.Drawing.Size(30, 59);
@@ -328,10 +328,10 @@
             // 
             this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
-            this.label6.Location = new System.Drawing.Point(239, 136);
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label6.Location = new System.Drawing.Point(238, 138);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(42, 24);
+            this.label6.Size = new System.Drawing.Size(41, 20);
             this.label6.TabIndex = 1;
             this.label6.Text = "模式";
             // 
@@ -339,15 +339,15 @@
             // 
             this.cmbPattern.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbPattern.BackColor = System.Drawing.Color.White;
-            this.cmbPattern.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.cmbPattern.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbPattern.FormattingEnabled = true;
             this.cmbPattern.Items.AddRange(new object[] {
             "自动",
             "手动"});
-            this.cmbPattern.Location = new System.Drawing.Point(302, 132);
+            this.cmbPattern.Location = new System.Drawing.Point(300, 134);
             this.cmbPattern.Margin = new System.Windows.Forms.Padding(0);
             this.cmbPattern.Name = "cmbPattern";
-            this.cmbPattern.Size = new System.Drawing.Size(85, 32);
+            this.cmbPattern.Size = new System.Drawing.Size(85, 28);
             this.cmbPattern.TabIndex = 2;
             // 
             // tableLayoutPanel2

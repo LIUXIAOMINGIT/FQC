@@ -116,11 +116,11 @@
             // 
             this.lbTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbTitle.AutoSize = true;
-            this.lbTitle.Font = new System.Drawing.Font("Noto Sans CJK SC Medium", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.lbTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.lbTitle.ForeColor = System.Drawing.Color.Black;
-            this.lbTitle.Location = new System.Drawing.Point(53, 10);
+            this.lbTitle.Location = new System.Drawing.Point(53, 12);
             this.lbTitle.Name = "lbTitle";
-            this.lbTitle.Size = new System.Drawing.Size(124, 22);
+            this.lbTitle.Size = new System.Drawing.Size(130, 18);
             this.lbTitle.TabIndex = 1;
             this.lbTitle.Text = "FQC压力检验1.0";
             // 
@@ -136,6 +136,7 @@
             this.picSetting.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picSetting.TabIndex = 2;
             this.picSetting.TabStop = false;
+            this.picSetting.Click += new System.EventHandler(this.picSetting_Click);
             // 
             // picCloseWindow
             // 
@@ -186,22 +187,22 @@
             // 
             this.tbToolingNo2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbToolingNo2.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbToolingNo2.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.tbToolingNo2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.tbToolingNo2.ForeColor = System.Drawing.Color.White;
-            this.tbToolingNo2.Location = new System.Drawing.Point(900, 21);
+            this.tbToolingNo2.Location = new System.Drawing.Point(900, 23);
             this.tbToolingNo2.Name = "tbToolingNo2";
-            this.tbToolingNo2.Size = new System.Drawing.Size(121, 31);
+            this.tbToolingNo2.Size = new System.Drawing.Size(121, 26);
             this.tbToolingNo2.TabIndex = 3;
             // 
             // label4
             // 
             this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(809, 24);
+            this.label4.Location = new System.Drawing.Point(810, 26);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(83, 24);
+            this.label4.Size = new System.Drawing.Size(82, 20);
             this.label4.TabIndex = 1;
             this.label4.Text = "工装编号2";
             // 
@@ -209,22 +210,22 @@
             // 
             this.tbToolingNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbToolingNo.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbToolingNo.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.tbToolingNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.tbToolingNo.ForeColor = System.Drawing.Color.White;
-            this.tbToolingNo.Location = new System.Drawing.Point(686, 21);
+            this.tbToolingNo.Location = new System.Drawing.Point(686, 23);
             this.tbToolingNo.Name = "tbToolingNo";
-            this.tbToolingNo.Size = new System.Drawing.Size(116, 31);
+            this.tbToolingNo.Size = new System.Drawing.Size(116, 26);
             this.tbToolingNo.TabIndex = 3;
             // 
             // label3
             // 
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(595, 24);
+            this.label3.Location = new System.Drawing.Point(596, 26);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(83, 24);
+            this.label3.Size = new System.Drawing.Size(82, 20);
             this.label3.TabIndex = 1;
             this.label3.Text = "工装编号1";
             // 
@@ -232,22 +233,22 @@
             // 
             this.tbPumpNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbPumpNo.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbPumpNo.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.tbPumpNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.tbPumpNo.ForeColor = System.Drawing.Color.White;
-            this.tbPumpNo.Location = new System.Drawing.Point(400, 21);
+            this.tbPumpNo.Location = new System.Drawing.Point(400, 23);
             this.tbPumpNo.Name = "tbPumpNo";
-            this.tbPumpNo.Size = new System.Drawing.Size(188, 31);
+            this.tbPumpNo.Size = new System.Drawing.Size(188, 26);
             this.tbPumpNo.TabIndex = 3;
             // 
             // label2
             // 
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(319, 24);
+            this.label2.Location = new System.Drawing.Point(320, 26);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(74, 24);
+            this.label2.Size = new System.Drawing.Size(73, 20);
             this.label2.TabIndex = 1;
             this.label2.Text = "产品序号";
             // 
@@ -256,12 +257,12 @@
             this.cbPumpType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbPumpType.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.cbPumpType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbPumpType.Font = new System.Drawing.Font("Noto Sans CJK SC Bold", 12F, System.Drawing.FontStyle.Bold);
+            this.cbPumpType.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbPumpType.ForeColor = System.Drawing.Color.White;
             this.cbPumpType.FormattingEnabled = true;
-            this.cbPumpType.Location = new System.Drawing.Point(176, 20);
+            this.cbPumpType.Location = new System.Drawing.Point(176, 22);
             this.cbPumpType.Name = "cbPumpType";
-            this.cbPumpType.Size = new System.Drawing.Size(137, 32);
+            this.cbPumpType.Size = new System.Drawing.Size(137, 28);
             this.cbPumpType.TabIndex = 2;
             this.cbPumpType.SelectedIndexChanged += new System.EventHandler(this.cbPumpType_SelectedIndexChanged);
             // 
@@ -269,11 +270,11 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(90, 24);
+            this.label1.Location = new System.Drawing.Point(90, 26);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 24);
+            this.label1.Size = new System.Drawing.Size(73, 20);
             this.label1.TabIndex = 1;
             this.label1.Text = "机器型号";
             // 
@@ -281,11 +282,11 @@
             // 
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Noto Sans CJK SC Regular", 12F);
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(3, 24);
+            this.label5.Location = new System.Drawing.Point(4, 26);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(74, 24);
+            this.label5.Size = new System.Drawing.Size(73, 20);
             this.label5.TabIndex = 1;
             this.label5.Text = "参数设置";
             // 

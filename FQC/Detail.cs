@@ -73,6 +73,9 @@ namespace FQC
 
         public void SetFQCResult(string brand, int size, float n, float l, float c, float h)
         {
+            if (string.IsNullOrEmpty(brand))
+                return;
+
             lbBrandValue.Text = brand;
             lbSizeValue.Text  = size.ToString();
             lbNValue.Text     = n.ToString("F1");
@@ -83,12 +86,31 @@ namespace FQC
 
         public void SetFQCResult(FQCData data)
         {
+            if(string.IsNullOrEmpty(data.brand))
+                return;
+
             lbBrandValue.Text = data.brand;
             lbSizeValue.Text = data.syrangeSize.ToString();
-            lbNValue.Text = data.pressureN.ToString("F1");
-            lbLValue.Text = data.pressureL.ToString("F1");
-            lbCValue.Text = data.pressureC.ToString("F1");
-            lbHValue.Text = data.pressureH.ToString("F1");
+
+            if(data.pressureN<=0)
+                lbNValue.Text = "----";
+            else
+                lbNValue.Text = data.pressureN.ToString("F1");
+
+            if(data.pressureL<=0)
+                lbLValue.Text = "----";
+            else
+                lbLValue.Text = data.pressureL.ToString("F1");
+
+            if (data.pressureC <= 0)
+                lbCValue.Text = "----";
+            else
+                lbCValue.Text = data.pressureC.ToString("F1");
+
+            if (data.pressureH <= 0)
+                lbHValue.Text = "----";
+            else
+                lbHValue.Text = data.pressureH.ToString("F1");
         }
 
        

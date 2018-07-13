@@ -1041,6 +1041,9 @@ namespace FQC
             cbPumpPort.Enabled = bEnabled;
             tbRate.Enabled = bEnabled;
             picStart.Enabled = bEnabled;
+            cmbSetBrand.Enabled = bEnabled;
+            cmbLevel.Enabled =  bEnabled;
+            cmbPattern.Enabled =  bEnabled;
             picStop.Enabled = !bEnabled;
 
             if (!bEnabled)
@@ -1144,7 +1147,7 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureC;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureH;
 
-            bool bPass = IsPass();
+            bool bPass = IsPassAuto();
             if (bPass)
             {
                 ws.Cell(2, ++columnIndex).Value = "通过";
@@ -1161,7 +1164,18 @@ namespace FQC
             wb.SaveAs(name);
         }
 
-        private bool IsPass()
+        private void AlertTestResult()
+        {
+            bool bPass = false;
+            if(cmbPattern.SelectedIndex==0)
+                bPass = IsPassAuto();
+            else
+                bPass = IsPassManual();
+            ResultDialog dlg = new ResultDialog(bPass);
+            dlg.ShowDialog();
+        }
+
+        private bool IsPassAuto()
         {
             bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
@@ -1213,13 +1227,60 @@ namespace FQC
             return bPass;
         }
 
-
+        /// <summary>
+        /// 手动模式下只要判断一个档位
+        /// </summary>
+        /// <returns></returns>
+        private bool IsPassManual()
+        {
+            ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+            PressureConfig cfg = PressureManager.Instance().Get(pid);
+            bool bPass = false;
+            var parameter = cfg.Find(m_CurrentLevel);
+            if (parameter != null)
+            {
+                switch(m_CurrentLevel)
+                {
+                    case Misc.OcclusionLevel.N:
+                        if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                    case Misc.OcclusionLevel.L:
+                        if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                    case Misc.OcclusionLevel.C:
+                        if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                    case Misc.OcclusionLevel.H:
+                        if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                }
+            }
+            return bPass;
+        }
+         
         private void picStart_Click(object sender, EventArgs e)
         {
             detail.ClearLabelValue();
+            mFQCData.brand = string.Empty;
+            mFQCData.pressureN = 0;
+            mFQCData.pressureL = 0;
+            mFQCData.pressureC = 0;
+            mFQCData.pressureH = 0;
+            mFQCData.syrangeSize = 0;
             m_Ch1SampleDataList.Clear();
             WavelinePanel.Invalidate();
-
             #region 参数输入检查
 
             if (SamplingStartOrStop != null)
@@ -1433,6 +1494,9 @@ namespace FQC
             }
             m_GaugeTool.Close();
             EnableContols(true);
+            //自动模式下，完成测试后要归到最低档
+            if(cmbPattern.SelectedIndex==0)
+                cmbLevel.SelectedIndex = 0;
             OnSamplingComplete(this, null);
             var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
 
@@ -1442,6 +1506,7 @@ namespace FQC
                 System.IO.Directory.CreateDirectory(path);
             string saveFileName = path + "\\" + fileName + ".xlsx";
             GenReport(saveFileName);
+            AlertTestResult();
         }
 
         private void PauseTest()
@@ -1470,20 +1535,30 @@ namespace FQC
                     break;
                 default: break;
             }
-            if (m_CurrentLevel == Misc.OcclusionLevel.H)
+            //如果是自动模式下
+            if(cmbPattern.SelectedIndex==0)
+            {
+                if (m_CurrentLevel == Misc.OcclusionLevel.H)
+                {
+                    this.detail.SetFQCResult(mFQCData);
+                    StopTest();
+                }
+                else
+                {
+                    cmbLevel.SelectedIndex = cmbLevel.SelectedIndex + 1;
+                    Thread.Sleep(500);
+                    m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
+                    m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
+                    SendNextRequest();
+                    StartTimer();
+                }
+            }
+            else
             {
                 this.detail.SetFQCResult(mFQCData);
                 StopTest();
             }
-            else
-            {
-                cmbLevel.SelectedIndex = cmbLevel.SelectedIndex + 1;
-                Thread.Sleep(500);
-                m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
-                m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
-                SendNextRequest();
-                StartTimer();
-            }
+
         }
 
         private float FindMaxPressure()
