@@ -31,7 +31,7 @@ namespace FQC
         private bool moving = false;
         private Point oldMousePosition;
         private int m_SampleInterval = 500;//采样频率：毫秒
-        private List<List<SampleData>> m_SampleDataList = new List<List<SampleData>>();//存放双道泵上传的数据，等第二道泵结束后，一起存在一张表中
+        private List<FQCData> m_SampleDataList = new List<FQCData>();//存放双道泵上传的数据，等第二道泵结束后，一起存在一张表中
 
         private List<Misc.SyringeBrand> m_LevelNBrands = new List<Misc.SyringeBrand>();             //不同品牌压力档位不同
 
@@ -406,36 +406,106 @@ namespace FQC
         private void OnChartSamplingComplete(object sender, DoublePumpDataArgs e)
         {
             tbPumpNo.Clear();
-            //Chart chart = sender as Chart;
-            //if (e.SampleDataList != null)
-            //{
-            //    if (chart.Name == "chart1")
-            //        m_SampleDataList.Insert(0, e.SampleDataList);
-            //    else
-            //        m_SampleDataList.Add(e.SampleDataList);
-            //}
-            //if(m_SampleDataList.Count>=2)
-            //{
-            //    //写入excel,调用chart类中函数
-            //    string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-            //    PumpID pid = PumpID.None;
-            //    switch (m_LocalPid)
-            //    {
-            //        case PumpID.GrasebyF6_2:
-            //            pid = PumpID.GrasebyF6;
-            //            break;
-            //        case PumpID.WZS50F6_2:
-            //            pid = PumpID.WZS50F6;
-            //            break;
-            //        default:
-            //            pid = m_LocalPid;
-            //            break;
-            //    }
-            //    string fileName = string.Format("{0}_{1}_{2}", pid.ToString(), tbPumpNo.Text, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-            //    if (!System.IO.Directory.Exists(path))
-            //        System.IO.Directory.CreateDirectory(path);
-            //    string saveFileName = path + "\\" + fileName + ".xlsx";
-            //}
+            Chart chart = sender as Chart;
+
+            if (chart.Name == "chart1")
+                m_SampleDataList.Insert(0, e.Data);
+            else
+                m_SampleDataList.Add(e.Data);
+         
+            if (m_SampleDataList.Count >= 2)
+            {
+                //写入excel,调用chart类中函数
+                string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                PumpID pid = PumpID.None;
+                switch (m_LocalPid)
+                {
+                    case PumpID.GrasebyF8:
+                        pid = PumpID.GrasebyF8;
+                        break;
+                    case PumpID.GrasebyF8_2:
+                        pid = PumpID.GrasebyF8;
+                        break;
+                    default:
+                        pid = m_LocalPid;
+                        break;
+                }
+                string fileName = string.Format("{0}_{1}_{2}", pid.ToString(), tbPumpNo.Text, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                if (!System.IO.Directory.Exists(path))
+                    System.IO.Directory.CreateDirectory(path);
+                string saveFileName = path + "\\" + fileName + ".xlsx";
+                //生成表格，两份
+                GenDualReport(saveFileName);
+            }
+        }
+
+        /// <summary>
+        /// 生成第三方公司需要的表格
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="caliParameters">已经生成好的数据，直接写到表格中</param>
+        private void GenDualReport(string name)
+        {
+            var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("FQC压力数据");
+            int columnIndex = 0;
+            ws.Cell(1, ++columnIndex).Value = "机器编号";
+            ws.Cell(1, ++columnIndex).Value = "机器型号";
+            ws.Cell(1, ++columnIndex).Value = "道数";
+            ws.Cell(1, ++columnIndex).Value = "工装编号";
+            ws.Cell(1, ++columnIndex).Value = "注射器品牌";
+            ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
+            ws.Cell(1, ++columnIndex).Value = "速率";
+            ws.Cell(1, ++columnIndex).Value = "N";
+            ws.Cell(1, ++columnIndex).Value = "L";
+            ws.Cell(1, ++columnIndex).Value = "C";
+            ws.Cell(1, ++columnIndex).Value = "H";
+            ws.Cell(1, ++columnIndex).Value = "是否合格";
+            for (int i = 0; i < m_SampleDataList.Count;i++ )
+            {
+                var fqcData = m_SampleDataList[i];
+                columnIndex = 0;
+                ws.Cell(2, ++columnIndex).Value = tbPumpNo.Text;
+                ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
+                ws.Cell(2, ++columnIndex).Value = i+1;
+                ws.Cell(2, ++columnIndex).Value = (i == 0?tbToolingNo.Text:tbToolingNo2.Text);
+                ws.Cell(2, ++columnIndex).Value = fqcData.brand;
+                ws.Cell(2, ++columnIndex).Value = fqcData.syrangeSize;
+                ws.Cell(2, ++columnIndex).Value = fqcData.rate;
+                ws.Cell(2, ++columnIndex).Value = fqcData.pressureN;
+                ws.Cell(2, ++columnIndex).Value = fqcData.pressureL;
+                ws.Cell(2, ++columnIndex).Value = fqcData.pressureC;
+                ws.Cell(2, ++columnIndex).Value = fqcData.pressureH;
+                bool bPass = true;
+                if(i==0)
+                {
+                    if(chart1.IsAuto())
+                        bPass = chart1.IsPassAuto();
+                    else
+                        bPass = chart1.IsPassManual();
+                }
+                else if(i==1)
+                {
+                     if(chart2.IsAuto())
+                        bPass = chart2.IsPassAuto();
+                    else
+                        bPass = chart2.IsPassManual();
+                }
+                if (bPass)
+                {
+                    ws.Cell(2, ++columnIndex).Value = "通过";
+                    ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
+                }
+                else
+                {
+                    ws.Cell(2, ++columnIndex).Value = "失败";
+                    ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
+                }
+            }
+            ws.Range(1, 1, 3, 1).SetDataType(XLCellValues.Text);
+            ws.Range(1, 4, 3, 4).SetDataType(XLCellValues.Text);
+
+            wb.SaveAs(name);
         }
 
         private void OnSamplingStartOrStop(object sender, EventArgs e)
@@ -515,8 +585,8 @@ namespace FQC
 
         private void picSetting_Click(object sender, EventArgs e)
         {
-            ResultDialog dlg = new ResultDialog(true);
-            dlg.ShowDialog();
+            //ResultDialog dlg = new ResultDialog(false);
+            //dlg.ShowDialog();
         }
 
     }//end class

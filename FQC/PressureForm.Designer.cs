@@ -156,9 +156,9 @@
             // 
             this.tlpParameter.BackColor = System.Drawing.SystemColors.HotTrack;
             this.tlpParameter.ColumnCount = 9;
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7.5F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7.5F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16F));
             this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8F));
             this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 19F));
             this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F));
@@ -189,9 +189,9 @@
             this.tbToolingNo2.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.tbToolingNo2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.tbToolingNo2.ForeColor = System.Drawing.Color.White;
-            this.tbToolingNo2.Location = new System.Drawing.Point(900, 23);
+            this.tbToolingNo2.Location = new System.Drawing.Point(899, 23);
             this.tbToolingNo2.Name = "tbToolingNo2";
-            this.tbToolingNo2.Size = new System.Drawing.Size(121, 26);
+            this.tbToolingNo2.Size = new System.Drawing.Size(122, 26);
             this.tbToolingNo2.TabIndex = 3;
             // 
             // label4
@@ -200,7 +200,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(810, 26);
+            this.label4.Location = new System.Drawing.Point(809, 26);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 20);
             this.label4.TabIndex = 1;
@@ -212,7 +212,7 @@
             this.tbToolingNo.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.tbToolingNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.tbToolingNo.ForeColor = System.Drawing.Color.White;
-            this.tbToolingNo.Location = new System.Drawing.Point(686, 23);
+            this.tbToolingNo.Location = new System.Drawing.Point(685, 23);
             this.tbToolingNo.Name = "tbToolingNo";
             this.tbToolingNo.Size = new System.Drawing.Size(116, 26);
             this.tbToolingNo.TabIndex = 3;
@@ -223,7 +223,7 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(596, 26);
+            this.label3.Location = new System.Drawing.Point(595, 26);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(82, 20);
             this.label3.TabIndex = 1;
@@ -235,7 +235,7 @@
             this.tbPumpNo.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.tbPumpNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.tbPumpNo.ForeColor = System.Drawing.Color.White;
-            this.tbPumpNo.Location = new System.Drawing.Point(400, 23);
+            this.tbPumpNo.Location = new System.Drawing.Point(399, 23);
             this.tbPumpNo.Name = "tbPumpNo";
             this.tbPumpNo.Size = new System.Drawing.Size(188, 26);
             this.tbPumpNo.TabIndex = 3;
@@ -246,7 +246,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(320, 26);
+            this.label2.Location = new System.Drawing.Point(319, 26);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(73, 20);
             this.label2.TabIndex = 1;
@@ -260,9 +260,9 @@
             this.cbPumpType.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbPumpType.ForeColor = System.Drawing.Color.White;
             this.cbPumpType.FormattingEnabled = true;
-            this.cbPumpType.Location = new System.Drawing.Point(176, 22);
+            this.cbPumpType.Location = new System.Drawing.Point(155, 22);
             this.cbPumpType.Name = "cbPumpType";
-            this.cbPumpType.Size = new System.Drawing.Size(137, 28);
+            this.cbPumpType.Size = new System.Drawing.Size(157, 28);
             this.cbPumpType.TabIndex = 2;
             this.cbPumpType.SelectedIndexChanged += new System.EventHandler(this.cbPumpType_SelectedIndexChanged);
             // 
@@ -272,7 +272,8 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(90, 26);
+            this.label1.Location = new System.Drawing.Point(77, 26);
+            this.label1.Margin = new System.Windows.Forms.Padding(0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(73, 20);
             this.label1.TabIndex = 1;
@@ -284,7 +285,8 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(4, 26);
+            this.label5.Location = new System.Drawing.Point(1, 26);
+            this.label5.Margin = new System.Windows.Forms.Padding(0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(73, 20);
             this.label5.TabIndex = 1;

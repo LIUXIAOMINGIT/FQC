@@ -29,22 +29,17 @@ namespace FQC
     /// </summary>
     public class DoublePumpDataArgs : EventArgs
     {
-        private List<SampleData> m_SampleDataList = new List<SampleData>();
+        private FQCData m_Data = new FQCData();
 
-        public List<SampleData> SampleDataList
+        public FQCData Data
         {
-            get { return m_SampleDataList; }
-            set { m_SampleDataList = value; }
+            get { return m_Data; }
+            set { m_Data = value; }
         }
 
-        public DoublePumpDataArgs(List<SampleData> dataList)
+        public DoublePumpDataArgs(FQCData data)
         {
-            foreach (var data in dataList)
-            {
-                SampleData obj = new SampleData();
-                obj.Copy(data);
-                m_SampleDataList.Add(obj);
-            }
+            m_Data = data;
         }
     }
 

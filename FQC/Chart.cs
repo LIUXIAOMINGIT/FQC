@@ -86,7 +86,8 @@ namespace FQC
         public delegate void DelegateSetPValue(float p);
         public delegate void DelegateEnableContols(bool bEnabled);
         public delegate void DelegateAlertMessageWhenComplete(string msg);
-
+        public delegate void DelegateAlertTestResult();
+        
         /// <summary>
         /// 当启动或停止时通知主界面
         /// </summary>
@@ -382,7 +383,7 @@ namespace FQC
         /// <param name="ySectionCount">Y轴坐标数量</param>
         private void DrawSingleAccuracyMap(int xSectionCount = 20, int ySectionCount = 15)
         {
-            lock (m_Ch1SampleDataList)
+            lock (m_gh)
             {
                 if (m_Ch1SampleDataList.Count <= 1)
                     return;
@@ -421,7 +422,7 @@ namespace FQC
         /// <param name="ySectionCount"></param>
         private void DrawAccuracyMap(int xSectionCount = 20, int ySectionCount = 15)
         {
-            lock (m_Ch1SampleDataList)
+            lock (m_gh)
             {
                 try
                 {
@@ -473,67 +474,70 @@ namespace FQC
         /// <param name="ySectionCount">Y坐标分成几段</param>
         private void DrawCoordinate(float xMax, int xSectionCount, int yMax, int ySectionCount)
         {
-            try
+            lock (m_gh)
             {
-                Rectangle rect = m_Rect;
-                Font xValuefont = new Font("宋体", 7);
-                Font fontTitle = new Font("宋体", 8);
-                Font fontChartDes = new Font("Noto Sans CJK SC Bold", 12);
-                //画X轴
-                PointF originalpoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
-                PointF xEndPoint = new PointF((float)rect.Right - RIGHTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
-                m_gh.DrawLine(Pens.Black, originalpoint, xEndPoint);
-                //画X坐标箭头
-                PointF arrowpointUp = new PointF(xEndPoint.X - 12, xEndPoint.Y - 6);
-                PointF arrowpointDwon = new PointF(xEndPoint.X - 12, xEndPoint.Y + 6);
-                m_gh.DrawLine(Pens.Black, arrowpointUp, xEndPoint);
-                m_gh.DrawLine(Pens.Black, arrowpointDwon, xEndPoint);
+                try
+                {
+                    Rectangle rect = m_Rect;
+                    Font xValuefont = new Font("宋体", 7);
+                    Font fontTitle = new Font("宋体", 8);
+                    Font fontChartDes = new Font("Noto Sans CJK SC Bold", 12);
+                    //画X轴
+                    PointF originalpoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
+                    PointF xEndPoint = new PointF((float)rect.Right - RIGHTBORDEROFFSET, rect.Bottom - BOTTOMBORDEROFFSET);
+                    m_gh.DrawLine(Pens.Black, originalpoint, xEndPoint);
+                    //画X坐标箭头
+                    PointF arrowpointUp = new PointF(xEndPoint.X - 12, xEndPoint.Y - 6);
+                    PointF arrowpointDwon = new PointF(xEndPoint.X - 12, xEndPoint.Y + 6);
+                    m_gh.DrawLine(Pens.Black, arrowpointUp, xEndPoint);
+                    m_gh.DrawLine(Pens.Black, arrowpointDwon, xEndPoint);
 
-                //画X轴坐标,SECTIONCOUNT个点
-                float intervalX = (xEndPoint.X - originalpoint.X) / xSectionCount;
-                m_CoordinateIntervalX = intervalX;
-                float lineSegmentHeight = 8f;
-                for (int i = 1; i <= xSectionCount - 1; i++)
-                {
-                    m_gh.DrawLine(Pens.Black, new PointF(originalpoint.X + intervalX * i, originalpoint.Y), new PointF(originalpoint.X + intervalX * i, originalpoint.Y - lineSegmentHeight));
-                }
-                //画X坐标值
-                float xValueInerval = xMax / xSectionCount;
-                m_ValueInervalX = xValueInerval;
-                //画Y轴
-                PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
-                //写图形描述字符
-                m_gh.DrawString("压力时间关系图", fontChartDes, m_WaveLineBrush, new PointF(yEndPoint.X + 180, yEndPoint.Y));
-                //y轴的起始点，从底部往上
-                PointF yOriginalPoint = originalpoint;//new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - TOPBOTTOMFFSET);
-                m_gh.DrawLine(Pens.Black, yOriginalPoint, yEndPoint);
-                //画Y坐标箭头
-                PointF arrowpointLeft = new PointF(yEndPoint.X - 6, yEndPoint.Y + 12);
-                PointF arrowpointRight = new PointF(yEndPoint.X + 6, yEndPoint.Y + 12);
-                m_gh.DrawLine(Pens.Black, arrowpointLeft, yEndPoint);
-                m_gh.DrawLine(Pens.Black, arrowpointRight, yEndPoint);
-                //画Y轴坐标,每个区间的实际坐标长度
-                float intervalY = Math.Abs(yEndPoint.Y - yOriginalPoint.Y) / ySectionCount;
-                m_CoordinateIntervalY = intervalY;
-                for (int i = 0; i < ySectionCount; i++)
-                {
-                    m_gh.DrawLine(Pens.Black, new PointF(yOriginalPoint.X, yOriginalPoint.Y - intervalY * i), new PointF(yOriginalPoint.X + lineSegmentHeight, yOriginalPoint.Y - intervalY * i));
-                }
-                float yValueInerval = (float)yMax / ySectionCount;
-                m_ValueInervalY = yValueInerval;//Y轴上的坐标值，根据实际放大倍数和量程决定
-                for (int i = 0; i <= ySectionCount; i++)
-                {
-                    m_gh.DrawString((i * 10).ToString(), xValuefont, Brushes.Black, new PointF(yOriginalPoint.X - 24, yOriginalPoint.Y - intervalY * i - 6));
-                }
-                //画legend
-                m_gh.DrawString(VOL, fontTitle, m_WaveLineBrush, new PointF(xEndPoint.X - 80, 10));
-                SizeF fontSize = m_gh.MeasureString(VOL, fontTitle);
+                    //画X轴坐标,SECTIONCOUNT个点
+                    float intervalX = (xEndPoint.X - originalpoint.X) / xSectionCount;
+                    m_CoordinateIntervalX = intervalX;
+                    float lineSegmentHeight = 8f;
+                    for (int i = 1; i <= xSectionCount - 1; i++)
+                    {
+                        m_gh.DrawLine(Pens.Black, new PointF(originalpoint.X + intervalX * i, originalpoint.Y), new PointF(originalpoint.X + intervalX * i, originalpoint.Y - lineSegmentHeight));
+                    }
+                    //画X坐标值
+                    float xValueInerval = xMax / xSectionCount;
+                    m_ValueInervalX = xValueInerval;
+                    //画Y轴
+                    PointF yEndPoint = new PointF((float)rect.Left + LEFTBORDEROFFSET, (float)rect.Top + TOPBOTTOMFFSET);
+                    //写图形描述字符
+                    m_gh.DrawString("压力时间关系图", fontChartDes, m_WaveLineBrush, new PointF(yEndPoint.X + 180, yEndPoint.Y));
+                    //y轴的起始点，从底部往上
+                    PointF yOriginalPoint = originalpoint;//new PointF((float)rect.Left + LEFTBORDEROFFSET, rect.Bottom - TOPBOTTOMFFSET);
+                    m_gh.DrawLine(Pens.Black, yOriginalPoint, yEndPoint);
+                    //画Y坐标箭头
+                    PointF arrowpointLeft = new PointF(yEndPoint.X - 6, yEndPoint.Y + 12);
+                    PointF arrowpointRight = new PointF(yEndPoint.X + 6, yEndPoint.Y + 12);
+                    m_gh.DrawLine(Pens.Black, arrowpointLeft, yEndPoint);
+                    m_gh.DrawLine(Pens.Black, arrowpointRight, yEndPoint);
+                    //画Y轴坐标,每个区间的实际坐标长度
+                    float intervalY = Math.Abs(yEndPoint.Y - yOriginalPoint.Y) / ySectionCount;
+                    m_CoordinateIntervalY = intervalY;
+                    for (int i = 0; i < ySectionCount; i++)
+                    {
+                        m_gh.DrawLine(Pens.Black, new PointF(yOriginalPoint.X, yOriginalPoint.Y - intervalY * i), new PointF(yOriginalPoint.X + lineSegmentHeight, yOriginalPoint.Y - intervalY * i));
+                    }
+                    float yValueInerval = (float)yMax / ySectionCount;
+                    m_ValueInervalY = yValueInerval;//Y轴上的坐标值，根据实际放大倍数和量程决定
+                    for (int i = 0; i <= ySectionCount; i++)
+                    {
+                        m_gh.DrawString((i * 10).ToString(), xValuefont, Brushes.Black, new PointF(yOriginalPoint.X - 24, yOriginalPoint.Y - intervalY * i - 6));
+                    }
+                    //画legend
+                    m_gh.DrawString(VOL, fontTitle, m_WaveLineBrush, new PointF(xEndPoint.X - 80, 10));
+                    SizeF fontSize = m_gh.MeasureString(VOL, fontTitle);
 
-                m_gh.DrawLine(m_WaveLinePen, new PointF(xEndPoint.X - 100, 10 + fontSize.Height / 2), new PointF(xEndPoint.X - 80, 10 + fontSize.Height / 2));
-            }
-            catch (Exception e)
-            {
-                //MessageBox.Show("DrawCoordinate Error:" + e.Message);
+                    m_gh.DrawLine(m_WaveLinePen, new PointF(xEndPoint.X - 100, 10 + fontSize.Height / 2), new PointF(xEndPoint.X - 80, 10 + fontSize.Height / 2));
+                }
+                catch (Exception e)
+                {
+                    //MessageBox.Show("DrawCoordinate Error:" + e.Message);
+                }
             }
         }
 
@@ -613,14 +617,17 @@ namespace FQC
                     case PumpID.GrasebyC8:
                         _GrasebyDevice4FindPort = new Graseby115200();
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.GrasebyC8);
+                        ((Graseby115200)_GrasebyDevice4FindPort).ChannelNumber = this.Channel;
                         break;
                     case PumpID.GrasebyF8:
                         _GrasebyDevice4FindPort = new Graseby115200();
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.GrasebyF8);
+                        ((Graseby115200)_GrasebyDevice4FindPort).ChannelNumber = this.Channel;
                         break;
                     case PumpID.GrasebyF8_2:
                         _GrasebyDevice4FindPort = new Graseby115200();
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.GrasebyF8);
+                        ((Graseby115200)_GrasebyDevice4FindPort).ChannelNumber = this.Channel;
                         break;
                     case PumpID.GrasebyC6:
                         _GrasebyDevice4FindPort = new Graseby9600();
@@ -673,6 +680,7 @@ namespace FQC
             }
             _GrasebyDevice4FindPort.DeviceDataRecerived -= OnGrasebyDeviceDataRecerived;
             _GrasebyDevice4FindPort.Close();
+            _GrasebyDevice4FindPort = null;
             m_FreshPumpPortEvent.Reset();
         }
 
@@ -854,7 +862,7 @@ namespace FQC
             if (String.Empty != args.ErrorMessage)
             {
                 Logger.Instance().ErrorFormat("命令'SetStopControl'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                MessageBox.Show("停止泵失败！");
+                //MessageBox.Show("停止泵失败！");
             }
             else
             {
@@ -1146,8 +1154,12 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureL;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureC;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureH;
+            bool bPass = true;
+            if (IsAuto())
+                bPass = IsPassAuto();
+            else
+                bPass = IsPassManual();
 
-            bool bPass = IsPassAuto();
             if (bPass)
             {
                 ws.Cell(2, ++columnIndex).Value = "通过";
@@ -1166,6 +1178,11 @@ namespace FQC
 
         private void AlertTestResult()
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new DelegateAlertTestResult(AlertTestResult), null);
+                return;
+            }
             bool bPass = false;
             if(cmbPattern.SelectedIndex==0)
                 bPass = IsPassAuto();
@@ -1175,7 +1192,7 @@ namespace FQC
             dlg.ShowDialog();
         }
 
-        private bool IsPassAuto()
+        public bool IsPassAuto()
         {
             bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
@@ -1227,11 +1244,19 @@ namespace FQC
             return bPass;
         }
 
+        public bool IsAuto()
+        {
+            if (cmbPattern.SelectedIndex == 0)
+                return true;
+            else
+                return false;
+        }
+
         /// <summary>
         /// 手动模式下只要判断一个档位
         /// </summary>
         /// <returns></returns>
-        private bool IsPassManual()
+        public bool IsPassManual()
         {
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
@@ -1487,7 +1512,7 @@ namespace FQC
         {
             StopTimer();
             m_ConnResponse.SetStopControl();
-            Thread.Sleep(500);
+            //Thread.Sleep(500);
             lock (m_RequestCommands)
             {
                 m_RequestCommands.Clear();
@@ -1497,16 +1522,34 @@ namespace FQC
             //自动模式下，完成测试后要归到最低档
             if(cmbPattern.SelectedIndex==0)
                 cmbLevel.SelectedIndex = 0;
-            OnSamplingComplete(this, null);
-            var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+            if (m_LocalPid == PumpID.GrasebyF8_2)
+                OnSamplingComplete(this, null);
+            else
+            {
+                var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
 
-            string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-            string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-            if (!System.IO.Directory.Exists(path))
-                System.IO.Directory.CreateDirectory(path);
-            string saveFileName = path + "\\" + fileName + ".xlsx";
-            GenReport(saveFileName);
-            AlertTestResult();
+                string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                if (!System.IO.Directory.Exists(path))
+                    System.IO.Directory.CreateDirectory(path);
+                string saveFileName = path + "\\" + fileName + ".xlsx";
+                GenReport(saveFileName);
+                AlertTestResultSub();
+                PumpCloseConnectionSub();
+            }
+        }
+
+        private void PumpCloseConnectionSub()
+        {
+            Thread.Sleep(2000);
+            Thread th = new Thread(Close);
+            th.Start();
+        }
+
+        private void AlertTestResultSub()
+        {
+            Thread th = new Thread(AlertTestResult);
+            th.Start();
         }
 
         private void PauseTest()
@@ -1535,6 +1578,7 @@ namespace FQC
                     break;
                 default: break;
             }
+            mFQCData.rate = float.Parse(tbRate.Text);
             //如果是自动模式下
             if(cmbPattern.SelectedIndex==0)
             {

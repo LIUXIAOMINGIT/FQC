@@ -14,11 +14,12 @@ namespace FQC
     public struct FQCData
     {
         public string brand;
-        public int syrangeSize;
-        public float pressureN;
-        public float pressureL;
-        public float pressureC;
-        public float pressureH;
+        public int    syrangeSize;
+        public float  rate;
+        public float  pressureN;
+        public float  pressureL;
+        public float  pressureC;
+        public float  pressureH;
     }
 
     public partial class Detail : UserControl

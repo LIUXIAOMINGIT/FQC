@@ -133,7 +133,7 @@ namespace SerialDevice
                     }
                     catch (Exception e)
                     {
-                        //throw new Exception("Open - ", e);
+                        throw new Exception("Open - ", e);
                     }
                 }
             }
