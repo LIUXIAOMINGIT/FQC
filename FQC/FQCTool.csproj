@@ -111,6 +111,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PressureManager.cs" />
+    <Compile Include="DualPumpAlertDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DualPumpAlertDialog.Designer.cs">
+      <DependentUpon>DualPumpAlertDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResultDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -136,6 +142,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="DualPumpAlertDialog.resx">
+      <DependentUpon>DualPumpAlertDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ResultDialog.resx">
       <DependentUpon>ResultDialog.cs</DependentUpon>
     </EmbeddedResource>

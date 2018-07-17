@@ -110,7 +110,7 @@ namespace FQC
                     pid = PumpID.GrasebyF8;
                     break;
                 case "GrasebyF8双道":
-                    pid = PumpID.GrasebyF8;
+                    pid = PumpID.GrasebyF8_2;
                     break;
                 case "GrasebyC6":
                     pid = PumpID.GrasebyC6;
@@ -159,7 +159,7 @@ namespace FQC
             List<string> pumps = new List<string>();
             //pumps.Add("GrasebyC8");
             pumps.Add("GrasebyF8单道");
-            //pumps.Add("GrasebyF8双道");
+            pumps.Add("GrasebyF8双道");
             //pumps.Add("GrasebyC6");
             //pumps.Add("GrasebyC6T");
             //pumps.Add("Graseby2000");

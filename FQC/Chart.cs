@@ -24,81 +24,69 @@ namespace FQC
 {
     public partial class Chart : UserControl
     {
-        private readonly int BAUDRATE = 9600;
-        private const string VOL = "Kpa";
-        private const int LEFTBORDEROFFSET = 30;
-        private const int RIGHTBORDEROFFSET = 10;
-        private const int BOTTOMBORDEROFFSET = 30;     //X坐标与下边距，一般是绘图区域的一半高度
-        private const int TOPBOTTOMFFSET = 5;      //坐标上下边距
-        private const int CIRCLEDIAMETER = 5;      //曲线图上的圆点直径0
-        private const int TRYCOUNTSAMPLINGTIMEOUT = 5;      //采样超时次数为5.超时5次就停止 
-        private Graphics m_gh = null;
-        private System.Drawing.Rectangle m_Rect;
-        private Pen m_WaveLinePen = new Pen(Color.FromArgb(19, 113, 185));
-        private SolidBrush m_WaveLineBrush = new SolidBrush(Color.FromArgb(19, 113, 185));
-        private float m_XCoordinateMaxValue = 300;//X轴最大长度：秒
-        private int m_YCoordinateMaxValue = 150;//y轴最大Kpa
-        private int m_XSectionCount = 20;
-        private int m_YSectionCount = 15;
-        private float m_CoordinateIntervalX = 0;  //X轴上的区间实际长度，单位为像素
-        private float m_CoordinateIntervalY = 0;  //Y轴上的区间实际长度，单位为像素
-        private float m_ValueInervalX = 0;  //X轴上的坐标值，根据实际放大倍数和量程决定
-        private float m_ValueInervalY = 0;
-        private List<SampleData> m_Ch1SampleDataList = new List<SampleData>();
+        private const string VOL                                              = "Kpa";
+        private const int LEFTBORDEROFFSET                                    = 30;
+        private const int RIGHTBORDEROFFSET                                   = 10;
+        private const int BOTTOMBORDEROFFSET                                  = 30;                                        //X坐标与下边距，一般是绘图区域的一半高度
+        private const int TOPBOTTOMFFSET                                      = 5;                                         //坐标上下边距
+        private const int CIRCLEDIAMETER                                      = 5;                                         //曲线图上的圆点直径0
+        private const int TRYCOUNTSAMPLINGTIMEOUT                             = 5;                                         //采样超时次数为5.超时5次就停止 
+        private Graphics                              m_gh                    = null;
+        private System.Drawing.Rectangle              m_Rect;
+        private Pen                                   m_WaveLinePen           = new Pen(Color.FromArgb(19, 113, 185));
+        private SolidBrush                            m_WaveLineBrush         = new SolidBrush(Color.FromArgb(19, 113, 185));
+        private float                                 m_XCoordinateMaxValue   = 300;                                       //X轴最大长度：秒
+        private int                                   m_YCoordinateMaxValue   = 150;                                       //y轴最大Kpa
+        private int                                   m_XSectionCount         = 20;
+        private int                                   m_YSectionCount         = 15;
+        private float                                 m_CoordinateIntervalX   = 0;                                         //X轴上的区间实际长度，单位为像素
+        private float                                 m_CoordinateIntervalY   = 0;                                         //Y轴上的区间实际长度，单位为像素
+        private float                                 m_ValueInervalX         = 0;                                         //X轴上的坐标值，根据实际放大倍数和量程决定
+        private float                                 m_ValueInervalY         = 0;
+        private List<SampleData>                      m_Ch1SampleDataList     = new List<SampleData>();
+        protected GlobalResponse                      m_ConnResponse          = null;
+        private SerialPressureGauge                   m_GaugeTool             = null;
+        private SerialPressureGauge                   m_DetectPTool           = null;
+        private Graseby9600                           m_GrasebyDevice         = new Graseby9600();                         //只用于串口刷新
+        private DeviceBase                            _GrasebyDevice4FindPort = new DeviceBase();                          //只用于泵串口刷新
+        private PumpID                                m_LocalPid              = PumpID.GrasebyF8;                          //默认显示的是
+        private ProductModel                          m_ProductModel          = ProductModel.GrasebyF8;
+        private System.Timers.Timer                   m_Ch1Timer              = new System.Timers.Timer();
+        private int                                   m_SampleInterval        = 500;                                       //采样频率：毫秒
+        private int                                   m_Channel               = 1;                                         //1号通道，默认值
+        private string                                m_PumpNo                = string.Empty;                              //产品序号
+        private string                                m_ToolingNo             = string.Empty;                              //工装编号
+        private Misc.AlarmInfo                        m_AlarmInfo             = new Misc.AlarmInfo();
+        private int                                   m_TryCount              = 0;                                         //当命令没有响应超过3次，就完全停止测试
+        private Dictionary<Misc.SyringeBrand, String> m_SyringeBrands         = new Dictionary<Misc.SyringeBrand, string>();
+        private List<Misc.OcclusionLevel>             m_OcclusionLevelOfBrand = new List<Misc.OcclusionLevel>();           //不同品牌有不同的压力等级，默认为三级，但有的会有4级
+        private Misc.SyringeBrand                     m_CurrentBrand          = Misc.SyringeBrand.None;
+        private List<Misc.SyringeBrand>               m_LevelNBrands          = new List<Misc.SyringeBrand>();             //不同品牌压力档位不同
+        private Misc.OcclusionLevel                   m_CurrentLevel          = Misc.OcclusionLevel.None;                  //当前测试的压力
+        private Misc.OcclusionLevel                   m_PreLevel              = Misc.OcclusionLevel.None;                  //上一步测试的压力
+        private Queue<Misc.ApplicationRequestCommand> m_RequestCommands       = new Queue<Misc.ApplicationRequestCommand>();
+        protected DateTime                            m_StopTime              = DateTime.Now;                              //停止时间
+        protected DateTime                            m_StartTime             = DateTime.Now;                              //开始时间
+        protected AutoResetEvent                      m_FreshPumpPortEvent    = new AutoResetEvent(false);                 //用于泵串口刷新
+        private FQCData mFQCData                                              = new FQCData();
 
-        protected GlobalResponse m_ConnResponse = null;
-        private SerialPressureGauge m_GaugeTool = null;
-        private SerialPressureGauge m_DetectPTool = null;
-        private Graseby9600 m_GrasebyDevice = new Graseby9600();//只用于串口刷新
-
-        private DeviceBase _GrasebyDevice4FindPort = new DeviceBase();//只用于泵串口刷新
-
-        private PumpID m_LocalPid = PumpID.GrasebyF8;//默认显示的是
-        private ProductModel m_ProductModel = ProductModel.GrasebyF8;
-
-        private System.Timers.Timer m_Ch1Timer = new System.Timers.Timer();
-        private int m_SampleInterval = 500;//采样频率：毫秒
-
-        private int m_Channel = 1;//1号通道，默认值
-        private string m_PumpNo = string.Empty;//产品序号
-        private string m_ToolingNo = string.Empty;//工装编号
-
-
-
-        private Misc.AlarmInfo m_AlarmInfo = new Misc.AlarmInfo();
-        private int m_TryCount = 0;                                     //当命令没有响应超过3次，就完全停止测试
-        private Dictionary<Misc.SyringeBrand, String> m_SyringeBrands = new Dictionary<Misc.SyringeBrand, string>();
-        private List<Misc.OcclusionLevel> m_OcclusionLevelOfBrand = new List<Misc.OcclusionLevel>();           //不同品牌有不同的压力等级，默认为三级，但有的会有4级
-        private Misc.SyringeBrand m_CurrentBrand = Misc.SyringeBrand.None;
-        private List<Misc.SyringeBrand> m_LevelNBrands = new List<Misc.SyringeBrand>();             //不同品牌压力档位不同
-        private Misc.OcclusionLevel m_CurrentLevel = Misc.OcclusionLevel.None;                  //当前测试的压力
-        private Misc.OcclusionLevel m_PreLevel = Misc.OcclusionLevel.None;                  //上一步测试的压力
-        private Queue<Misc.ApplicationRequestCommand> m_RequestCommands = new Queue<Misc.ApplicationRequestCommand>();
-        protected DateTime m_StopTime = DateTime.Now;                         //停止时间
-        protected DateTime m_StartTime = DateTime.Now;                         //开始时间
-        protected AutoResetEvent m_FreshPumpPortEvent = new AutoResetEvent(false);//用于泵串口刷新
-
-        private FQCData mFQCData = new FQCData();
-
-
-
+        #region 委托+事件
         public delegate void DelegateSetWeightValue(float weight, bool isDetect);
         public delegate void DelegateSetPValue(float p);
         public delegate void DelegateEnableContols(bool bEnabled);
-        public delegate void DelegateAlertMessageWhenComplete(string msg);
         public delegate void DelegateAlertTestResult();
-        
         /// <summary>
         /// 当启动或停止时通知主界面
         /// </summary>
         public event EventHandler<EventArgs> SamplingStartOrStop;
-
         /// <summary>
         /// 当双道泵，测量结束后通知主界面，把数据传入
         /// </summary>
         public event EventHandler<DoublePumpDataArgs> OnSamplingComplete;
+        public event EventHandler<EventArgs> OnPortFreshedSuccess;  //F8双通道模式下，第一道泵成功刷新后，第二道泵串口一起刷新
+        #endregion
 
-         
+        #region 属性
         /// <summary>
         /// 采样间隔
         /// </summary>
@@ -138,7 +126,9 @@ namespace FQC
             get { return m_ToolingNo; }
             set { m_ToolingNo = value; }
         }
+        #endregion
 
+        #region 构造函数
         public Chart()
         {
             InitializeComponent();
@@ -162,17 +152,20 @@ namespace FQC
             m_gh = WavelinePanel.CreateGraphics();
             m_Rect = WavelinePanel.ClientRectangle;
         }
+        #endregion
 
-        private void Chart_Load(object sender, EventArgs e)
+
+        public void SetPid(PumpID pid)
         {
-            if (cmbSetBrand.Items.Count > 4)
-                cmbSetBrand.SelectedIndex = 3;
-            cbPumpPort.Items.AddRange(SerialPort.GetPortNames());
-            cbToolingPort.Items.AddRange(SerialPort.GetPortNames());
-            m_Ch1Timer.Interval = m_SampleInterval;
-            m_Ch1Timer.Elapsed += OnTimer;
+            m_LocalPid = pid;
+            if (_GrasebyDevice4FindPort != null)
+            {
+                _GrasebyDevice4FindPort.DeviceDataRecerived -= OnGrasebyDeviceDataRecerived;
+                _GrasebyDevice4FindPort = null;
+                SetPumpPortStatus(false);
+            }
         }
-
+              
         public void SetConfig(List<Misc.SyringeBrand> levelNBrands)
         {
             m_LevelNBrands = levelNBrands;
@@ -223,7 +216,7 @@ namespace FQC
                 m_ConnResponse.SetVTBIParameterResponse += new EventHandler<ResponseEventArgs<String>>(SetInfusionParas);
                 m_ConnResponse.SetOcclusionLevelResponse += new EventHandler<ResponseEventArgs<String>>(SetOcclusionLevel);
                 m_ConnResponse.SetStartControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStartControl);
-                m_ConnResponse.SetStopControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStopControl);
+                //m_ConnResponse.SetStopControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse += new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse += new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
                 //m_ConnResponse.GetPressureCalibrationPValueResponse += new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
@@ -244,7 +237,7 @@ namespace FQC
                 m_ConnResponse.SetVTBIParameterResponse -= new EventHandler<ResponseEventArgs<String>>(SetInfusionParas);
                 m_ConnResponse.SetOcclusionLevelResponse -= new EventHandler<ResponseEventArgs<String>>(SetOcclusionLevel);
                 m_ConnResponse.SetStartControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStartControl);
-                m_ConnResponse.SetStopControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStopControl);
+                //m_ConnResponse.SetStopControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse -= new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse -= new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
                 //m_ConnResponse.GetPressureCalibrationPValueResponse -= new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
@@ -285,27 +278,7 @@ namespace FQC
         }
 
         #endregion
-
-        public void SetPid(PumpID pid)
-        {
-            m_LocalPid = pid;
-            if (_GrasebyDevice4FindPort != null)
-            {
-                _GrasebyDevice4FindPort.DeviceDataRecerived -= OnGrasebyDeviceDataRecerived;
-                _GrasebyDevice4FindPort = null;
-                SetPumpPortStatus(false);
-            }
-        }
-
-        /// <summary>
-        /// 设置详细信息通道号
-        /// </summary>
-        /// <param name="channel"></param>
-        public void SetChannel(int channel)
-        {
-       
-        }
-
+               
         /// <summary>
         /// 仅检测串口使用
         /// </summary>
@@ -324,55 +297,6 @@ namespace FQC
                 ReDrawCoordinate();
             else
                 DrawSingleAccuracyMap();
-        }
-
-        private void AlertMessageWhenComplete(string msg)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new DelegateAlertMessageWhenComplete(AlertMessageWhenComplete), new object[] { msg });
-                return;
-            }
-            MessageBox.Show(msg);
-        }
-
-        /// <summary>
-        /// 调试结束，保存相关数据，停止泵，停止时钟
-        /// </summary>
-        private void Complete(int channel = 1)
-        {
-            //StopCh1Timer();
-            //if (m_ConnResponse != null)
-            //{
-            //    if (m_ConnResponse.IsOpen())
-            //    {
-            //        m_ConnResponse.SetStopControl(GlobalResponse.CommandPriority.High);
-            //        //RemoveHandler();
-            //        Thread.Sleep(500);
-            //        CalcuatePressure(m_LocalPid, m_Ch1SampleDataList);
-            //        if (m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
-            //        {
-            //            if (OnSamplingComplete != null && m_Ch1SampleDataList != null && m_Ch1SampleDataList.Count > 0)
-            //                OnSamplingComplete(this, new DoublePumpDataArgs(m_Ch1SampleDataList));
-            //        }
-            //        Thread.Sleep(500);
-            //        m_ConnResponse.CloseConnection();
-            //    }
-            //}
-            //if (m_PTool != null && m_PTool.IsOpen())
-            //    m_PTool.Close();
-
-            //string fileName = m_PumpNo;
-            //if (m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.WZS50F6)
-            //    fileName = string.Format("{0}{1}道{2}{3}", m_LocalPid.ToString(), m_Channel, m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-            //else
-            //    fileName = string.Format("{0}{1}{2}", m_LocalPid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-            //string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\压力调试数据";
-            //if (!System.IO.Directory.Exists(path))
-            //    System.IO.Directory.CreateDirectory(path);
-            //string saveFileName = path + "\\" + fileName + ".xlsx";
-            //Export(m_Channel, saveFileName);
-            //EnableContols(true);
         }
 
         #region 画图
@@ -548,6 +472,17 @@ namespace FQC
         }
         #endregion
 
+        #region 控件事件
+        private void Chart_Load(object sender, EventArgs e)
+        {
+            if (cmbSetBrand.Items.Count > 4)
+                cmbSetBrand.SelectedIndex = 3;
+            cbPumpPort.Items.AddRange(SerialPort.GetPortNames());
+            cbToolingPort.Items.AddRange(SerialPort.GetPortNames());
+            m_Ch1Timer.Interval = m_SampleInterval;
+            m_Ch1Timer.Elapsed += OnTimer;
+        }
+
         /// <summary>
         /// 当不可用时，将按钮图标变灰
         /// </summary>
@@ -684,15 +619,262 @@ namespace FQC
             m_FreshPumpPortEvent.Reset();
         }
 
-        private void SetPumpPortStatus(bool isOK = true)
+        private void picStart_Click(object sender, EventArgs e)
         {
-            picPumpPortStatus.Tag = isOK;
-            picPumpPortStatus.Visible = true;
-            if (isOK)
-                picPumpPortStatus.Image = global::FQC.Properties.Resources.ok;
-            else
-                picPumpPortStatus.Image = global::FQC.Properties.Resources.error;
+            Start();
         }
+
+        /// <summary>
+        /// 启动测试
+        /// </summary>
+        public void Start()
+        {
+            detail.ClearLabelValue();
+            mFQCData.brand = string.Empty;
+            mFQCData.pressureN = 0;
+            mFQCData.pressureL = 0;
+            mFQCData.pressureC = 0;
+            mFQCData.pressureH = 0;
+            mFQCData.syrangeSize = 0;
+            m_Ch1SampleDataList.Clear();
+            WavelinePanel.Invalidate();
+            #region 参数输入检查
+
+            if (SamplingStartOrStop != null)
+            {
+                SamplingStartOrStop(this, new StartOrStopArgs(true));
+            }
+
+            if (string.IsNullOrEmpty(PumpNo))
+            {
+                MessageBox.Show("请输入产品序号");
+                return;
+            }
+
+            float rate = 0;
+            if (cbToolingPort.SelectedIndex < 0)
+            {
+                MessageBox.Show("请选择工装串口");
+                return;
+            }
+            if ((bool)picGaugePortStatus.Tag == false)
+            {
+                MessageBox.Show("工装串口不正确");
+                return;
+            }
+            if (cbPumpPort.SelectedIndex < 0)
+            {
+                MessageBox.Show("请选择泵串口");
+                return;
+            }
+            if ((bool)picPumpPortStatus.Tag == false)
+            {
+                MessageBox.Show("泵串口不正确");
+                return;
+            }
+            if (string.IsNullOrEmpty(tbRate.Text))
+            {
+                MessageBox.Show("请输入速率！");
+                return;
+            }
+            if (!float.TryParse(tbRate.Text, out rate))
+            {
+                MessageBox.Show("请正确输入速率！");
+                return;
+            }
+            if (cmbLevel.SelectedIndex < 0)
+            {
+                MessageBox.Show("请选择压力档位！");
+                return;
+            }
+            #endregion
+
+            #region 泵型号选择
+            Misc.ProductID pid = Misc.ProductID.None;
+            switch (m_LocalPid)
+            {
+                case PumpID.GrasebyC8:
+                    pid = Misc.ProductID.GrasebyC8;
+                    break;
+                case PumpID.GrasebyF8:
+                    pid = Misc.ProductID.GrasebyF8;
+                    break;
+                case PumpID.GrasebyF8_2:
+                    pid = Misc.ProductID.GrasebyF8;
+                    break;
+                case PumpID.GrasebyC6:
+                    pid = Misc.ProductID.GrasebyC6;
+                    break;
+                case PumpID.WZ50C6:
+                    pid = Misc.ProductID.GrasebyC6;
+                    break;
+                case PumpID.GrasebyC6T:
+                case PumpID.WZ50C6T:
+                    pid = Misc.ProductID.GrasebyC6T;
+                    break;
+                case PumpID.Graseby2000:
+                    pid = Misc.ProductID.Graseby2000;
+                    break;
+                case PumpID.Graseby2100:
+                    pid = Misc.ProductID.Graseby2100;
+                    break;
+                case PumpID.WZS50F6:
+                    pid = Misc.ProductID.GrasebyF6;
+                    break;
+                case PumpID.GrasebyF6:
+                    pid = Misc.ProductID.GrasebyF6;
+                    break;
+                case PumpID.GrasebyF6_2:
+                    pid = Misc.ProductID.GrasebyF6;
+                    break;
+                case PumpID.WZS50F6_2:
+                    pid = Misc.ProductID.GrasebyF6;
+                    break;
+                default:
+                    pid = Misc.ProductID.None;
+                    break;
+            }
+            #endregion
+
+            if (pid == Misc.ProductID.None)
+            {
+                MessageBox.Show("选择的泵类型错误，请联系管理员!");
+                return;
+            }
+
+            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
+            {
+                m_ConnResponse.CloseConnection();
+                Thread.Sleep(500);
+            }
+            SerialPortParameter para = PressureForm.m_DicPumpPortParameter[pid] as SerialPortParameter;
+            m_ConnResponse = new GlobalResponse(pid, Misc.CommunicationProtocolType.General);
+            m_ConnResponse.ChannelNumber = this.Channel;
+            m_ConnResponse.Initialize(cbPumpPort.Items[cbPumpPort.SelectedIndex].ToString(), para.BaudRate);
+            if(!m_ConnResponse.IsOpen())
+            {
+                MessageBox.Show("串口被占用，请关闭本软件后重新测试!");
+                return;
+            }
+
+            RemoveHandler();
+            AddHandler();
+            if (m_GaugeTool != null)
+            {
+                if (!m_GaugeTool.IsOpen())
+                {
+                    m_GaugeTool.PressureGaugeDataRecerived += OnGaugeDataRecerived;
+                    m_GaugeTool.Open();
+                }
+            }
+            else
+            {
+                m_GaugeTool = new SerialPressureGauge(PressureForm.m_ACDPortParameter.BaudRate,
+                                                       PressureForm.m_ACDPortParameter.DataBits,
+                                                       PressureForm.m_ACDPortParameter.StopBit,
+                                                       PressureForm.m_ACDPortParameter.ParityType,
+                                                       cbToolingPort.Items[cbToolingPort.SelectedIndex].ToString());
+                m_GaugeTool.PressureGaugeDataRecerived += OnGaugeDataRecerived;
+                bool bOpen = m_GaugeTool.Open();
+                if (!bOpen)
+                {
+                    m_GaugeTool.Close();
+                    MessageBox.Show("压力表串口打开失败！");
+                    return;
+                }
+            }
+            mFQCData.brand = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString().Substring(4);
+            InitAllParameters();
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetSyringeBrand);
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetVTBIParameter);
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
+            //m_RequestCommands.Enqueue(ApplicationRequestCommand.GetPressureCalibrationPValue);
+            SendNextRequest();
+            EnableContols(false);
+        }
+
+        private void picStop_Click(object sender, EventArgs e)
+        {
+            StopTest();
+        }
+
+        private void picDetail_Click(object sender, EventArgs e)
+        {
+            this.detail.Show();
+        }
+
+        /// <summary>
+        /// 品牌改变时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cmbSetBrand_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            m_OcclusionLevelOfBrand.Clear();
+            string brandName = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString();
+            m_CurrentBrand = FindSyringeBrandByName(brandName);//由品牌名称查询枚举值
+            //当前品牌,有没有N档?
+            if (m_LevelNBrands.Contains(m_CurrentBrand))
+                m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.N);
+            m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.L);
+            m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.C);
+            m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.H);
+            m_CurrentLevel = Misc.OcclusionLevel.None;
+            cmbLevel.Items.Clear();
+            foreach (Misc.OcclusionLevel level in m_OcclusionLevelOfBrand)
+            {
+                cmbLevel.Items.Add(level.ToString());
+            }
+            if (cmbLevel.Items.Count > 0)
+                cmbLevel.SelectedIndex = 0;
+        }
+
+        private void cmbLevel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string level = cmbLevel.Items[cmbLevel.SelectedIndex].ToString();
+            if (Enum.IsDefined(typeof(Misc.OcclusionLevel), level))
+            {
+                m_CurrentLevel = (Misc.OcclusionLevel)Enum.Parse(typeof(Misc.OcclusionLevel), level);
+            }
+        }
+
+        /// <summary>
+        /// 速率不能输入非法值
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnRateKeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox txt = sender as TextBox;
+            if (char.IsNumber(e.KeyChar) || e.KeyChar == (char)Keys.Back)
+            {
+                e.Handled = false;                         //让操作生效
+                if (txt.Text.Length == 0)
+                {
+                    if (e.KeyChar == '0')
+                        e.Handled = true;                  //让操作失效，第一个字符不能输入0
+                }
+                else if (txt.Text.Length >= 3)
+                {
+
+                    if (e.KeyChar == (char)Keys.Back)
+                        e.Handled = false;             //让操作生效
+                    else
+                        e.Handled = true;              //让操作失效，如果第一个字符是2以上，不能输入其他字符
+                }
+                else
+                {
+                    e.Handled = false;                 //让操作生效
+                }
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+        #endregion
 
         #region 命令响应
         /// <summary>
@@ -1003,38 +1185,18 @@ namespace FQC
 
         #endregion
 
-        /// <summary>
-        /// 速率不能输入非法值
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnRateKeyPress(object sender, KeyPressEventArgs e)
+        private void SetPumpPortStatus(bool isOK = true)
         {
-            TextBox txt = sender as TextBox;
-            if (char.IsNumber(e.KeyChar) || e.KeyChar == (char)Keys.Back)
-            {
-                e.Handled = false;                         //让操作生效
-                if (txt.Text.Length == 0)
-                {
-                    if (e.KeyChar == '0')
-                        e.Handled = true;                  //让操作失效，第一个字符不能输入0
-                }
-                else if (txt.Text.Length >= 3)
-                {
-
-                    if (e.KeyChar == (char)Keys.Back)
-                        e.Handled = false;             //让操作生效
-                    else
-                        e.Handled = true;              //让操作失效，如果第一个字符是2以上，不能输入其他字符
-                }
-                else
-                {
-                    e.Handled = false;                 //让操作生效
-                }
-            }
+            picPumpPortStatus.Tag = isOK;
+            picPumpPortStatus.Visible = true;
+            if (isOK)
+                picPumpPortStatus.Image = global::FQC.Properties.Resources.ok;
             else
+                picPumpPortStatus.Image = global::FQC.Properties.Resources.error;
+            //规定必须是第一道泵先刷新
+            if(Channel==1 && isOK && OnPortFreshedSuccess!=null)
             {
-                e.Handled = true;
+                OnPortFreshedSuccess(this, null);
             }
         }
 
@@ -1068,46 +1230,6 @@ namespace FQC
             {
                 SamplingStartOrStop(this, new StartOrStopArgs(bEnabled));
             }
-        }
-
-        private void Export(int channel, string name)
-        {
-            List<SampleData> sampleDataList = null;
-            sampleDataList = m_Ch1SampleDataList;
-            if (sampleDataList == null || sampleDataList.Count == 0)
-                return;
-            string title = string.Empty;
-            if (m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.WZS50F6)
-            {
-                title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", m_LocalPid.ToString(), channel, m_PumpNo, m_ToolingNo);
-            }
-            else
-            {
-                title = string.Format("泵型号：{0} 产品序号:{1} 工装编号:{2}", m_LocalPid.ToString(), m_PumpNo, m_ToolingNo);
-            }
-            var wb = new XLWorkbook();
-            var ws = wb.Worksheets.Add("压力调试数据");
-
-            ws.Cell(1, 1).Value = title;
-            ws.Cell(1, 1).Style.Font.Bold = true;
-            ws.Range(1, 1, 1, 3).Merge();
-            ws.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            ws.Cell(1, 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-            ws.Cell(2, 1).Value = "采样时间";
-            ws.Cell(2, 2).Value = "重量(kg)";
-            ws.Cell(2, 3).Value = "压力(V)";
-
-            int count = sampleDataList.Count;
-            int index = 3;
-            for (int i = 0; i < count; i++)
-            {
-                ws.Cell(index, 1).Value = sampleDataList[i].m_SampleTime.ToString("yyyy-MM-dd HH_mm_ss");
-                //ws.Cell(index, 2).Value = sampleDataList[i].m_Weight;
-                ws.Cell(index, 3).Value = sampleDataList[i].m_PressureValue * 100;
-                index++;
-            }
-            wb.SaveAs(name);
         }
 
         /// <summary>
@@ -1176,6 +1298,9 @@ namespace FQC
             wb.SaveAs(name);
         }
 
+        /// <summary>
+        /// 单泵模式下弹出
+        /// </summary>
         private void AlertTestResult()
         {
             if (this.InvokeRequired)
@@ -1192,6 +1317,7 @@ namespace FQC
             dlg.ShowDialog();
         }
 
+        #region 是否通过 
         public bool IsPassAuto()
         {
             bool bPass = true;
@@ -1294,204 +1420,7 @@ namespace FQC
             }
             return bPass;
         }
-         
-        private void picStart_Click(object sender, EventArgs e)
-        {
-            detail.ClearLabelValue();
-            mFQCData.brand = string.Empty;
-            mFQCData.pressureN = 0;
-            mFQCData.pressureL = 0;
-            mFQCData.pressureC = 0;
-            mFQCData.pressureH = 0;
-            mFQCData.syrangeSize = 0;
-            m_Ch1SampleDataList.Clear();
-            WavelinePanel.Invalidate();
-            #region 参数输入检查
-
-            if (SamplingStartOrStop != null)
-            {
-                SamplingStartOrStop(this, new StartOrStopArgs(true));
-            }
-
-            if (string.IsNullOrEmpty(PumpNo))
-            {
-                MessageBox.Show("请输入产品序号");
-                return;
-            }
-
-            float rate = 0;
-            if (cbToolingPort.SelectedIndex < 0)
-            {
-                MessageBox.Show("请选择工装串口");
-                return;
-            }
-            if ((bool)picGaugePortStatus.Tag == false)
-            {
-                MessageBox.Show("工装串口不正确");
-                return;
-            }
-            if (cbPumpPort.SelectedIndex < 0)
-            {
-                MessageBox.Show("请选择泵串口");
-                return;
-            }
-            if ((bool)picPumpPortStatus.Tag == false)
-            {
-                MessageBox.Show("泵串口不正确");
-                return;
-            }
-            if (string.IsNullOrEmpty(tbRate.Text))
-            {
-                MessageBox.Show("请输入速率！");
-                return;
-            }
-            if (!float.TryParse(tbRate.Text, out rate))
-            {
-                MessageBox.Show("请正确输入速率！");
-                return;
-            }
-            if (cmbLevel.SelectedIndex < 0)
-            {
-                MessageBox.Show("请选择压力档位！");
-                return;
-            }
-            #endregion
-
-            #region 泵型号选择
-            Misc.ProductID pid = Misc.ProductID.None;
-            switch (m_LocalPid)
-            {
-                case PumpID.GrasebyC8:
-                    pid = Misc.ProductID.GrasebyC8;
-                    break;
-                case PumpID.GrasebyF8:
-                    pid = Misc.ProductID.GrasebyF8;
-                    break;
-                case PumpID.GrasebyF8_2:
-                    pid = Misc.ProductID.GrasebyF8;
-                    break;
-                case PumpID.GrasebyC6:
-                    pid = Misc.ProductID.GrasebyC6;
-                    break;
-                case PumpID.WZ50C6:
-                    pid = Misc.ProductID.GrasebyC6;
-                    break;
-                case PumpID.GrasebyC6T:
-                case PumpID.WZ50C6T:
-                    pid = Misc.ProductID.GrasebyC6T;
-                    break;
-                case PumpID.Graseby2000:
-                    pid = Misc.ProductID.Graseby2000;
-                    break;
-                case PumpID.Graseby2100:
-                    pid = Misc.ProductID.Graseby2100;
-                    break;
-                case PumpID.WZS50F6:
-                    pid = Misc.ProductID.GrasebyF6;
-                    break;
-                case PumpID.GrasebyF6:
-                    pid = Misc.ProductID.GrasebyF6;
-                    break;
-                case PumpID.GrasebyF6_2:
-                    pid = Misc.ProductID.GrasebyF6;
-                    break;
-                case PumpID.WZS50F6_2:
-                    pid = Misc.ProductID.GrasebyF6;
-                    break;
-                default:
-                    pid = Misc.ProductID.None;
-                    break;
-            }
-            #endregion
-
-            if (pid == Misc.ProductID.None)
-            {
-                MessageBox.Show("选择的泵类型错误，请联系管理员!");
-                return;
-            }
-
-            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
-            {
-                m_ConnResponse.CloseConnection();
-                Thread.Sleep(500);
-            }
-            SerialPortParameter para = PressureForm.m_DicPumpPortParameter[pid] as SerialPortParameter;
-            m_ConnResponse = new GlobalResponse(pid, Misc.CommunicationProtocolType.General);
-            m_ConnResponse.ChannelNumber = this.Channel;
-            m_ConnResponse.Initialize(cbPumpPort.Items[cbPumpPort.SelectedIndex].ToString(), para.BaudRate);
-            RemoveHandler();
-            AddHandler();
-            if (m_GaugeTool != null)
-            {
-                if(!m_GaugeTool.IsOpen())
-                {
-                    m_GaugeTool.PressureGaugeDataRecerived += OnGaugeDataRecerived;
-                    m_GaugeTool.Open();
-                }
-            }
-            else
-            {
-                m_GaugeTool = new SerialPressureGauge( PressureForm.m_ACDPortParameter.BaudRate,
-                                                       PressureForm.m_ACDPortParameter.DataBits,
-                                                       PressureForm.m_ACDPortParameter.StopBit,
-                                                       PressureForm.m_ACDPortParameter.ParityType,
-                                                       cbToolingPort.Items[cbToolingPort.SelectedIndex].ToString());
-                m_GaugeTool.PressureGaugeDataRecerived += OnGaugeDataRecerived;
-                bool bOpen = m_GaugeTool.Open();
-                if(!bOpen)
-                {
-                    m_GaugeTool.Close();
-                    MessageBox.Show("压力表串口打开失败！");
-                    return;
-                }
-            }
-            mFQCData.brand = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString().Substring(4);
-            InitAllParameters();
-            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
-            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetSyringeBrand);
-            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetVTBIParameter);
-            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
-            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
-            //m_RequestCommands.Enqueue(ApplicationRequestCommand.GetPressureCalibrationPValue);
-            SendNextRequest();
-            EnableContols(false);
-        }
-
-        private void picStop_Click(object sender, EventArgs e)
-        {
-            StopTest();
-        }
-
-        private void picDetail_Click(object sender, EventArgs e)
-        {
-            this.detail.Show();
-        }
-
-        /// <summary>
-        /// 品牌改变时
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cmbSetBrand_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            m_OcclusionLevelOfBrand.Clear();
-            string brandName = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString();
-            m_CurrentBrand = FindSyringeBrandByName(brandName);//由品牌名称查询枚举值
-            //当前品牌,有没有N档?
-            if (m_LevelNBrands.Contains(m_CurrentBrand))
-                m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.N);
-            m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.L);
-            m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.C);
-            m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.H);
-            m_CurrentLevel = Misc.OcclusionLevel.None;
-            cmbLevel.Items.Clear();
-            foreach (Misc.OcclusionLevel level in m_OcclusionLevelOfBrand)
-            {
-                cmbLevel.Items.Add(level.ToString());
-            }
-            if (cmbLevel.Items.Count > 0)
-                cmbLevel.SelectedIndex = 0;
-        }
+        #endregion
 
         private Misc.SyringeBrand FindSyringeBrandByName(string name)
         {
@@ -1506,6 +1435,19 @@ namespace FQC
                 brand = Misc.SyringeBrand.None;
             }
             return brand;
+        }
+
+        private void PumpCloseConnectionSub()
+        {
+            Thread.Sleep(2000);
+            Thread th = new Thread(Close);
+            th.Start();
+        }
+
+        private void AlertTestResultSub()
+        {
+            Thread th = new Thread(AlertTestResult);
+            th.Start();
         }
 
         private void StopTest()
@@ -1523,7 +1465,9 @@ namespace FQC
             if(cmbPattern.SelectedIndex==0)
                 cmbLevel.SelectedIndex = 0;
             if (m_LocalPid == PumpID.GrasebyF8_2)
-                OnSamplingComplete(this, null);
+            {
+                OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData)); 
+            }
             else
             {
                 var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
@@ -1537,19 +1481,6 @@ namespace FQC
                 AlertTestResultSub();
                 PumpCloseConnectionSub();
             }
-        }
-
-        private void PumpCloseConnectionSub()
-        {
-            Thread.Sleep(2000);
-            Thread th = new Thread(Close);
-            th.Start();
-        }
-
-        private void AlertTestResultSub()
-        {
-            Thread th = new Thread(AlertTestResult);
-            th.Start();
         }
 
         private void PauseTest()
@@ -1613,19 +1544,25 @@ namespace FQC
            return max;
         }
 
-        private void cmbLevel_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// 第二道泵串口联动
+        /// </summary>
+        /// <param name="index"></param>
+        public void SyncPort4F8DualChannel(int index)
         {
-            string level = cmbLevel.Items[cmbLevel.SelectedIndex].ToString();
-            if (Enum.IsDefined(typeof(Misc.OcclusionLevel), level))
-            {
-                m_CurrentLevel = (Misc.OcclusionLevel)Enum.Parse(typeof(Misc.OcclusionLevel), level);
-            }
+            this.cbPumpPort.SelectedIndex = index;
+            SetPumpPortStatus(true);
+        }
+
+        public int GetPortIndex4F8()
+        {
+            return cbPumpPort.SelectedIndex;
         }
 
         public void Close()
         {
             if (m_ConnResponse!=null)
-                m_ConnResponse.CloseConnection();
+                m_ConnResponse.AbortConnection();
             if (m_GaugeTool != null)
                 m_GaugeTool.Close();
         }

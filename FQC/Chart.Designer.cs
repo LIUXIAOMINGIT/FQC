@@ -138,7 +138,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 53F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
@@ -182,9 +182,9 @@
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label3.Location = new System.Drawing.Point(226, 9);
+            this.label3.Location = new System.Drawing.Point(236, 19);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(41, 40);
+            this.label3.Size = new System.Drawing.Size(57, 20);
             this.label3.TabIndex = 1;
             this.label3.Text = "泵串口";
             // 
@@ -217,7 +217,7 @@
             this.label8.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label8.Location = new System.Drawing.Point(172, 138);
+            this.label8.Location = new System.Drawing.Point(180, 138);
             this.label8.Margin = new System.Windows.Forms.Padding(0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(44, 20);
@@ -230,10 +230,10 @@
             this.cbToolingPort.BackColor = System.Drawing.Color.White;
             this.cbToolingPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbToolingPort.FormattingEnabled = true;
-            this.cbToolingPort.Location = new System.Drawing.Point(77, 15);
+            this.cbToolingPort.Location = new System.Drawing.Point(80, 15);
             this.cbToolingPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbToolingPort.Name = "cbToolingPort";
-            this.cbToolingPort.Size = new System.Drawing.Size(95, 28);
+            this.cbToolingPort.Size = new System.Drawing.Size(100, 28);
             this.cbToolingPort.TabIndex = 2;
             this.cbToolingPort.Tag = "";
             this.cbToolingPort.SelectedIndexChanged += new System.EventHandler(this.cbToolingPort_SelectedIndexChanged);
@@ -244,10 +244,10 @@
             this.cbPumpPort.BackColor = System.Drawing.Color.White;
             this.cbPumpPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbPumpPort.FormattingEnabled = true;
-            this.cbPumpPort.Location = new System.Drawing.Point(285, 15);
+            this.cbPumpPort.Location = new System.Drawing.Point(298, 15);
             this.cbPumpPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbPumpPort.Name = "cbPumpPort";
-            this.cbPumpPort.Size = new System.Drawing.Size(80, 28);
+            this.cbPumpPort.Size = new System.Drawing.Size(84, 28);
             this.cbPumpPort.TabIndex = 2;
             this.cbPumpPort.SelectedIndexChanged += new System.EventHandler(this.cbPumpPort_SelectedIndexChanged);
             // 
@@ -256,10 +256,10 @@
             this.tbRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbRate.BackColor = System.Drawing.Color.White;
             this.tbRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
-            this.tbRate.Location = new System.Drawing.Point(77, 132);
+            this.tbRate.Location = new System.Drawing.Point(80, 132);
             this.tbRate.Margin = new System.Windows.Forms.Padding(0);
             this.tbRate.Name = "tbRate";
-            this.tbRate.Size = new System.Drawing.Size(95, 32);
+            this.tbRate.Size = new System.Drawing.Size(100, 32);
             this.tbRate.TabIndex = 3;
             this.tbRate.Text = "300";
             // 
@@ -269,10 +269,10 @@
             this.cmbSetBrand.BackColor = System.Drawing.Color.White;
             this.cmbSetBrand.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbSetBrand.FormattingEnabled = true;
-            this.cmbSetBrand.Location = new System.Drawing.Point(77, 74);
+            this.cmbSetBrand.Location = new System.Drawing.Point(80, 74);
             this.cmbSetBrand.Margin = new System.Windows.Forms.Padding(0);
             this.cmbSetBrand.Name = "cmbSetBrand";
-            this.cmbSetBrand.Size = new System.Drawing.Size(95, 28);
+            this.cmbSetBrand.Size = new System.Drawing.Size(100, 28);
             this.cmbSetBrand.TabIndex = 2;
             this.cmbSetBrand.SelectedIndexChanged += new System.EventHandler(this.cmbSetBrand_SelectedIndexChanged);
             // 
@@ -282,10 +282,10 @@
             this.cmbLevel.BackColor = System.Drawing.Color.White;
             this.cmbLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbLevel.FormattingEnabled = true;
-            this.cmbLevel.Location = new System.Drawing.Point(285, 74);
+            this.cmbLevel.Location = new System.Drawing.Point(298, 74);
             this.cmbLevel.Margin = new System.Windows.Forms.Padding(0);
             this.cmbLevel.Name = "cmbLevel";
-            this.cmbLevel.Size = new System.Drawing.Size(80, 28);
+            this.cmbLevel.Size = new System.Drawing.Size(84, 28);
             this.cmbLevel.TabIndex = 2;
             this.cmbLevel.SelectedIndexChanged += new System.EventHandler(this.cmbLevel_SelectedIndexChanged);
             // 
@@ -294,7 +294,7 @@
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label5.Location = new System.Drawing.Point(226, 78);
+            this.label5.Location = new System.Drawing.Point(236, 78);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(41, 20);
             this.label5.TabIndex = 1;
@@ -303,7 +303,7 @@
             // picPumpPortStatus
             // 
             this.picPumpPortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picPumpPortStatus.Location = new System.Drawing.Point(365, 0);
+            this.picPumpPortStatus.Location = new System.Drawing.Point(382, 0);
             this.picPumpPortStatus.Margin = new System.Windows.Forms.Padding(0);
             this.picPumpPortStatus.Name = "picPumpPortStatus";
             this.picPumpPortStatus.Size = new System.Drawing.Size(30, 59);
@@ -315,7 +315,7 @@
             // picGaugePortStatus
             // 
             this.picGaugePortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picGaugePortStatus.Location = new System.Drawing.Point(172, 0);
+            this.picGaugePortStatus.Location = new System.Drawing.Point(180, 0);
             this.picGaugePortStatus.Margin = new System.Windows.Forms.Padding(0);
             this.picGaugePortStatus.Name = "picGaugePortStatus";
             this.picGaugePortStatus.Size = new System.Drawing.Size(30, 59);
@@ -329,7 +329,7 @@
             this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label6.Location = new System.Drawing.Point(226, 138);
+            this.label6.Location = new System.Drawing.Point(236, 138);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(41, 20);
             this.label6.TabIndex = 1;
@@ -344,10 +344,10 @@
             this.cmbPattern.Items.AddRange(new object[] {
             "自动",
             "手动"});
-            this.cmbPattern.Location = new System.Drawing.Point(285, 134);
+            this.cmbPattern.Location = new System.Drawing.Point(298, 134);
             this.cmbPattern.Margin = new System.Windows.Forms.Padding(0);
             this.cmbPattern.Name = "cmbPattern";
-            this.cmbPattern.Size = new System.Drawing.Size(80, 28);
+            this.cmbPattern.Size = new System.Drawing.Size(84, 28);
             this.cmbPattern.TabIndex = 2;
             // 
             // tableLayoutPanel2

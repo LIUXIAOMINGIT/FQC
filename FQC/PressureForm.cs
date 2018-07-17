@@ -395,6 +395,8 @@ namespace FQC
             chart1.SamplingStartOrStop += OnSamplingStartOrStop;
             chart2.OnSamplingComplete += OnChartSamplingComplete;
             chart1.OnSamplingComplete += OnChartSamplingComplete;
+            chart1.OnPortFreshedSuccess += OnChartPortFreshedSuccess;
+            
             m_SampleDataList.Clear();
         }
 
@@ -405,16 +407,50 @@ namespace FQC
         /// <param name="e"></param>
         private void OnChartSamplingComplete(object sender, DoublePumpDataArgs e)
         {
-            tbPumpNo.Clear();
             Chart chart = sender as Chart;
 
             if (chart.Name == "chart1")
                 m_SampleDataList.Insert(0, e.Data);
             else
                 m_SampleDataList.Add(e.Data);
-         
+
+            if (m_SampleDataList.Count == 1)
+            {
+                DualPumpAlertDialog dlg = null;
+                if (chart.Name == "chart1")
+                {
+                    dlg = new DualPumpAlertDialog(2);
+                }
+                else
+                {
+                    dlg = new DualPumpAlertDialog(1);
+                }
+                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    //断续测试另一道
+                    if (chart.Name == "chart1")
+                    {
+                        chart1.Close();
+                        chart1.Enabled = false;
+                        Thread.Sleep(2000);
+                        chart2.Start();
+                    }
+                    else
+                    {
+                        chart2.Close();
+                        chart2.Enabled = false;
+                        Thread.Sleep(2000);
+                        chart1.Start();
+                    }
+                }
+            }
+
             if (m_SampleDataList.Count >= 2)
             {
+                chart1.Enabled = true;
+                chart2.Enabled = true;
+                chart1.Close();
+                chart2.Close();
                 //写入excel,调用chart类中函数
                 string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
                 PumpID pid = PumpID.None;
@@ -436,6 +472,26 @@ namespace FQC
                 string saveFileName = path + "\\" + fileName + ".xlsx";
                 //生成表格，两份
                 GenDualReport(saveFileName);
+
+                if (m_LocalPid == PumpID.GrasebyF8_2)
+                {
+                    if (m_SampleDataList.Count >= 2)
+                        tbPumpNo.Clear();
+                }
+                else
+                    tbPumpNo.Clear();
+
+                bool ch1 = true, ch2 = true;
+                if(chart1.IsAuto())
+                    ch1 = chart1.IsPassAuto();
+                else
+                    ch1 = chart1.IsPassManual();
+                if (chart2.IsAuto())
+                    ch2 = chart2.IsPassAuto();
+                else
+                    ch2 = chart2.IsPassManual();
+                ResultDialog dlg = new ResultDialog(ch1 && ch2);
+                dlg.ShowDialog();
             }
         }
 
@@ -465,17 +521,17 @@ namespace FQC
             {
                 var fqcData = m_SampleDataList[i];
                 columnIndex = 0;
-                ws.Cell(2, ++columnIndex).Value = tbPumpNo.Text;
-                ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
-                ws.Cell(2, ++columnIndex).Value = i+1;
-                ws.Cell(2, ++columnIndex).Value = (i == 0?tbToolingNo.Text:tbToolingNo2.Text);
-                ws.Cell(2, ++columnIndex).Value = fqcData.brand;
-                ws.Cell(2, ++columnIndex).Value = fqcData.syrangeSize;
-                ws.Cell(2, ++columnIndex).Value = fqcData.rate;
-                ws.Cell(2, ++columnIndex).Value = fqcData.pressureN;
-                ws.Cell(2, ++columnIndex).Value = fqcData.pressureL;
-                ws.Cell(2, ++columnIndex).Value = fqcData.pressureC;
-                ws.Cell(2, ++columnIndex).Value = fqcData.pressureH;
+                ws.Cell(2 + i, ++columnIndex).Value = tbPumpNo.Text;
+                ws.Cell(2 + i, ++columnIndex).Value = m_LocalPid.ToString();
+                ws.Cell(2 + i, ++columnIndex).Value = i + 1;
+                ws.Cell(2 + i, ++columnIndex).Value = (i == 0 ? tbToolingNo.Text : tbToolingNo2.Text);
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.brand;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.syrangeSize;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.rate;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureN;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureL;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureC;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureH;
                 bool bPass = true;
                 if(i==0)
                 {
@@ -493,13 +549,19 @@ namespace FQC
                 }
                 if (bPass)
                 {
-                    ws.Cell(2, ++columnIndex).Value = "通过";
-                    ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
+                    ws.Cell(2 + i, ++columnIndex).Value = "通过";
+                    if(i==0)
+                        ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
+                    if(i==1)
+                        ws.Range("A3", "L3").Style.Font.FontColor = XLColor.Green;
                 }
                 else
                 {
-                    ws.Cell(2, ++columnIndex).Value = "失败";
-                    ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
+                    ws.Cell(2 + i, ++columnIndex).Value = "失败";
+                    if (i == 0)
+                        ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
+                    if (i == 1)
+                        ws.Range("A3", "L3").Style.Font.FontColor = XLColor.Red;
                 }
             }
             ws.Range(1, 1, 3, 1).SetDataType(XLCellValues.Text);
@@ -516,6 +578,21 @@ namespace FQC
             chart2.ToolingNo = tbToolingNo2.Text;
             chart1.PumpNo = tbPumpNo.Text;
             chart2.PumpNo = tbPumpNo.Text;
+        }
+
+        /// <summary>
+        /// 当第一道刷新时，第二道也要跟着刷新(只能F8双道模式下)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnChartPortFreshedSuccess(object sender, EventArgs e)
+        {
+            if (m_LocalPid == PumpID.GrasebyF8_2)
+            {
+                int index = chart1.GetPortIndex4F8();
+                if (index >= 0)
+                    chart2.SyncPort4F8DualChannel(index);
+            }
         }
 
         private void tlpTitle_MouseDown(object sender, MouseEventArgs e)
@@ -551,7 +628,7 @@ namespace FQC
             chart2.Enabled = true;
 
 #else
-            if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.WZS50F6 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
+            if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2 || m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.WZS50F6 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
             {
                 chart2.Enabled = true;
             }
@@ -562,8 +639,8 @@ namespace FQC
 #endif
             chart2.SetPid(m_LocalPid);
             chart1.SetPid(m_LocalPid);
-            chart2.SetChannel(1);
-            chart1.SetChannel(2);
+            //chart2.SetChannel(2);
+            //chart1.SetChannel(1);
             SyringBrandProcess.InitializeBrands(m_SyringeBrands, m_ProductModel, "zh");
             SyringBrandProcess.GetBrandNames(m_SyringeBrands, m_ProductModel, "zh");
             chart2.InitBrandList(m_SyringeBrands);
