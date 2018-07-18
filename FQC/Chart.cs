@@ -68,6 +68,8 @@ namespace FQC
         protected DateTime                            m_StopTime              = DateTime.Now;                              //停止时间
         protected DateTime                            m_StartTime             = DateTime.Now;                              //开始时间
         protected AutoResetEvent                      m_FreshPumpPortEvent    = new AutoResetEvent(false);                 //用于泵串口刷新
+        protected AutoResetEvent                      m_StopPumpEvent         = new AutoResetEvent(false);                 //用于泵停止事件
+        protected bool                                m_bTestOverFlag         = false;                                     //是否是调用了StopTest函数
         private FQCData mFQCData                                              = new FQCData();
 
         #region 委托+事件
@@ -75,6 +77,7 @@ namespace FQC
         public delegate void DelegateSetPValue(float p);
         public delegate void DelegateEnableContols(bool bEnabled);
         public delegate void DelegateAlertTestResult();
+        public delegate void DelegateContinueStopTest();
         /// <summary>
         /// 当启动或停止时通知主界面
         /// </summary>
@@ -216,7 +219,7 @@ namespace FQC
                 m_ConnResponse.SetVTBIParameterResponse += new EventHandler<ResponseEventArgs<String>>(SetInfusionParas);
                 m_ConnResponse.SetOcclusionLevelResponse += new EventHandler<ResponseEventArgs<String>>(SetOcclusionLevel);
                 m_ConnResponse.SetStartControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStartControl);
-                //m_ConnResponse.SetStopControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStopControl);
+                m_ConnResponse.SetStopControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse += new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse += new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
                 //m_ConnResponse.GetPressureCalibrationPValueResponse += new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
@@ -237,7 +240,7 @@ namespace FQC
                 m_ConnResponse.SetVTBIParameterResponse -= new EventHandler<ResponseEventArgs<String>>(SetInfusionParas);
                 m_ConnResponse.SetOcclusionLevelResponse -= new EventHandler<ResponseEventArgs<String>>(SetOcclusionLevel);
                 m_ConnResponse.SetStartControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStartControl);
-                //m_ConnResponse.SetStopControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStopControl);
+                m_ConnResponse.SetStopControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse -= new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse -= new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
                 //m_ConnResponse.GetPressureCalibrationPValueResponse -= new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
@@ -797,7 +800,8 @@ namespace FQC
 
         private void picStop_Click(object sender, EventArgs e)
         {
-            StopTest();
+            StopTimer();
+            BeginStopTestThread();
         }
 
         private void picDetail_Click(object sender, EventArgs e)
@@ -1044,14 +1048,17 @@ namespace FQC
             if (String.Empty != args.ErrorMessage)
             {
                 Logger.Instance().ErrorFormat("命令'SetStopControl'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                //MessageBox.Show("停止泵失败！");
             }
             else
             {
                 Logger.Instance().Info("命令'SetStopControl'指令成功返回！");
                 m_StopTime = DateTime.Now;
-                //EnableAllControls(true);
-                SendNextRequest();
+            }
+            if (m_bTestOverFlag)
+            {
+                m_bTestOverFlag = false;
+                m_ConnResponse.CloseConnection();
+                m_StopPumpEvent.Set();
             }
         }
 
@@ -1452,9 +1459,37 @@ namespace FQC
 
         private void StopTest()
         {
-            StopTimer();
             m_ConnResponse.SetStopControl();
-            //Thread.Sleep(500);
+            int iTryStopCount = 3;
+            do
+            {
+                m_StopPumpEvent.Reset();
+                m_bTestOverFlag = true;
+                m_ConnResponse.SetStopControl();
+                --iTryStopCount;
+                if (m_StopPumpEvent.WaitOne(2000))
+                {
+                    break;
+                }
+            } while (iTryStopCount > 0);
+
+            if (iTryStopCount <= 0)
+            {
+                MessageBox.Show("停止泵失败，请手动停止！");
+            }
+            else
+            {
+                ContinueStopTest();
+            }
+        }
+
+        private void ContinueStopTest()
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new DelegateContinueStopTest(ContinueStopTest), null);
+                return;
+            }
             lock (m_RequestCommands)
             {
                 m_RequestCommands.Clear();
@@ -1462,16 +1497,15 @@ namespace FQC
             m_GaugeTool.Close();
             EnableContols(true);
             //自动模式下，完成测试后要归到最低档
-            if(cmbPattern.SelectedIndex==0)
+            if (cmbPattern.SelectedIndex == 0)
                 cmbLevel.SelectedIndex = 0;
             if (m_LocalPid == PumpID.GrasebyF8_2)
             {
-                OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData)); 
+                OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData));
             }
             else
             {
                 var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
-
                 string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
                 string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
                 if (!System.IO.Directory.Exists(path))
@@ -1483,6 +1517,12 @@ namespace FQC
             }
         }
 
+        private void BeginStopTestThread()
+        {
+            Thread th = new Thread(StopTest);
+            th.Start();
+        }
+
         private void PauseTest()
         {
             StopTimer();
@@ -1491,7 +1531,6 @@ namespace FQC
                 m_RequestCommands.Clear();
             }
             m_ConnResponse.SetStopControl();
-            Thread.Sleep(500);
             float max = FindMaxPressure();
             switch (m_CurrentLevel)
             {
@@ -1516,7 +1555,7 @@ namespace FQC
                 if (m_CurrentLevel == Misc.OcclusionLevel.H)
                 {
                     this.detail.SetFQCResult(mFQCData);
-                    StopTest();
+                    BeginStopTestThread();
                 }
                 else
                 {
@@ -1531,7 +1570,7 @@ namespace FQC
             else
             {
                 this.detail.SetFQCResult(mFQCData);
-                StopTest();
+                BeginStopTestThread();
             }
 
         }
