@@ -35,7 +35,7 @@ namespace FQC
         private System.Drawing.Rectangle              m_Rect;
         private Pen                                   m_WaveLinePen           = new Pen(Color.FromArgb(19, 113, 185));
         private SolidBrush                            m_WaveLineBrush         = new SolidBrush(Color.FromArgb(19, 113, 185));
-        private float                                 m_XCoordinateMaxValue   = 300;                                       //X轴最大长度：秒
+        private float                                 m_XCoordinateMaxValue   = 120;                                       //X轴最大长度：120秒
         private int                                   m_YCoordinateMaxValue   = 150;                                       //y轴最大Kpa
         private int                                   m_XSectionCount         = 20;
         private int                                   m_YSectionCount         = 15;
@@ -82,6 +82,7 @@ namespace FQC
         /// 当启动或停止时通知主界面
         /// </summary>
         public event EventHandler<EventArgs> SamplingStartOrStop;
+        public event EventHandler<EventArgs> StopTestManual;//人工干预停止时，所有数据都清零
         /// <summary>
         /// 当双道泵，测量结束后通知主界面，把数据传入
         /// </summary>
@@ -176,7 +177,7 @@ namespace FQC
 
         private void InitAllParameters()
         {
-            m_XCoordinateMaxValue = 240;//秒
+            m_XCoordinateMaxValue = 120;//秒
             m_FreshPumpPortEvent.Reset();
         }
 
@@ -470,7 +471,7 @@ namespace FQC
 
         private void ReDrawCoordinate()
         {
-            m_XCoordinateMaxValue += 60;
+            m_XCoordinateMaxValue += 20;
             this.WavelinePanel.Invalidate();
         }
         #endregion
@@ -802,6 +803,8 @@ namespace FQC
         {
             StopTimer();
             BeginStopTestThread();
+            //if (StopTestManual!=null)
+            //    StopTestManual(this, null);
         }
 
         private void picDetail_Click(object sender, EventArgs e)
@@ -1223,16 +1226,16 @@ namespace FQC
             cmbPattern.Enabled =  bEnabled;
             picStop.Enabled = !bEnabled;
 
-            if (!bEnabled)
-            {
-                picStart.Image = global::FQC.Properties.Resources.icon_start_gray;
-                picStop.Image = global::FQC.Properties.Resources.icon_stop_blue;
-            }
-            else
-            {
-                picStart.Image = global::FQC.Properties.Resources.icon_start_Blue;
-                picStop.Image = global::FQC.Properties.Resources.icon_stop_gray;
-            }
+            //if (!bEnabled)
+            //{
+            //    picStart.Image = global::FQC.Properties.Resources.icon_start_gray;
+            //    picStop.Image = global::FQC.Properties.Resources.icon_stop_blue;
+            //}
+            //else
+            //{
+            //    picStart.Image = global::FQC.Properties.Resources.icon_start_Blue;
+            //    picStop.Image = global::FQC.Properties.Resources.icon_stop_gray;
+            //}
             if (SamplingStartOrStop != null)
             {
                 SamplingStartOrStop(this, new StartOrStopArgs(bEnabled));

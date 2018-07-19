@@ -27,7 +27,7 @@ namespace FQC
         private PumpID m_LocalPid = PumpID.GrasebyF8;                 //默认显示的是F8,这个是本地自定义F8
         private ProductModel m_ProductModel = ProductModel.GrasebyF8;
         private Misc.ProductID m_ProductID = Misc.ProductID.GrasebyF8;//默认显示的是F8,这个是真正的用于通信的F8
-
+        public static int RunChannelCount = 0;                        //双道泵运行状态 0:没有运行 1:已经运行了1道,2:运行了2道
         private bool moving = false;
         private Point oldMousePosition;
         private int m_SampleInterval = 500;//采样频率：毫秒
@@ -391,12 +391,15 @@ namespace FQC
             chart1.Channel = 1;
             chart2.Channel = 2;
             chart2.Enabled = false;
-            chart2.SamplingStartOrStop += OnSamplingStartOrStop;
             chart1.SamplingStartOrStop += OnSamplingStartOrStop;
-            chart2.OnSamplingComplete += OnChartSamplingComplete;
+            chart2.SamplingStartOrStop += OnSamplingStartOrStop;
             chart1.OnSamplingComplete += OnChartSamplingComplete;
+            chart2.OnSamplingComplete += OnChartSamplingComplete;
             chart1.OnPortFreshedSuccess += OnChartPortFreshedSuccess;
-            
+            chart2.OnPortFreshedSuccess += OnChartPortFreshedSuccess;
+            chart1.StopTestManual += OnStopTestManual;
+            chart2.StopTestManual += OnStopTestManual;
+             
             m_SampleDataList.Clear();
         }
 
@@ -443,6 +446,21 @@ namespace FQC
                         chart1.Start();
                     }
                 }
+                else
+                {
+                    m_SampleDataList.Clear();
+                    tbPumpNo.Clear();
+                    if (chart.Name == "chart1")
+                    {
+                        chart1.Close();
+                        chart1.Enabled = true;
+                    }
+                    else
+                    {
+                        chart2.Close();
+                        chart2.Enabled = true;
+                    }
+                }
             }
 
             if (m_SampleDataList.Count >= 2)
@@ -480,6 +498,8 @@ namespace FQC
                 }
                 else
                     tbPumpNo.Clear();
+                //导出后就可以清空
+                m_SampleDataList.Clear();
 
                 bool ch1 = true, ch2 = true;
                 if(chart1.IsAuto())
@@ -595,6 +615,12 @@ namespace FQC
             }
         }
 
+        private void OnStopTestManual(object sender, EventArgs e)
+        {
+            //导出后就可以清空
+            //m_SampleDataList.Clear();
+        }
+         
         private void tlpTitle_MouseDown(object sender, MouseEventArgs e)
         {
             if (this.WindowState == FormWindowState.Maximized)
@@ -630,6 +656,7 @@ namespace FQC
 #else
             if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2 || m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.WZS50F6 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
             {
+                chart1.Enabled = true;
                 chart2.Enabled = true;
             }
             else
