@@ -326,6 +326,7 @@
             this.chart2.BackColor = System.Drawing.Color.White;
             this.chart2.Channel = 1;
             this.chart2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chart2.Enabled = false;
             this.chart2.Location = new System.Drawing.Point(516, 3);
             this.chart2.Name = "chart2";
             this.chart2.PumpNo = "";
@@ -339,6 +340,7 @@
             this.chart1.BackColor = System.Drawing.Color.White;
             this.chart1.Channel = 1;
             this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chart1.Enabled = false;
             this.chart1.Location = new System.Drawing.Point(3, 3);
             this.chart1.Name = "chart1";
             this.chart1.PumpNo = "";

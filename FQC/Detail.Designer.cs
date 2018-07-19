@@ -158,7 +158,6 @@
             this.lbNValue.Name = "lbNValue";
             this.lbNValue.Size = new System.Drawing.Size(68, 55);
             this.lbNValue.TabIndex = 0;
-            this.lbNValue.Text = "30.3";
             this.lbNValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbLValue
@@ -171,7 +170,6 @@
             this.lbLValue.Name = "lbLValue";
             this.lbLValue.Size = new System.Drawing.Size(68, 55);
             this.lbLValue.TabIndex = 0;
-            this.lbLValue.Text = "40.3";
             this.lbLValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbCValue
@@ -184,7 +182,6 @@
             this.lbCValue.Name = "lbCValue";
             this.lbCValue.Size = new System.Drawing.Size(68, 55);
             this.lbCValue.TabIndex = 0;
-            this.lbCValue.Text = "50.6";
             this.lbCValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbHValue
@@ -197,7 +194,6 @@
             this.lbHValue.Name = "lbHValue";
             this.lbHValue.Size = new System.Drawing.Size(70, 55);
             this.lbHValue.TabIndex = 0;
-            this.lbHValue.Text = "112.3";
             this.lbHValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbH

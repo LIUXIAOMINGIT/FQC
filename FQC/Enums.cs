@@ -175,6 +175,14 @@ namespace FQC
 
     }
 
+    public enum RunState
+    {
+        NotRunnig,
+        Channel1Running,
+        Channel2Running,
+    }
+
+
 //    C6 读取当前压力传感器命令
 //55 aa 05 04 01 70 00 86
 
