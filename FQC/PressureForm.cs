@@ -628,8 +628,6 @@ namespace FQC
             tbPumpNo.Clear();
         }
         
-
-
         private void tlpTitle_MouseDown(object sender, MouseEventArgs e)
         {
             if (this.WindowState == FormWindowState.Maximized)

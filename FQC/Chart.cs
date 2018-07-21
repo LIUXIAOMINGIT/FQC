@@ -82,7 +82,9 @@ namespace FQC
         /// 当启动或停止时通知主界面
         /// </summary>
         public event EventHandler<EventArgs> SamplingStartOrStop;
+
         public event EventHandler<EventArgs> ClearPumpNoWhenCompleteTest;
+
         public event EventHandler<EventArgs> StopTestManual;//人工干预停止时，所有数据都清零
         /// <summary>
         /// 当双道泵，测量结束后通知主界面，把数据传入
