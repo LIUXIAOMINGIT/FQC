@@ -101,5 +101,20 @@ namespace FQC
         }
     }
 
+
+    public class TestResult
+    {
+        public float pressureN;
+        public bool isPassN;
+        public float pressureL;
+        public bool isPassL;
+        public float pressureC;
+        public bool isPassC;
+        public float pressureH;
+        public bool isPassH;
+    }
+
+
+
 }
  

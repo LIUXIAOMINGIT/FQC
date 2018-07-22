@@ -51,7 +51,7 @@ namespace FQC
 
         private void PressureForm_Load(object sender, EventArgs e)
         {
-            if (DateTime.Today.Month >= 8 )
+            if (DateTime.Today.Month >= 10 )
                 Close();
             LoadSettings();
             LoadConfig();

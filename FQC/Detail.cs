@@ -27,6 +27,7 @@ namespace FQC
         private int    m_SyrangeSize     = 50;
         private PumpID m_LocalPid = PumpID.GrasebyF8;//默认显示的是F8
         private int    m_Channel  = 1;               //1号通道，默认值
+        private TestResult _result = new TestResult();
 
         public int SyrangeSize
         {
@@ -112,6 +113,40 @@ namespace FQC
                 lbHValue.Text = "----";
             else
                 lbHValue.Text = data.pressureH.ToString("F1");
+            IsPass(data.pressureN, data.pressureL, data.pressureC, data.pressureH);
+        }
+
+        public void IsPass(float n, float l, float c, float h)
+        {
+            ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+            PressureConfig cfg = PressureManager.Instance().Get(pid);
+            var parameter = cfg.Find(Misc.OcclusionLevel.N);
+            if (parameter != null && n>0)
+                if (n >= parameter.Item2 && n <= parameter.Item3)
+                    lbNValue.ForeColor = Color.White;
+                else
+                    lbNValue.ForeColor = Color.Red;
+
+            parameter = cfg.Find(Misc.OcclusionLevel.L);
+            if (parameter != null && l > 0)
+                if (l >= parameter.Item2 && l <= parameter.Item3)
+                    lbLValue.ForeColor = Color.White;
+                else
+                    lbLValue.ForeColor = Color.Red;
+
+            parameter = cfg.Find(Misc.OcclusionLevel.C);
+            if (parameter != null && c > 0)
+                if (c >= parameter.Item2 && c <= parameter.Item3)
+                    lbCValue.ForeColor = Color.White;
+                else
+                    lbCValue.ForeColor = Color.Red;
+
+            parameter = cfg.Find(Misc.OcclusionLevel.H);
+            if (parameter != null && h > 0)
+                if (h >= parameter.Item2 && h <= parameter.Item3)
+                    lbHValue.ForeColor = Color.White;
+                else
+                    lbHValue.ForeColor = Color.Red;
         }
 
        

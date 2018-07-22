@@ -24,6 +24,7 @@ namespace FQC
 {
     public partial class Chart : UserControl
     {
+        private const double MAXKPALIMIT                                      = 200;
         private const string VOL                                              = "Kpa";
         private const int LEFTBORDEROFFSET                                    = 30;
         private const int RIGHTBORDEROFFSET                                   = 10;
@@ -36,9 +37,9 @@ namespace FQC
         private Pen                                   m_WaveLinePen           = new Pen(Color.FromArgb(19, 113, 185));
         private SolidBrush                            m_WaveLineBrush         = new SolidBrush(Color.FromArgb(19, 113, 185));
         private float                                 m_XCoordinateMaxValue   = 120;                                       //X轴最大长度：120秒
-        private int                                   m_YCoordinateMaxValue   = 150;                                       //y轴最大Kpa
+        private int                                   m_YCoordinateMaxValue   = 200;                                       //y轴最大Kpa
         private int                                   m_XSectionCount         = 20;
-        private int                                   m_YSectionCount         = 15;
+        private int                                   m_YSectionCount         = 20;
         private float                                 m_CoordinateIntervalX   = 0;                                         //X轴上的区间实际长度，单位为像素
         private float                                 m_CoordinateIntervalY   = 0;                                         //Y轴上的区间实际长度，单位为像素
         private float                                 m_ValueInervalX         = 0;                                         //X轴上的坐标值，根据实际放大倍数和量程决定
@@ -70,6 +71,7 @@ namespace FQC
         protected AutoResetEvent                      m_FreshPumpPortEvent    = new AutoResetEvent(false);                 //用于泵串口刷新
         protected AutoResetEvent                      m_StopPumpEvent         = new AutoResetEvent(false);                 //用于泵停止事件
         protected bool                                m_bTestOverFlag         = false;                                     //是否是调用了StopTest函数
+        protected bool                                m_bMaxKpaFlag           = false;                                     //是否是超过了200Kpa并停止泵
         private FQCData mFQCData                                              = new FQCData();
 
         #region 委托+事件
@@ -82,9 +84,7 @@ namespace FQC
         /// 当启动或停止时通知主界面
         /// </summary>
         public event EventHandler<EventArgs> SamplingStartOrStop;
-
         public event EventHandler<EventArgs> ClearPumpNoWhenCompleteTest;
-
         public event EventHandler<EventArgs> StopTestManual;//人工干预停止时，所有数据都清零
         /// <summary>
         /// 当双道泵，测量结束后通知主界面，把数据传入
@@ -160,7 +160,6 @@ namespace FQC
             m_Rect = WavelinePanel.ClientRectangle;
         }
         #endregion
-
 
         public void SetPid(PumpID pid)
         {
@@ -272,7 +271,7 @@ namespace FQC
 
         private void OnTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
+            if (!m_bMaxKpaFlag && m_ConnResponse != null && m_ConnResponse.IsOpen())
             {
                 //查询报警信息
                 m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetPumpAlarms);
@@ -298,12 +297,23 @@ namespace FQC
 
         private void OnGaugeDataRecerived(object sender, PressureGaugeDataEventArgs e)
         {
+            if (m_bMaxKpaFlag)
+                return;
             m_Ch1SampleDataList.Add(new SampleData(DateTime.Now, e.PressureValue));
             float count = m_XCoordinateMaxValue * 1000 / m_SampleInterval;
             if (m_Ch1SampleDataList.Count > count)
                 ReDrawCoordinate();
             else
                 DrawSingleAccuracyMap();
+            if (e.PressureValue >= MAXKPALIMIT)
+            {
+                m_bMaxKpaFlag = true;
+                //超过最大值，报警，并停止泵
+                StopTimer();
+                AlertMaxKpaSub();
+                this.InvokeOnClick(this.picStop, null);
+                //StopTest();
+            }
         }
 
         #region 画图
@@ -312,7 +322,7 @@ namespace FQC
         /// </summary>
         /// <param name="xSectionCount">X轴的坐标数量</param>
         /// <param name="ySectionCount">Y轴坐标数量</param>
-        private void DrawSingleAccuracyMap(int xSectionCount = 20, int ySectionCount = 15)
+        private void DrawSingleAccuracyMap(int xSectionCount = 20, int ySectionCount = 20)
         {
             lock (m_gh)
             {
@@ -351,7 +361,7 @@ namespace FQC
         /// </summary>
         /// <param name="xSectionCount"></param>
         /// <param name="ySectionCount"></param>
-        private void DrawAccuracyMap(int xSectionCount = 20, int ySectionCount = 15)
+        private void DrawAccuracyMap(int xSectionCount = 20, int ySectionCount = 20)
         {
             lock (m_gh)
             {
@@ -637,6 +647,7 @@ namespace FQC
         public void Start()
         {
             detail.ClearLabelValue();
+            detail.Pid = m_LocalPid;
             mFQCData.brand = string.Empty;
             mFQCData.pressureN = 0;
             mFQCData.pressureL = 0;
@@ -1330,6 +1341,14 @@ namespace FQC
             dlg.ShowDialog();
         }
 
+        private void AlertMaxKpa()
+        {
+            Thread.Sleep(1000);
+            MaxKpaAlertForm dlg = new MaxKpaAlertForm();
+            dlg.ShowDialog();
+            m_bMaxKpaFlag = false;
+        }
+
         #region 是否通过 
         public bool IsPassAuto()
         {
@@ -1460,6 +1479,12 @@ namespace FQC
         private void AlertTestResultSub()
         {
             Thread th = new Thread(AlertTestResult);
+            th.Start();
+        }
+
+        private void AlertMaxKpaSub()
+        {
+            Thread th = new Thread(AlertMaxKpa);
             th.Start();
         }
 

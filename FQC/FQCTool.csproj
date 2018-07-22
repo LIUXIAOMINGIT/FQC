@@ -117,6 +117,12 @@
     <Compile Include="DualPumpAlertDialog.Designer.cs">
       <DependentUpon>DualPumpAlertDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="MaxKpaAlertForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MaxKpaAlertForm.Designer.cs">
+      <DependentUpon>MaxKpaAlertForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResultDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,6 +150,9 @@
     </Compile>
     <EmbeddedResource Include="DualPumpAlertDialog.resx">
       <DependentUpon>DualPumpAlertDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MaxKpaAlertForm.resx">
+      <DependentUpon>MaxKpaAlertForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResultDialog.resx">
       <DependentUpon>ResultDialog.cs</DependentUpon>
