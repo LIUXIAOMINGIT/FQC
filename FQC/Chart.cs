@@ -484,7 +484,7 @@ namespace FQC
 
         private void ReDrawCoordinate()
         {
-            m_XCoordinateMaxValue += 20;
+            m_XCoordinateMaxValue += 30;
             this.WavelinePanel.Invalidate();
         }
         #endregion
@@ -1134,77 +1134,88 @@ namespace FQC
                     }
                 }
             }
+
             SendNextRequest();
         }
 
         private void SendNextRequest()
         {
-            lock (m_RequestCommands)
+            try
             {
-                if (m_RequestCommands.Count <= 0)
+                lock (m_RequestCommands)
                 {
-                    return;
-                }
-                Misc.ApplicationRequestCommand cmd = m_RequestCommands.Peek();
-                switch (cmd)
-                {
-                    case Misc.ApplicationRequestCommand.SetSyringeBrand:
-                        {
-                            m_ConnResponse.SetSyringeBrand(m_CurrentBrand);
-                            Logger.Instance().Info("命令'SetSyringeBrand'指令发出！");
-                            break;
-                        }
-                    case Misc.ApplicationRequestCommand.SetVTBIParameter:
-                        {
-                            float rate = 0;
-                            if (float.TryParse(tbRate.Text, out rate))
+                    #region
+                    if (m_RequestCommands.Count <= 0)
+                    {
+                        return;
+                    }
+                    Misc.ApplicationRequestCommand cmd = m_RequestCommands.Peek();
+                    switch (cmd)
+                    {
+                        case Misc.ApplicationRequestCommand.SetSyringeBrand:
                             {
-                                m_ConnResponse.SetVTBIParameter(0, rate);
-                                Logger.Instance().InfoFormat("命令'SetVTBIParameter'指令发出！速率={0}", rate);
+                                m_ConnResponse.SetSyringeBrand(m_CurrentBrand);
+                                Logger.Instance().Info("命令'SetSyringeBrand'指令发出！");
+                                break;
                             }
-                            else
-                                MessageBox.Show("请正确输入速率！");
+                        case Misc.ApplicationRequestCommand.SetVTBIParameter:
+                            {
+                                float rate = 0;
+                                if (float.TryParse(tbRate.Text, out rate))
+                                {
+                                    m_ConnResponse.SetVTBIParameter(0, rate);
+                                    Logger.Instance().InfoFormat("命令'SetVTBIParameter'指令发出！速率={0}", rate);
+                                }
+                                else
+                                    MessageBox.Show("请正确输入速率！");
+                                break;
+                            }
+                        case Misc.ApplicationRequestCommand.SetOcclusionLevel:
+                            {
+                                m_ConnResponse.SetOcclusionLevel(m_CurrentLevel);
+                                Logger.Instance().InfoFormat("命令'SetOcclusionLevel'指令发出！压力档位={0}", m_CurrentLevel);
+                                break;
+                            }
+                        case Misc.ApplicationRequestCommand.SetStartControl:
+                            {
+                                m_ConnResponse.SetStartControl();
+                                Logger.Instance().Info("命令'SetStartControl'指令发出！");
+                                break;
+                            }
+                        case Misc.ApplicationRequestCommand.GetSyringeSize:
+                            {
+                                m_ConnResponse.GetSyringeSize();
+                                Logger.Instance().Info("命令'GetSyringeSize'指令发出！");
+                                break;
+                            }
+                        case Misc.ApplicationRequestCommand.GetPressureCalibrationPValue:
+                            {
+                                m_ConnResponse.GetPressureCalibrationPValue();
+                                Logger.Instance().Info("命令'GetPressureCalibrationPValue'指令发出！");
+                                break;
+                            }
+                        case Misc.ApplicationRequestCommand.GetPumpAlarms:
+                            {
+                                m_ConnResponse.GetPumpAlarms();
+                                Logger.Instance().Info("命令'GetPumpAlarms'指令发出！");
+                                break;
+                            }
+                        default:
                             break;
-                        }
-                    case Misc.ApplicationRequestCommand.SetOcclusionLevel:
-                        {
-                            m_ConnResponse.SetOcclusionLevel(m_CurrentLevel);
-                            Logger.Instance().InfoFormat("命令'SetOcclusionLevel'指令发出！压力档位={0}", m_CurrentLevel);
-                            break;
-                        }
-                    case Misc.ApplicationRequestCommand.SetStartControl:
-                        {
-                            m_ConnResponse.SetStartControl();
-                            Logger.Instance().Info("命令'SetStartControl'指令发出！");
-                            break;
-                        }
-                    case Misc.ApplicationRequestCommand.GetSyringeSize:
-                        {
-                            m_ConnResponse.GetSyringeSize();
-                            Logger.Instance().Info("命令'GetSyringeSize'指令发出！");
-                            break;
-                        }
-                    case Misc.ApplicationRequestCommand.GetPressureCalibrationPValue:
-                        {
-                            m_ConnResponse.GetPressureCalibrationPValue();
-                            Logger.Instance().Info("命令'GetPressureCalibrationPValue'指令发出！");
-                            break;
-                        }
-                    case Misc.ApplicationRequestCommand.GetPumpAlarms:
-                        {
-                            m_ConnResponse.GetPumpAlarms();
-                            Logger.Instance().Info("命令'GetPumpAlarms'指令发出！");
-                            break;
-                        }
-                    default:
-                        break;
+                    }
+                    if (m_RequestCommands.Count <= 0)
+                    {
+                        return;
+                    }
+                    m_RequestCommands.Dequeue();
+                    #endregion
                 }
-                if (m_RequestCommands.Count <= 0)
-                {
-                    return;
-                }
-                m_RequestCommands.Dequeue();
             }
+            catch(Exception ex)
+            {
+                Logger.Instance().Fatal("Chart::SendNextRequest() -> " + ex.Message);
+            }
+            
         }
 
         #endregion
@@ -1532,7 +1543,25 @@ namespace FQC
                 cmbLevel.SelectedIndex = 0;
             if (m_LocalPid == PumpID.GrasebyF8_2)
             {
-                OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData));
+                //第一道测试完成，判断是否合格，不合格要提示，是否重测
+                if(IsAuto())
+                {
+                   if( IsPassAuto() )
+                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
+                   else
+                   {
+                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, false));
+                   }
+                }
+                else
+                {
+                    if (IsPassManual())
+                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
+                    else
+                    {
+                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, false));
+                    }
+                }
             }
             else
             {
@@ -1612,7 +1641,18 @@ namespace FQC
         {
            if (m_Ch1SampleDataList.Count == 0)
                 return 0;
-           float max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
+           float max = 0;
+           lock (m_Ch1SampleDataList)
+           {
+               try
+               {
+                  max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
+               }
+               catch(Exception e)
+               {
+                   Logger.Instance().Error("FindMaxPressure Error:" + e.Message);
+               }
+           }
            return max;
         }
 

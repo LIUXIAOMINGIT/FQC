@@ -414,11 +414,120 @@ namespace FQC
         {
             Chart chart = sender as Chart;
 
+            #region 不合格
+            if (!e.IsPass)
+            {
+                TestAgainDialog againDlg = new TestAgainDialog();
+                if (againDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    //继续测试
+                    if (chart.Name == "chart1")
+                        m_SampleDataList.Insert(0, e.Data);
+                    else
+                        m_SampleDataList.Add(e.Data);
+                    if (m_SampleDataList.Count == 1)
+                    {
+                        #region //断续测试另一道
+                        if (chart.Name == "chart1")
+                        {
+                            chart1.Close();
+                            //chart1.Enabled = false;
+                            Thread.Sleep(2000);
+                            chart2.Start();
+                        }
+                        else
+                        {
+                            chart2.Close();
+                            //chart2.Enabled = false;
+                            Thread.Sleep(2000);
+                            chart1.Start();
+                        }
+                        #endregion
+                    }
+                    else if (m_SampleDataList.Count >= 2)
+                    {
+                        #region //结束了
+                        chart1.Enabled = true;
+                        chart2.Enabled = true;
+                        chart1.Close();
+                        chart2.Close();
+                        //写入excel,调用chart类中函数
+                        string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                        PumpID pid = PumpID.None;
+                        switch (m_LocalPid)
+                        {
+                            case PumpID.GrasebyF8:
+                                pid = PumpID.GrasebyF8;
+                                break;
+                            case PumpID.GrasebyF8_2:
+                                pid = PumpID.GrasebyF8;
+                                break;
+                            default:
+                                pid = m_LocalPid;
+                                break;
+                        }
+                        string fileName = string.Format("{0}_{1}_{2}", pid.ToString(), tbPumpNo.Text, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                        if (!System.IO.Directory.Exists(path))
+                            System.IO.Directory.CreateDirectory(path);
+                        string saveFileName = path + "\\" + fileName + ".xlsx";
+                        //生成表格，两份
+                        GenDualReport(saveFileName);
+
+                        if (m_LocalPid == PumpID.GrasebyF8_2)
+                        {
+                            if (m_SampleDataList.Count >= 2)
+                                tbPumpNo.Clear();
+                        }
+                        else
+                            tbPumpNo.Clear();
+                        //导出后就可以清空
+                        m_SampleDataList.Clear();
+
+                        bool ch1 = true, ch2 = true;
+                        if (chart1.IsAuto())
+                            ch1 = chart1.IsPassAuto();
+                        else
+                            ch1 = chart1.IsPassManual();
+                        if (chart2.IsAuto())
+                            ch2 = chart2.IsPassAuto();
+                        else
+                            ch2 = chart2.IsPassManual();
+                        //ResultDialog dlg = new ResultDialog(ch1 && ch2);
+                        //dlg.ShowDialog();
+                        #endregion
+                    }
+                }
+                else
+                {
+                    //重新测试，删除所有数据
+                    #region //测试结束，但是不合格...需要重新测试
+                    if (chart.Name == "chart1")
+                    {
+                        chart1.Close();
+                        chart1.Enabled = true;
+                        Thread.Sleep(3000);
+                        chart1.Start();
+                    }
+                    else
+                    {
+                        chart2.Close();
+                        chart2.Enabled = true;
+                        Thread.Sleep(3000);
+                        chart2.Start();
+                    }
+                    #endregion
+
+                }
+                return;
+            }
+            #endregion
+            
+            #region 合格
+
             if (chart.Name == "chart1")
                 m_SampleDataList.Insert(0, e.Data);
             else
                 m_SampleDataList.Add(e.Data);
-
             if (m_SampleDataList.Count == 1)
             {
                 DualPumpAlertDialog dlg = null;
@@ -430,20 +539,22 @@ namespace FQC
                 {
                     dlg = new DualPumpAlertDialog(1);
                 }
+
+
                 if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     //断续测试另一道
                     if (chart.Name == "chart1")
                     {
                         chart1.Close();
-                        chart1.Enabled = false;
+                        //chart1.Enabled = false;
                         Thread.Sleep(2000);
                         chart2.Start();
                     }
                     else
                     {
                         chart2.Close();
-                        chart2.Enabled = false;
+                        //chart2.Enabled = false;
                         Thread.Sleep(2000);
                         chart1.Start();
                     }
@@ -515,6 +626,8 @@ namespace FQC
                 ResultDialog dlg = new ResultDialog(ch1 && ch2);
                 dlg.ShowDialog();
             }
+
+            #endregion
         }
 
         /// <summary>

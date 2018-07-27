@@ -29,6 +29,8 @@ namespace FQC
     /// </summary>
     public class DoublePumpDataArgs : EventArgs
     {
+        public bool IsPass { get; set; }
+
         private FQCData m_Data = new FQCData();
 
         public FQCData Data
@@ -37,9 +39,10 @@ namespace FQC
             set { m_Data = value; }
         }
 
-        public DoublePumpDataArgs(FQCData data)
+        public DoublePumpDataArgs(FQCData data, bool isPass = true)
         {
             m_Data = data;
+            IsPass = isPass;
         }
     }
 
