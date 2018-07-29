@@ -53,7 +53,9 @@ namespace FQC
         private PumpID                                m_LocalPid              = PumpID.GrasebyF8;                          //默认显示的是
         private ProductModel                          m_ProductModel          = ProductModel.GrasebyF8;
         private System.Timers.Timer                   m_Ch1Timer              = new System.Timers.Timer();
+        private System.Timers.Timer                   m_GaugeTimer            = new System.Timers.Timer();
         private int                                   m_SampleInterval        = 500;                                       //采样频率：毫秒
+        private int                                   m_GaugeSampleInterval   = 200;                                       //压力表采样频率：200毫秒
         private int                                   m_Channel               = 1;                                         //1号通道，默认值
         private string                                m_PumpNo                = string.Empty;                              //产品序号
         private string                                m_ToolingNo             = string.Empty;                              //工装编号
@@ -257,6 +259,7 @@ namespace FQC
         private void StartTimer()
         {
             StopTimer();
+            StartTimerGauge();
             m_Ch1Timer.Start();
             m_Ch1Timer.Enabled = true;
             Logger.Instance().Info("StartTimer执行！");
@@ -276,13 +279,39 @@ namespace FQC
                 //查询报警信息
                 m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetPumpAlarms);
                 SendNextRequest();
+                //if (m_GaugeTool != null && m_GaugeTool.IsOpen())
+                //{
+                //    m_GaugeTool.SendQueryCmd(); //向压力表请求数据
+                //}
+            }
+        }
+
+        private void StartTimerGauge()
+        {
+            StopTimerGauge();
+            m_GaugeTimer.Start();
+            m_GaugeTimer.Enabled = true;
+            Logger.Instance().Info("StartTimerGauge执行！");
+        }
+
+        private void StopTimerGauge()
+        {
+            m_GaugeTimer.Stop();
+            m_GaugeTimer.Enabled = false;
+            Logger.Instance().Info("StopTimerGauge执行！");
+        }
+
+        private void OnTimerGauge(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (!m_bMaxKpaFlag)
+            {
                 if (m_GaugeTool != null && m_GaugeTool.IsOpen())
                 {
                     m_GaugeTool.SendQueryCmd(); //向压力表请求数据
                 }
             }
         }
-
+        
         #endregion
                
         /// <summary>
@@ -300,7 +329,7 @@ namespace FQC
             if (m_bMaxKpaFlag)
                 return;
             m_Ch1SampleDataList.Add(new SampleData(DateTime.Now, e.PressureValue));
-            float count = m_XCoordinateMaxValue * 1000 / m_SampleInterval;
+            float count = m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval;
             if (m_Ch1SampleDataList.Count > count)
                 ReDrawCoordinate();
             else
@@ -310,6 +339,7 @@ namespace FQC
                 m_bMaxKpaFlag = true;
                 //超过最大值，报警，并停止泵
                 StopTimer();
+                StartTimerGauge();
                 AlertMaxKpaSub();
                 this.InvokeOnClick(this.picStop, null);
                 //StopTest();
@@ -343,8 +373,8 @@ namespace FQC
                 int i = m_Ch1SampleDataList.Count - 1;
                 y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i - 1].m_PressureValue / m_ValueInervalY)));
                 y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i].m_PressureValue / m_ValueInervalY)));
-                x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i) + xOriginalPoint.X;
-                x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i + 1) + xOriginalPoint.X;
+                x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (i) + xOriginalPoint.X;
+                x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (i + 1) + xOriginalPoint.X;
                 try
                 {
                     m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
@@ -388,8 +418,8 @@ namespace FQC
                     {
                         y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop - 1].m_PressureValue / m_ValueInervalY)));
                         y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop].m_PressureValue / m_ValueInervalY)));
-                        x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop) + xOriginalPoint.X;
-                        x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop + 1) + xOriginalPoint.X;
+                        x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (iLoop) + xOriginalPoint.X;
+                        x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (iLoop + 1) + xOriginalPoint.X;
                         m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
                     }
                 }
@@ -498,6 +528,9 @@ namespace FQC
             cbToolingPort.Items.AddRange(SerialPort.GetPortNames());
             m_Ch1Timer.Interval = m_SampleInterval;
             m_Ch1Timer.Elapsed += OnTimer;
+
+            m_GaugeTimer.Interval = m_GaugeSampleInterval;
+            m_GaugeTimer.Elapsed += OnTimerGauge;
         }
 
         /// <summary>
@@ -816,6 +849,7 @@ namespace FQC
         private void picStop_Click(object sender, EventArgs e)
         {
             StopTimer();
+            StartTimerGauge();
             BeginStopTestThread();
             //if (StopTestManual!=null)
             //    StopTestManual(this, null);
@@ -1044,6 +1078,7 @@ namespace FQC
             {
                 Logger.Instance().Info("命令'SetStartControl'指令成功返回！");
                 StartTimer();
+                this.StartTimerGauge();
                 m_StartTime = DateTime.Now;
                 //EnableAllControls(false);
                 SendNextRequest();
@@ -1129,6 +1164,7 @@ namespace FQC
                     else
                     {
                         StopTimer();
+                        StartTimerGauge();
                         this.InvokeOnClick(this.picStop, null);
                         break;
                     }
@@ -1588,6 +1624,7 @@ namespace FQC
         private void PauseTest()
         {
             StopTimer();
+            StartTimerGauge();
             lock (m_RequestCommands)
             {
                 m_RequestCommands.Clear();
@@ -1627,6 +1664,7 @@ namespace FQC
                     m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
                     SendNextRequest();
                     StartTimer();
+                    StartTimerGauge();
                 }
             }
             else
