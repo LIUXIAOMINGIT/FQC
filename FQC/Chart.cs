@@ -24,7 +24,7 @@ namespace FQC
 {
     public partial class Chart : UserControl
     {
-        private const double MAXKPALIMIT                                      = 200;
+        private const double MAXKPALIMIT                                      = 150;
         private const string VOL                                              = "Kpa";
         private const int LEFTBORDEROFFSET                                    = 30;
         private const int RIGHTBORDEROFFSET                                   = 10;
@@ -37,9 +37,9 @@ namespace FQC
         private Pen                                   m_WaveLinePen           = new Pen(Color.FromArgb(19, 113, 185));
         private SolidBrush                            m_WaveLineBrush         = new SolidBrush(Color.FromArgb(19, 113, 185));
         private float                                 m_XCoordinateMaxValue   = 120;                                       //X轴最大长度：120秒
-        private int                                   m_YCoordinateMaxValue   = 200;                                       //y轴最大Kpa
+        private int                                   m_YCoordinateMaxValue   = 150;                                       //y轴最大Kpa
         private int                                   m_XSectionCount         = 20;
-        private int                                   m_YSectionCount         = 20;
+        private int                                   m_YSectionCount         = 15;
         private float                                 m_CoordinateIntervalX   = 0;                                         //X轴上的区间实际长度，单位为像素
         private float                                 m_CoordinateIntervalY   = 0;                                         //Y轴上的区间实际长度，单位为像素
         private float                                 m_ValueInervalX         = 0;                                         //X轴上的坐标值，根据实际放大倍数和量程决定
@@ -55,7 +55,7 @@ namespace FQC
         private System.Timers.Timer                   m_Ch1Timer              = new System.Timers.Timer();
         private System.Timers.Timer                   m_GaugeTimer            = new System.Timers.Timer();
         private int                                   m_SampleInterval        = 500;                                       //采样频率：毫秒
-        private int                                   m_GaugeSampleInterval   = 200;                                       //压力表采样频率：200毫秒
+        private int                                   m_GaugeSampleInterval   = 350;                                       //压力表采样频率：350毫秒
         private int                                   m_Channel               = 1;                                         //1号通道，默认值
         private string                                m_PumpNo                = string.Empty;                              //产品序号
         private string                                m_ToolingNo             = string.Empty;                              //工装编号
@@ -333,7 +333,7 @@ namespace FQC
             if (m_Ch1SampleDataList.Count > count)
                 ReDrawCoordinate();
             else
-                DrawSingleAccuracyMap();
+                DrawSingleAccuracyMap(m_XSectionCount, m_YSectionCount);
             if (e.PressureValue >= MAXKPALIMIT)
             {
                 m_bMaxKpaFlag = true;
@@ -514,7 +514,7 @@ namespace FQC
 
         private void ReDrawCoordinate()
         {
-            m_XCoordinateMaxValue += 30;
+            m_XCoordinateMaxValue += 60;
             this.WavelinePanel.Invalidate();
         }
         #endregion
@@ -681,6 +681,7 @@ namespace FQC
         {
             detail.ClearLabelValue();
             detail.Pid = m_LocalPid;
+            mFQCData.Channel = 0;
             mFQCData.brand = string.Empty;
             mFQCData.pressureN = 0;
             mFQCData.pressureL = 0;
@@ -689,6 +690,19 @@ namespace FQC
             mFQCData.syrangeSize = 0;
             m_Ch1SampleDataList.Clear();
             WavelinePanel.Invalidate();
+
+
+            #region 第一道泵是否已经测试完成
+            if (this.Channel==2)// && PressureForm.SampleDataList[0].Channel!=1)
+            {
+                if (PressureForm.SampleDataList.Count == 0 || PressureForm.SampleDataList[0].Channel != 1)
+                {
+                    MessageBox.Show("请先完成第一道测试！");
+                    return;
+                }
+            }
+            #endregion
+
             #region 参数输入检查
 
             if (SamplingStartOrStop != null)
@@ -1343,7 +1357,10 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
             ws.Cell(2, ++columnIndex).Value = mFQCData.syrangeSize;
             ws.Cell(2, ++columnIndex).Value = tbRate.Text;
-            ws.Cell(2, ++columnIndex).Value = mFQCData.pressureN;
+            if(m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
+                ws.Cell(2, ++columnIndex).Value = mFQCData.pressureN;
+            else
+                ws.Cell(2, ++columnIndex).Value = "N/A";
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureL;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureC;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureH;
@@ -1402,8 +1419,9 @@ namespace FQC
             bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
+            
             var parameter = cfg.Find(Misc.OcclusionLevel.N);
-            if (parameter != null)
+            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N) && parameter != null)
                 if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
                 {
                     bPass = true;
@@ -1414,7 +1432,7 @@ namespace FQC
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.L);
-            if (parameter != null)
+            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L) && parameter != null)
                 if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
                 {
                     bPass = true;
@@ -1425,7 +1443,7 @@ namespace FQC
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.C);
-            if (parameter != null)
+            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C) && parameter != null)
                 if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
                 {
                     bPass = true;
@@ -1436,7 +1454,7 @@ namespace FQC
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.H);
-            if (parameter != null)
+            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H) && parameter != null)
                 if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
                 {
                     bPass = true;
@@ -1469,32 +1487,33 @@ namespace FQC
             var parameter = cfg.Find(m_CurrentLevel);
             if (parameter != null)
             {
-                switch(m_CurrentLevel)
+                if (m_CurrentLevel == Misc.OcclusionLevel.N && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
                 {
-                    case Misc.OcclusionLevel.N:
-                        if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                    if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                        bPass = true;
+                    else
+                        bPass = false;
+                }
+                else if (m_CurrentLevel == Misc.OcclusionLevel.L && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L))
+                {
+                    if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
+                        bPass = true;
+                    else
+                        bPass = false;
+                }
+                else if (m_CurrentLevel == Misc.OcclusionLevel.C && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C))
+                {
+                    if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
+                        bPass = true;
+                    else
+                        bPass = false;
+                }
+                else if (m_CurrentLevel == Misc.OcclusionLevel.H && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H))
+                {
+                    if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
                             bPass = true;
                         else
                             bPass = false;
-                        break;
-                    case Misc.OcclusionLevel.L:
-                        if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
-                            bPass = true;
-                        else
-                            bPass = false;
-                        break;
-                    case Misc.OcclusionLevel.C:
-                        if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
-                            bPass = true;
-                        else
-                            bPass = false;
-                        break;
-                    case Misc.OcclusionLevel.H:
-                        if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
-                            bPass = true;
-                        else
-                            bPass = false;
-                        break;
                 }
             }
             return bPass;
@@ -1634,19 +1653,32 @@ namespace FQC
             switch (m_CurrentLevel)
             {
                 case Misc.OcclusionLevel.N:
-                    mFQCData.pressureN = max;
+                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
+                        mFQCData.pressureN = max;
+                    else
+                        mFQCData.pressureN = -1;
                     break;
                 case Misc.OcclusionLevel.L:
-                    mFQCData.pressureL = max;
+                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L))
+                        mFQCData.pressureL = max;
+                    else
+                        mFQCData.pressureL = -1;
                     break;
                 case Misc.OcclusionLevel.C:
-                    mFQCData.pressureC = max;
+                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C))
+                        mFQCData.pressureC = max;
+                    else
+                        mFQCData.pressureC = -1;
                     break;
                 case Misc.OcclusionLevel.H:
-                    mFQCData.pressureH = max;
+                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H))
+                        mFQCData.pressureH = max;
+                    else
+                        mFQCData.pressureH = -1;
                     break;
                 default: break;
             }
+            mFQCData.Channel = m_Channel;
             mFQCData.rate = float.Parse(tbRate.Text);
             //如果是自动模式下
             if(cmbPattern.SelectedIndex==0)

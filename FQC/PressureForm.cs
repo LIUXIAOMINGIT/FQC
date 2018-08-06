@@ -31,7 +31,7 @@ namespace FQC
         private bool moving = false;
         private Point oldMousePosition;
         private int m_SampleInterval = 500;//采样频率：毫秒
-        private List<FQCData> m_SampleDataList = new List<FQCData>();//存放双道泵上传的数据，等第二道泵结束后，一起存在一张表中
+        private static List<FQCData> m_SampleDataList = new List<FQCData>();//存放双道泵上传的数据，等第二道泵结束后，一起存在一张表中
 
         private List<Misc.SyringeBrand> m_LevelNBrands = new List<Misc.SyringeBrand>();             //不同品牌压力档位不同
 
@@ -42,6 +42,11 @@ namespace FQC
         private Dictionary<Misc.SyringeBrand, String> m_SyringeBrands = new Dictionary<Misc.SyringeBrand, string>();
 
 
+        public static List<FQCData> SampleDataList
+        {
+            set { m_SampleDataList = value; }
+            get { return m_SampleDataList; }
+        }
 
         public PressureForm()
         {
@@ -418,7 +423,9 @@ namespace FQC
             if (!e.IsPass)
             {
                 TestAgainDialog againDlg = new TestAgainDialog();
-                if (againDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                var result = againDlg.ShowDialog();
+                 
+                if (result == System.Windows.Forms.DialogResult.OK)
                 {
                     //继续测试
                     if (chart.Name == "chart1")
@@ -497,7 +504,7 @@ namespace FQC
                         #endregion
                     }
                 }
-                else
+                else if (result == System.Windows.Forms.DialogResult.Cancel)
                 {
                     //重新测试，删除所有数据
                     #region //测试结束，但是不合格...需要重新测试
@@ -516,7 +523,12 @@ namespace FQC
                         chart2.Start();
                     }
                     #endregion
-
+                }
+                else
+                {
+                    //if (m_SampleDataList.Count>0)
+                    //    m_SampleDataList.RemoveAt(m_SampleDataList.Count - 1);
+                    return;
                 }
                 return;
             }
@@ -663,10 +675,10 @@ namespace FQC
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.brand;
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.syrangeSize;
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.rate;
-                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureN;
-                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureL;
-                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureC;
-                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureH;
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureN > 0 ? fqcData.pressureN.ToString("F1") : "N/A";
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureL > 0 ? fqcData.pressureL.ToString("F1") : "N/A";
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureC > 0 ? fqcData.pressureC.ToString("F1") : "N/A";
+                ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureH > 0 ? fqcData.pressureH.ToString("F1") : "N/A";
                 bool bPass = true;
                 if(i==0)
                 {

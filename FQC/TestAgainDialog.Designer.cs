@@ -33,6 +33,7 @@
             this.tlpmain = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnTestAgain = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.tlpmain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -40,7 +41,7 @@
             // 
             this.lbResult.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbResult.AutoSize = true;
-            this.tlpmain.SetColumnSpan(this.lbResult, 2);
+            this.tlpmain.SetColumnSpan(this.lbResult, 3);
             this.lbResult.Font = new System.Drawing.Font("Microsoft YaHei", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lbResult.ForeColor = System.Drawing.Color.Red;
             this.lbResult.Location = new System.Drawing.Point(75, 47);
@@ -57,7 +58,7 @@
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnOK.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnOK.ForeColor = System.Drawing.Color.White;
-            this.btnOK.Location = new System.Drawing.Point(41, 152);
+            this.btnOK.Location = new System.Drawing.Point(14, 152);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 30);
             this.btnOK.TabIndex = 2;
@@ -68,13 +69,15 @@
             // tlpmain
             // 
             this.tlpmain.BackColor = System.Drawing.Color.White;
-            this.tlpmain.ColumnCount = 2;
-            this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpmain.ColumnCount = 3;
+            this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tlpmain.Controls.Add(this.btnOK, 0, 2);
             this.tlpmain.Controls.Add(this.panel1, 0, 0);
             this.tlpmain.Controls.Add(this.lbResult, 0, 1);
             this.tlpmain.Controls.Add(this.btnTestAgain, 1, 2);
+            this.tlpmain.Controls.Add(this.btnCancel, 2, 2);
             this.tlpmain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpmain.Location = new System.Drawing.Point(0, 0);
             this.tlpmain.Margin = new System.Windows.Forms.Padding(0);
@@ -90,7 +93,7 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
-            this.tlpmain.SetColumnSpan(this.panel1, 2);
+            this.tlpmain.SetColumnSpan(this.panel1, 3);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
@@ -105,13 +108,28 @@
             this.btnTestAgain.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnTestAgain.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.btnTestAgain.ForeColor = System.Drawing.Color.White;
-            this.btnTestAgain.Location = new System.Drawing.Point(198, 152);
+            this.btnTestAgain.Location = new System.Drawing.Point(118, 152);
             this.btnTestAgain.Name = "btnTestAgain";
             this.btnTestAgain.Size = new System.Drawing.Size(75, 30);
             this.btnTestAgain.TabIndex = 1;
             this.btnTestAgain.Text = "复测";
             this.btnTestAgain.UseVisualStyleBackColor = false;
             this.btnTestAgain.Click += new System.EventHandler(this.btnTestAgain_Click);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
+            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnCancel.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btnCancel.ForeColor = System.Drawing.Color.White;
+            this.btnCancel.Location = new System.Drawing.Point(223, 152);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 30);
+            this.btnCancel.TabIndex = 1;
+            this.btnCancel.Text = "取消";
+            this.btnCancel.UseVisualStyleBackColor = false;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // TestAgainDialog
             // 
@@ -137,5 +155,6 @@
         private System.Windows.Forms.TableLayoutPanel tlpmain;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnTestAgain;
+        private System.Windows.Forms.Button btnCancel;
     }
 }
