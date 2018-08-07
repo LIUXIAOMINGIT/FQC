@@ -659,10 +659,10 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "注射器品牌";
             ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
             ws.Cell(1, ++columnIndex).Value = "速率";
-            ws.Cell(1, ++columnIndex).Value = "N";
-            ws.Cell(1, ++columnIndex).Value = "L";
-            ws.Cell(1, ++columnIndex).Value = "C";
-            ws.Cell(1, ++columnIndex).Value = "H";
+            ws.Cell(1, ++columnIndex).Value = "N(Kpa)";
+            ws.Cell(1, ++columnIndex).Value = "L(Kpa)";
+            ws.Cell(1, ++columnIndex).Value = "C(Kpa)";
+            ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
             for (int i = 0; i < m_SampleDataList.Count;i++ )
             {
