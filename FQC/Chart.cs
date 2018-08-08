@@ -679,21 +679,8 @@ namespace FQC
         /// </summary>
         public void Start()
         {
-            detail.ClearLabelValue();
-            detail.Pid = m_LocalPid;
-            mFQCData.Channel = 0;
-            mFQCData.brand = string.Empty;
-            mFQCData.pressureN = 0;
-            mFQCData.pressureL = 0;
-            mFQCData.pressureC = 0;
-            mFQCData.pressureH = 0;
-            mFQCData.syrangeSize = 0;
-            m_Ch1SampleDataList.Clear();
-            WavelinePanel.Invalidate();
-
-
             #region 第一道泵是否已经测试完成
-            if (this.Channel==2)// && PressureForm.SampleDataList[0].Channel!=1)
+            if (m_LocalPid == PumpID.GrasebyF8_2 && this.Channel == 2)// && PressureForm.SampleDataList[0].Channel!=1)
             {
                 if (PressureForm.SampleDataList.Count == 0 || PressureForm.SampleDataList[0].Channel != 1)
                 {
@@ -848,6 +835,21 @@ namespace FQC
                     return;
                 }
             }
+
+            #region Clear Value
+            detail.ClearLabelValue();
+            detail.Pid = m_LocalPid;
+            mFQCData.Channel = 0;
+            mFQCData.brand = string.Empty;
+            mFQCData.pressureN = 0;
+            mFQCData.pressureL = 0;
+            mFQCData.pressureC = 0;
+            mFQCData.pressureH = 0;
+            mFQCData.syrangeSize = 0;
+            m_Ch1SampleDataList.Clear();
+            WavelinePanel.Invalidate();
+            #endregion
+
             mFQCData.brand = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString().Substring(4);
             InitAllParameters();
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
@@ -1348,7 +1350,10 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "C(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
-
+            ws.Columns(1, 1).Width = 30;
+            ws.Columns(2, columnIndex).Width = 15;
+            ws.Columns(4, 4).Width = 20;
+            
             columnIndex = 0;
             ws.Cell(2, ++columnIndex).Value = m_PumpNo;
             ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
@@ -1382,7 +1387,7 @@ namespace FQC
             }
             ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 2, 4).SetDataType(XLCellValues.Text);
-           
+            ws.Range(1, 1, 2, columnIndex).Style.Alignment.SetWrapText();
             wb.SaveAs(name);
         }
 

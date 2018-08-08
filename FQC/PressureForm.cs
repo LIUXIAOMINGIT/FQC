@@ -664,6 +664,10 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "C(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
+            ws.Columns(1, 1).Width = 30;
+            ws.Columns(2, columnIndex).Width = 15;
+            ws.Columns(4, 4).Width = 20;
+
             for (int i = 0; i < m_SampleDataList.Count;i++ )
             {
                 var fqcData = m_SampleDataList[i];
@@ -713,7 +717,7 @@ namespace FQC
             }
             ws.Range(1, 1, 3, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 3, 4).SetDataType(XLCellValues.Text);
-
+            ws.Range(1, 1, 3, columnIndex).Style.Alignment.SetWrapText();
             wb.SaveAs(name);
         }
 
