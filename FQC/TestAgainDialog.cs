@@ -12,27 +12,29 @@ namespace FQC
 {
     public partial class TestAgainDialog : Form
     {
-        private int _channel = 2;       //默认是从第一道先测试，弹出第二道提示框
-
-        public TestAgainDialog()
-        {
-            InitializeComponent();
-        }
-
-        public TestAgainDialog(int channel)
+        private int _channel = 1;       //默认是从第一道先测试，弹出第二道提示框
+        
+        public TestAgainDialog(int channel=1)
         {
             InitializeComponent();
             _channel = channel;
-            HintFormat(channel);
+            InitUI4Channel2(channel);
         }
 
-        private void HintFormat(int channel)
+        private void InitUI4Channel2(int channel)
         {
-            string format = "点击确定继续测试第{0}道泵";
-            string msg = string.Format(format, channel);
-            lbResult.Text = msg;
+            if (channel == 2)
+            {
+                lbResult.Text = "不合格，“确定”结束测试，“复测”重新测试";
+                btnCancel.Visible = false;
+            }
+            else
+            {
+                lbResult.Text = "不合格，“确定”继续测试，“复测”重新测试，“取消”结束本次测试";
+                btnCancel.Visible = true;
+            }
         }
-         
+
         private void tlpmain_Paint(object sender, PaintEventArgs e)
         {
             Pen borderPen = new Pen(Color.FromArgb(19, 113, 185));

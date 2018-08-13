@@ -21,6 +21,14 @@ namespace FQC
         public float pressureL;
         public float pressureC;
         public float pressureH;
+
+        public void Clear()
+        {
+            pressureN = 0;
+            pressureL = 0;
+            pressureC = 0;
+            pressureH = 0;
+        }
     }
 
     public partial class Detail : UserControl

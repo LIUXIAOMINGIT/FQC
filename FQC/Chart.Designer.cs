@@ -138,7 +138,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
@@ -182,9 +182,9 @@
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label3.Location = new System.Drawing.Point(229, 19);
+            this.label3.Location = new System.Drawing.Point(227, 9);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(57, 20);
+            this.label3.Size = new System.Drawing.Size(41, 40);
             this.label3.TabIndex = 1;
             this.label3.Text = "泵串口";
             // 
@@ -217,7 +217,7 @@
             this.label8.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label8.Location = new System.Drawing.Point(174, 138);
+            this.label8.Location = new System.Drawing.Point(173, 138);
             this.label8.Margin = new System.Windows.Forms.Padding(0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(44, 20);
@@ -230,7 +230,7 @@
             this.cbToolingPort.BackColor = System.Drawing.Color.White;
             this.cbToolingPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbToolingPort.FormattingEnabled = true;
-            this.cbToolingPort.Location = new System.Drawing.Point(78, 15);
+            this.cbToolingPort.Location = new System.Drawing.Point(77, 15);
             this.cbToolingPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbToolingPort.Name = "cbToolingPort";
             this.cbToolingPort.Size = new System.Drawing.Size(96, 28);
@@ -244,7 +244,7 @@
             this.cbPumpPort.BackColor = System.Drawing.Color.White;
             this.cbPumpPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cbPumpPort.FormattingEnabled = true;
-            this.cbPumpPort.Location = new System.Drawing.Point(289, 15);
+            this.cbPumpPort.Location = new System.Drawing.Point(286, 15);
             this.cbPumpPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbPumpPort.Name = "cbPumpPort";
             this.cbPumpPort.Size = new System.Drawing.Size(81, 28);
@@ -256,7 +256,7 @@
             this.tbRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbRate.BackColor = System.Drawing.Color.White;
             this.tbRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
-            this.tbRate.Location = new System.Drawing.Point(78, 132);
+            this.tbRate.Location = new System.Drawing.Point(77, 132);
             this.tbRate.Margin = new System.Windows.Forms.Padding(0);
             this.tbRate.Name = "tbRate";
             this.tbRate.Size = new System.Drawing.Size(96, 32);
@@ -269,7 +269,7 @@
             this.cmbSetBrand.BackColor = System.Drawing.Color.White;
             this.cmbSetBrand.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbSetBrand.FormattingEnabled = true;
-            this.cmbSetBrand.Location = new System.Drawing.Point(78, 74);
+            this.cmbSetBrand.Location = new System.Drawing.Point(77, 74);
             this.cmbSetBrand.Margin = new System.Windows.Forms.Padding(0);
             this.cmbSetBrand.Name = "cmbSetBrand";
             this.cmbSetBrand.Size = new System.Drawing.Size(96, 28);
@@ -282,7 +282,7 @@
             this.cmbLevel.BackColor = System.Drawing.Color.White;
             this.cmbLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.cmbLevel.FormattingEnabled = true;
-            this.cmbLevel.Location = new System.Drawing.Point(289, 74);
+            this.cmbLevel.Location = new System.Drawing.Point(286, 74);
             this.cmbLevel.Margin = new System.Windows.Forms.Padding(0);
             this.cmbLevel.Name = "cmbLevel";
             this.cmbLevel.Size = new System.Drawing.Size(81, 28);
@@ -294,7 +294,7 @@
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label5.Location = new System.Drawing.Point(229, 78);
+            this.label5.Location = new System.Drawing.Point(227, 78);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(41, 20);
             this.label5.TabIndex = 1;
@@ -303,7 +303,7 @@
             // picPumpPortStatus
             // 
             this.picPumpPortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picPumpPortStatus.Location = new System.Drawing.Point(370, 0);
+            this.picPumpPortStatus.Location = new System.Drawing.Point(367, 0);
             this.picPumpPortStatus.Margin = new System.Windows.Forms.Padding(0);
             this.picPumpPortStatus.Name = "picPumpPortStatus";
             this.picPumpPortStatus.Size = new System.Drawing.Size(30, 59);
@@ -315,7 +315,7 @@
             // picGaugePortStatus
             // 
             this.picGaugePortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picGaugePortStatus.Location = new System.Drawing.Point(174, 0);
+            this.picGaugePortStatus.Location = new System.Drawing.Point(173, 0);
             this.picGaugePortStatus.Margin = new System.Windows.Forms.Padding(0);
             this.picGaugePortStatus.Name = "picGaugePortStatus";
             this.picGaugePortStatus.Size = new System.Drawing.Size(30, 59);
@@ -329,7 +329,7 @@
             this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.label6.Location = new System.Drawing.Point(229, 138);
+            this.label6.Location = new System.Drawing.Point(227, 138);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(41, 20);
             this.label6.TabIndex = 1;
@@ -344,7 +344,7 @@
             this.cmbPattern.Items.AddRange(new object[] {
             "自动",
             "手动"});
-            this.cmbPattern.Location = new System.Drawing.Point(289, 134);
+            this.cmbPattern.Location = new System.Drawing.Point(286, 134);
             this.cmbPattern.Margin = new System.Windows.Forms.Padding(0);
             this.cmbPattern.Name = "cmbPattern";
             this.cmbPattern.Size = new System.Drawing.Size(81, 28);
@@ -417,7 +417,7 @@
             this.tlpMain.SetColumnSpan(this.pnlChart, 2);
             this.pnlChart.Controls.Add(this.WavelinePanel);
             this.pnlChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlChart.Font = new System.Drawing.Font("Microsoft YaHei", 9F);
+            this.pnlChart.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.pnlChart.ForeColor = System.Drawing.Color.Black;
             this.pnlChart.Location = new System.Drawing.Point(0, 178);
             this.pnlChart.Margin = new System.Windows.Forms.Padding(0);
@@ -430,7 +430,7 @@
             this.WavelinePanel.BackColor = System.Drawing.Color.White;
             this.WavelinePanel.Controls.Add(this.detail);
             this.WavelinePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WavelinePanel.Font = new System.Drawing.Font("Microsoft YaHei", 9F);
+            this.WavelinePanel.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.WavelinePanel.ForeColor = System.Drawing.Color.Black;
             this.WavelinePanel.Location = new System.Drawing.Point(0, 0);
             this.WavelinePanel.Margin = new System.Windows.Forms.Padding(0);
