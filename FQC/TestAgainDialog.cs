@@ -13,7 +13,8 @@ namespace FQC
     public partial class TestAgainDialog : Form
     {
         private int _channel = 1;       //默认是从第一道先测试，弹出第二道提示框
-        
+        private bool moving = false;
+        private Point oldMousePosition;
         public TestAgainDialog(int channel=1)
         {
             InitializeComponent();
@@ -58,6 +59,30 @@ namespace FQC
         {
             this.DialogResult = System.Windows.Forms.DialogResult.Ignore;
             this.Close();
+        }
+
+        private void pnlHead_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Maximized)
+            {
+                return;
+            }
+            oldMousePosition = e.Location;
+            moving = true;
+        }
+
+        private void pnlHead_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && moving)
+            {
+                Point newPosition = new Point(e.Location.X - oldMousePosition.X, e.Location.Y - oldMousePosition.Y);
+                this.Location += new Size(newPosition);
+            }
+        }
+
+        private void pnlHead_MouseUp(object sender, MouseEventArgs e)
+        {
+            moving = false;
         }
     }
 }

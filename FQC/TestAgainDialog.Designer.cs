@@ -31,7 +31,7 @@
             this.lbResult = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
             this.tlpmain = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pnlHead = new System.Windows.Forms.Panel();
             this.btnTestAgain = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.tlpmain.SuspendLayout();
@@ -74,7 +74,7 @@
             this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
             this.tlpmain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
             this.tlpmain.Controls.Add(this.btnOK, 0, 2);
-            this.tlpmain.Controls.Add(this.panel1, 0, 0);
+            this.tlpmain.Controls.Add(this.pnlHead, 0, 0);
             this.tlpmain.Controls.Add(this.lbResult, 0, 1);
             this.tlpmain.Controls.Add(this.btnTestAgain, 2, 2);
             this.tlpmain.Controls.Add(this.btnCancel, 1, 2);
@@ -91,16 +91,19 @@
             this.tlpmain.TabIndex = 3;
             this.tlpmain.Paint += new System.Windows.Forms.PaintEventHandler(this.tlpmain_Paint);
             // 
-            // panel1
+            // pnlHead
             // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
-            this.tlpmain.SetColumnSpan(this.panel1, 3);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(314, 30);
-            this.panel1.TabIndex = 5;
+            this.pnlHead.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
+            this.tlpmain.SetColumnSpan(this.pnlHead, 3);
+            this.pnlHead.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlHead.Location = new System.Drawing.Point(0, 0);
+            this.pnlHead.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlHead.Name = "pnlHead";
+            this.pnlHead.Size = new System.Drawing.Size(314, 30);
+            this.pnlHead.TabIndex = 5;
+            this.pnlHead.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnlHead_MouseDown);
+            this.pnlHead.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pnlHead_MouseMove);
+            this.pnlHead.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnlHead_MouseUp);
             // 
             // btnTestAgain
             // 
@@ -154,7 +157,7 @@
         private System.Windows.Forms.Label lbResult;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.TableLayoutPanel tlpmain;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlHead;
         private System.Windows.Forms.Button btnTestAgain;
         private System.Windows.Forms.Button btnCancel;
     }
