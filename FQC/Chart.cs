@@ -54,7 +54,7 @@ namespace FQC
         private ProductModel                          m_ProductModel          = ProductModel.GrasebyF8;
         private System.Timers.Timer                   m_Ch1Timer              = new System.Timers.Timer();
         private System.Timers.Timer                   m_GaugeTimer            = new System.Timers.Timer();
-        private int                                   m_SampleInterval        = 500;                                       //采样频率：毫秒
+        private int                                   m_SampleInterval        = 600;                                       //采样频率：毫秒
         private int                                   m_GaugeSampleInterval   = 350;                                       //压力表采样频率：350毫秒
         private int                                   m_Channel               = 1;                                         //1号通道，默认值
         private string                                m_PumpNo                = string.Empty;                              //产品序号
@@ -66,7 +66,7 @@ namespace FQC
         private Misc.SyringeBrand                     m_CurrentBrand          = Misc.SyringeBrand.None;
         private List<Misc.SyringeBrand>               m_LevelNBrands          = new List<Misc.SyringeBrand>();             //不同品牌压力档位不同
         private Misc.OcclusionLevel                   m_CurrentLevel          = Misc.OcclusionLevel.None;                  //当前测试的压力
-        private Misc.OcclusionLevel                   m_PreLevel              = Misc.OcclusionLevel.None;                  //上一步测试的压力
+        //private Misc.OcclusionLevel                   m_PreLevel              = Misc.OcclusionLevel.None;                  //上一步测试的压力
         private Queue<Misc.ApplicationRequestCommand> m_RequestCommands       = new Queue<Misc.ApplicationRequestCommand>();
         protected DateTime                            m_StopTime              = DateTime.Now;                              //停止时间
         protected DateTime                            m_StartTime             = DateTime.Now;                              //开始时间
@@ -75,6 +75,7 @@ namespace FQC
         protected bool                                m_bTestOverFlag         = false;                                     //是否是调用了StopTest函数
         protected bool                                m_bMaxKpaFlag           = false;                                     //是否是超过了200Kpa并停止泵
         private FQCData mFQCData                                              = new FQCData();
+        private int                                   m_LevelTryCount         = 0;                                         //当压力档命令没有响应超过2次，就完全停止测试
 
         #region 委托+事件
         public delegate void DelegateSetWeightValue(float weight, bool isDetect);
@@ -228,7 +229,7 @@ namespace FQC
                 m_ConnResponse.SetStopControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse += new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse += new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
-                //m_ConnResponse.GetPressureCalibrationPValueResponse += new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
+                m_ConnResponse.GetPumpStatusResponse += new EventHandler<ResponseEventArgs<Misc.PumpStatusInfo>>(GetPumpStatus);
             }
             catch 
             { 
@@ -249,7 +250,7 @@ namespace FQC
                 m_ConnResponse.SetStopControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse -= new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse -= new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
-                //m_ConnResponse.GetPressureCalibrationPValueResponse -= new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
+                m_ConnResponse.GetPumpStatusResponse -= new EventHandler<ResponseEventArgs<Misc.PumpStatusInfo>>(GetPumpStatus);
             }
             catch
             { 
@@ -789,11 +790,14 @@ namespace FQC
                 MessageBox.Show("选择的泵类型错误，请联系管理员!");
                 return;
             }
-
-            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
+            if(m_ConnResponse != null)
+                RemoveHandler();
+            if (m_ConnResponse != null)
             {
                 m_ConnResponse.CloseConnection();
-                Thread.Sleep(500);
+                Thread.Sleep(1500);
+                m_ConnResponse.Dispose();
+                m_ConnResponse = null;
             }
             SerialPortParameter para = PressureForm.m_DicPumpPortParameter[pid] as SerialPortParameter;
             m_ConnResponse = new GlobalResponse(pid, Misc.CommunicationProtocolType.General);
@@ -857,6 +861,8 @@ namespace FQC
 
             mFQCData.brand = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString().Substring(4);
             InitAllParameters();
+            m_ConnResponse.ClearAllCommand();
+            m_RequestCommands.Clear();
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetSyringeBrand);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetVTBIParameter);
@@ -977,7 +983,7 @@ namespace FQC
             {
                 Logger.Instance().ErrorFormat("命令'SetSyringeBrand'指令返回错误！ErrorMessage = {0}", args.ErrorMessage);
                 MessageBox.Show("设置注射器品牌失败！");
-                m_CurrentLevel = m_PreLevel;
+                //m_CurrentLevel = m_PreLevel;
                 StopTestWithoutStartPump();
             }
             else
@@ -1005,7 +1011,7 @@ namespace FQC
             {
                 Logger.Instance().ErrorFormat("命令'SetInfusionParas'指令返回错误！ErrorMessage = {0}", args.ErrorMessage);
                 MessageBox.Show("设置速率失败！");
-                m_CurrentLevel = m_PreLevel;
+                //m_CurrentLevel = m_PreLevel;
                 StopTestWithoutStartPump();
             }
             else
@@ -1029,14 +1035,28 @@ namespace FQC
             }
             if (String.Empty != args.ErrorMessage)
             {
-                Logger.Instance().ErrorFormat("命令'SetOcclusionLevel'指令返回错误！ErrorMessage = {0}", args.ErrorMessage);
-                ErrorDialog dlg = new ErrorDialog("设置压力档失败，请重新选择压力档后再重新开始！");
+                //++m_LevelTryCount;
+                Logger.Instance().ErrorFormat("命令'SetOcclusionLevel'指令返回错误！ErrorMessage = {0}, m_LevelTryCount = {1}, m_CurrentLevel={2}", args.ErrorMessage, m_LevelTryCount, m_CurrentLevel);
+                //if (m_LevelTryCount < 2)
+                //{
+                //    m_ConnResponse.SetOcclusionLevel(m_CurrentLevel);
+                //    //m_ConnResponse.ClearAllCommand();
+                //    //m_RequestCommands.Clear();
+                //    //m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
+                //    //m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
+                //    SendNextRequest();
+                //    //SendNextRequest();
+                //}
+                //else
+                //{
+                ErrorDialog dlg = new ErrorDialog("设置压力档失败，请选择最低档后重新开始测试！");
                 dlg.Show();
-                m_CurrentLevel = m_PreLevel;
                 StopTestWithoutStartPump();
+                //}
             }
             else
             {
+                m_LevelTryCount = 0;
                 Logger.Instance().Info("命令'SetOcclusionLevel'指令成功返回！");
                 SendNextRequest();
             }
@@ -1114,7 +1134,7 @@ namespace FQC
             {
                 Logger.Instance().Info("命令'SetStartControl'指令成功返回！");
                 StartTimer();
-                this.StartTimerGauge();
+                StartTimerGauge();
                 m_StartTime = DateTime.Now;
                 //EnableAllControls(false);
                 SendNextRequest();
@@ -1163,8 +1183,7 @@ namespace FQC
                 Logger.Instance().ErrorFormat("命令'GetPumpAlarms'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
                 m_AlarmInfo = new Misc.AlarmInfo();//set false
                 m_TryCount++;
-                ErrorDialog dlg = new ErrorDialog("读取报警数据失败,停止测试！");
-                dlg.Show();
+                ShowErrorDialog("读取报警数据失败,停止测试！");
                 StopTest();
             }
             else
@@ -1207,6 +1226,29 @@ namespace FQC
 
             SendNextRequest();
         }
+
+        private void GetPumpStatus(object sender, ResponseEventArgs<Misc.PumpStatusInfo> args)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new EventHandler<ResponseEventArgs<Misc.PumpStatusInfo>>(GetPumpStatus), new object[] { sender, args });
+                return;
+            }
+            if (String.Empty != args.ErrorMessage)
+            {
+                Logger.Instance().ErrorFormat("命令'GetPumpStatus'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
+                ShowErrorDialog("读取泵状态数据失败,停止测试！");
+                StopTest();
+            }
+            else
+            {
+
+            }
+
+        }
+        
+
+
 
         private void SendNextRequest()
         {
@@ -1294,6 +1336,19 @@ namespace FQC
                 Logger.Instance().Fatal("Chart::SendNextRequest() -> " + ex.Message);
             }
             
+        }
+
+        private void ShowErrorDialog(string message)
+        {
+            Thread th = new Thread((ParameterizedThreadStart)ProcShowErrorDialog);
+            th.Start(message);
+            //th.Join();
+        }
+        private void ProcShowErrorDialog(object message)
+        {
+            string msg = message as string;
+            ErrorDialog dlg = new ErrorDialog(msg);
+            dlg.ShowDialog();
         }
 
         #endregion
@@ -1580,6 +1635,7 @@ namespace FQC
             StopTimer();
             StopTimerGauge();
             m_ConnResponse.ClearAllCommand();
+            Thread.Sleep(500);
             m_ConnResponse.SetStopControl();
             int iTryStopCount = 3;
             do
@@ -1597,8 +1653,7 @@ namespace FQC
             if (iTryStopCount <= 0)
             {
                 StopTestWithoutStartPump();
-                ErrorDialog dlg = new ErrorDialog("停止泵失败，请手动停止！");
-                dlg.ShowDialog();
+                ShowErrorDialog("停止泵失败，请手动停止！");
             }
             else
             {
@@ -1685,6 +1740,7 @@ namespace FQC
                 m_RequestCommands.Clear();
             }
             m_ConnResponse.SetStopControl();
+            Thread.Sleep(1000);
             float max = FindMaxPressure();
             switch (m_CurrentLevel)
             {
@@ -1731,8 +1787,8 @@ namespace FQC
                     m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
                     m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
                     SendNextRequest();
-                    StartTimer();
-                    StartTimerGauge();
+                    //StartTimer();
+                    //StartTimerGauge();
                 }
             }
             else
