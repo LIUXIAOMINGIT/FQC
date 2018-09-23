@@ -48,6 +48,16 @@ namespace FQC
             get { return m_SampleDataList; }
         }
 
+
+
+        private const int INPUTSPEED                = 50;//条码枪输入字符速率小于50毫秒
+        private DateTime m_CharInputTimestamp       = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
+        private DateTime m_FirstCharInputTimestamp  = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
+        private DateTime m_SecondCharInputTimestamp = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
+        private int m_PressCount                    = 0;
+        public static int SerialNumberCount = 28;               //在指定时间内连续输入字符数量不低于28个时方可认为是由条码枪输入
+
+
         public PressureForm()
         {
             InitializeComponent();
@@ -78,6 +88,8 @@ namespace FQC
                 string strTool2 = ConfigurationManager.AppSettings.Get("Tool2");
                 tbToolingNo.Text = strTool1;
                 tbToolingNo2.Text = strTool2;
+                SerialNumberCount = Int32.Parse(ConfigurationManager.AppSettings.Get("SerialNumberCount"));
+
             }
             catch (Exception ex)
             {
@@ -407,7 +419,7 @@ namespace FQC
             chart1.ClearPumpNoWhenCompleteTest += OnClearPumpNoWhenCompleteTest;
             chart2.ClearPumpNoWhenCompleteTest += OnClearPumpNoWhenCompleteTest;
             chart1.Clear2ndChannelData += OnClear2ndChannelData;
-
+            chart1.OpratorNumberInput += OnOpratorNumberInput;
 
             m_SampleDataList.Clear();
         }
@@ -492,6 +504,7 @@ namespace FQC
                         chart2.Close();
                         //写入excel,调用chart类中函数
                         string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                        string path2 = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出备份";
                         PumpID pid = PumpID.None;
                         switch (m_LocalPid)
                         {
@@ -509,8 +522,13 @@ namespace FQC
                         if (!System.IO.Directory.Exists(path))
                             System.IO.Directory.CreateDirectory(path);
                         string saveFileName = path + "\\" + fileName + ".xlsx";
+
+                        if (!System.IO.Directory.Exists(path2))
+                            System.IO.Directory.CreateDirectory(path2);
+                        string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
+
                         //生成表格，两份
-                        GenDualReport(saveFileName);
+                        GenDualReport(saveFileName, saveFileName2);
 
                         if (m_LocalPid == PumpID.GrasebyF8_2)
                         {
@@ -571,6 +589,8 @@ namespace FQC
                     chart2.Close();
                     //写入excel,调用chart类中函数
                     string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                    string path2 = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出备份";
+
                     PumpID pid = PumpID.None;
                     switch (m_LocalPid)
                     {
@@ -588,8 +608,14 @@ namespace FQC
                     if (!System.IO.Directory.Exists(path))
                         System.IO.Directory.CreateDirectory(path);
                     string saveFileName = path + "\\" + fileName + ".xlsx";
+
+
+                    if (!System.IO.Directory.Exists(path2))
+                        System.IO.Directory.CreateDirectory(path2);
+                    string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
+
                     //生成表格，两份
-                    GenDualReport(saveFileName);
+                    GenDualReport(saveFileName, saveFileName2);
 
                     if (m_LocalPid == PumpID.GrasebyF8_2)
                     {
@@ -632,7 +658,7 @@ namespace FQC
         /// </summary>
         /// <param name="name"></param>
         /// <param name="caliParameters">已经生成好的数据，直接写到表格中</param>
-        private void GenDualReport(string name)
+        private void GenDualReport(string name, string name2 = "")
         {
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("FQC压力数据");
@@ -649,10 +675,13 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "C(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
+            ws.Cell(1, ++columnIndex).Value = "操作员";
+
             ws.Columns(1, 1).Width = 30;
             ws.Columns(2, columnIndex).Width = 15;
             ws.Columns(4, 4).Width = 20;
 
+            var opratorNumber = chart1.GetOpratorNumber();
             for (int i = 0; i < m_SampleDataList.Count;i++ )
             {
                 var fqcData = m_SampleDataList[i];
@@ -699,11 +728,14 @@ namespace FQC
                     if (i == 1)
                         ws.Range("A3", "L3").Style.Font.FontColor = XLColor.Red;
                 }
+                ws.Cell(2 + i, ++columnIndex).Value = opratorNumber;
             }
             ws.Range(1, 1, 3, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 3, 4).SetDataType(XLCellValues.Text);
             ws.Range(1, 1, 3, columnIndex).Style.Alignment.SetWrapText();
             wb.SaveAs(name);
+            Thread.Sleep(1000);
+            File.Copy(name, name2, true);
         }
 
         private void OnSamplingStartOrStop(object sender, EventArgs e)
@@ -747,7 +779,15 @@ namespace FQC
         {
             chart2.ClearTestData();
         }
-         
+        private void OnOpratorNumberInput(object sender, OpratorNumberArgs e)
+        {
+            Chart chart1 = sender as Chart;
+            if (chart1.Channel == 1)
+            {
+                chart2.InputOpratorNumber(e.Number);
+            }
+
+        }
 
         private void tlpTitle_MouseDown(object sender, MouseEventArgs e)
         {
@@ -828,7 +868,38 @@ namespace FQC
             m_SampleDataList.Clear();
         }
 
+        private void tbPumpNo_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TimeSpan ts;
+            m_SecondCharInputTimestamp = DateTime.Now;
+            ts = m_SecondCharInputTimestamp.Subtract(m_FirstCharInputTimestamp);     //获取时间间隔
+            if (ts.Milliseconds < INPUTSPEED)
+                m_PressCount++;
+            else
+            {
+                m_PressCount = 0;
+            }
 
+            if (m_PressCount == SerialNumberCount)
+            {
+                if (tbPumpNo.Text.Length >= SerialNumberCount)
+                {
+                    if (tbPumpNo.SelectionStart < tbPumpNo.Text.Length)
+                        tbPumpNo.Text = tbPumpNo.Text.Remove(tbPumpNo.SelectionStart);
+                    try
+                    {
+                        tbPumpNo.Text = tbPumpNo.Text.Substring(tbPumpNo.Text.Length - SerialNumberCount, SerialNumberCount);
+                        tbPumpNo.SelectionStart = tbPumpNo.Text.Length;
+                    }
+                    catch
+                    {
+                        tbPumpNo.Text = "";
+                    }
+                }
+                m_PressCount = 0;
+            }
+            m_FirstCharInputTimestamp = m_SecondCharInputTimestamp;
+        }
     }//end class
 
     public class SampleData

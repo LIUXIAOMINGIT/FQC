@@ -83,6 +83,8 @@ namespace FQC
         public delegate void DelegateEnableContols(bool bEnabled);
         public delegate void DelegateAlertTestResult();
         public delegate void DelegateContinueStopTest();
+        public delegate void DelegateInputOpratorNumber(string number);
+
         /// <summary>
         /// 当启动或停止时通知主界面
         /// </summary>
@@ -95,6 +97,8 @@ namespace FQC
         public event EventHandler<DoublePumpDataArgs> OnSamplingComplete;
         public event EventHandler<EventArgs> OnPortFreshedSuccess;  //F8双通道模式下，第一道泵成功刷新后，第二道泵串口一起刷新
         public event EventHandler<EventArgs> Clear2ndChannelData;  //F8双通道模式下，第一道泵成功启动，清空第二道数据
+        public event EventHandler<OpratorNumberArgs> OpratorNumberInput;
+
         #endregion
 
         #region 属性
@@ -688,6 +692,17 @@ namespace FQC
             #endregion
 
             #region 参数输入检查
+
+            if (string.IsNullOrEmpty(tbOprator.Text))
+            {
+                MessageBox.Show("请输入操作员工号");
+                return;
+            }
+            if (tbOprator.Text.Length != 8)
+            {
+                MessageBox.Show("请输入正确操作员工号");
+                return;
+            }
 
             if (SamplingStartOrStop != null)
             {
@@ -1395,7 +1410,7 @@ namespace FQC
         /// </summary>
         /// <param name="name"></param>
         /// <param name="caliParameters">已经生成好的数据，直接写到表格中</param>
-        private void GenReport(string name)
+        private void GenReport(string name, string name2)
         {
             string title = string.Empty;
             if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2)
@@ -1421,6 +1436,8 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "C(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
+            ws.Cell(1, ++columnIndex).Value = "操作员";
+
             ws.Columns(1, 1).Width = 30;
             ws.Columns(2, columnIndex).Width = 15;
             ws.Columns(4, 4).Width = 20;
@@ -1456,10 +1473,14 @@ namespace FQC
                 ws.Cell(2, ++columnIndex).Value = "失败";
                 ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
             }
+            ws.Cell(2, ++columnIndex).Value = tbOprator.Text;
+
             ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 2, 4).SetDataType(XLCellValues.Text);
             ws.Range(1, 1, 2, columnIndex).Style.Alignment.SetWrapText();
             wb.SaveAs(name);
+            Thread.Sleep(1000);
+            File.Copy(name, name2, true);
         }
 
         /// <summary>
@@ -1717,7 +1738,13 @@ namespace FQC
                 if (!System.IO.Directory.Exists(path))
                     System.IO.Directory.CreateDirectory(path);
                 string saveFileName = path + "\\" + fileName + ".xlsx";
-                GenReport(saveFileName);
+
+                string path2 = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出备份";
+                if (!System.IO.Directory.Exists(path2))
+                    System.IO.Directory.CreateDirectory(path2);
+                string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
+
+                GenReport(saveFileName, saveFileName2);
                 if (ClearPumpNoWhenCompleteTest != null)
                     ClearPumpNoWhenCompleteTest(this, null);
                 AlertTestResultSub();
@@ -1850,6 +1877,58 @@ namespace FQC
             m_Ch1SampleDataList.Clear();
             mFQCData.Clear();
             WavelinePanel.Invalidate();
+        }
+
+        private void tbOprator_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox txt = sender as TextBox;
+            if (char.IsNumber(e.KeyChar) || e.KeyChar == (char)Keys.Back)
+            {
+                e.Handled = false;                         //让操作生效
+                if (txt.Text.Length >= 8)
+                {
+                    if (e.KeyChar == (char)Keys.Back)
+                        e.Handled = false;             //让操作生效
+                    else
+                        e.Handled = true;              //让操作失效，如果第一个字符是2以上，不能输入其他字符
+                }
+                else
+                {
+                    e.Handled = false;                 //让操作生效
+                }
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void tbOprator_TextChanged(object sender, EventArgs e)
+        {
+            if (this.Channel == 1)
+            {
+                if (OpratorNumberInput != null)
+                {
+                    OpratorNumberInput(this, new OpratorNumberArgs(tbOprator.Text));
+                }
+            }
+        }
+
+        public void InputOpratorNumber(string number)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new DelegateInputOpratorNumber(InputOpratorNumber), new object[] { number });
+            }
+            else
+            {
+                this.tbOprator.Text = number;
+            }
+        }
+
+        public string GetOpratorNumber()
+        {
+            return tbOprator.Text;
         }
 
     }

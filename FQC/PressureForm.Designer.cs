@@ -239,6 +239,7 @@
             this.tbPumpNo.Name = "tbPumpNo";
             this.tbPumpNo.Size = new System.Drawing.Size(188, 26);
             this.tbPumpNo.TabIndex = 3;
+            this.tbPumpNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbPumpNo_KeyPress);
             // 
             // label2
             // 
