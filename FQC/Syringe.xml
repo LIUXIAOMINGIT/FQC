@@ -122,7 +122,7 @@
   </GrasebyF8Brand>
 
   <Graseby2000Brand>
-    <EN>
+    <ZH>
       <Brand1>-01-AYSET</Brand1>
       <Brand2>-02-Fresenius Injectomat®</Brand2>
       <Brand3>-03-BD PlastipakTM</Brand3>
@@ -135,11 +135,11 @@
       <Brand10>-10-Unolok</Brand10>
       <Brand11>-11-BD Precise</Brand11>
       <Brand12>-12-Dispovan</Brand12>
-    </EN>
+    </ZH>
   </Graseby2000Brand>
   
   <Graseby2100Brand>
-    <EN>
+    <ZH>
       <Brand1>-01-AYSET</Brand1>
       <Brand2>-02-Fresenius Injectomat®</Brand2>
       <Brand3>-03-BD PlastipakTM</Brand3>
@@ -152,6 +152,6 @@
       <Brand10>-10-Unolok</Brand10>
       <Brand11>-11-BD Precise</Brand11>
       <Brand12>-12-Dispovan</Brand12>
-    </EN>
+    </ZH>
   </Graseby2100Brand>
  </SyringeBrand>

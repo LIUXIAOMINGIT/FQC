@@ -74,7 +74,7 @@
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 6F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 84F));
-            this.tlpMain.Size = new System.Drawing.Size(1024, 730);
+            this.tlpMain.Size = new System.Drawing.Size(1200, 730);
             this.tlpMain.TabIndex = 0;
             // 
             // tlpTitle
@@ -95,7 +95,7 @@
             this.tlpTitle.Name = "tlpTitle";
             this.tlpTitle.RowCount = 1;
             this.tlpTitle.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpTitle.Size = new System.Drawing.Size(1024, 43);
+            this.tlpTitle.Size = new System.Drawing.Size(1200, 43);
             this.tlpTitle.TabIndex = 0;
             this.tlpTitle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tlpTitle_MouseDown);
             this.tlpTitle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.tlpTitle_MouseMove);
@@ -129,7 +129,7 @@
             this.picSetting.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.picSetting.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picSetting.Image = global::FQC.Properties.Resources.icon_setting;
-            this.picSetting.Location = new System.Drawing.Point(943, 9);
+            this.picSetting.Location = new System.Drawing.Point(1119, 9);
             this.picSetting.Margin = new System.Windows.Forms.Padding(9);
             this.picSetting.Name = "picSetting";
             this.picSetting.Size = new System.Drawing.Size(27, 25);
@@ -143,7 +143,7 @@
             this.picCloseWindow.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.picCloseWindow.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picCloseWindow.Image = global::FQC.Properties.Resources.close;
-            this.picCloseWindow.Location = new System.Drawing.Point(990, 11);
+            this.picCloseWindow.Location = new System.Drawing.Point(1166, 11);
             this.picCloseWindow.Margin = new System.Windows.Forms.Padding(11);
             this.picCloseWindow.Name = "picCloseWindow";
             this.picCloseWindow.Size = new System.Drawing.Size(23, 21);
@@ -156,15 +156,15 @@
             // 
             this.tlpParameter.BackColor = System.Drawing.SystemColors.HotTrack;
             this.tlpParameter.ColumnCount = 9;
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7.5F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7.5F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 19F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F));
-            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tlpParameter.Controls.Add(this.tbToolingNo2, 8, 0);
             this.tlpParameter.Controls.Add(this.label4, 7, 0);
             this.tlpParameter.Controls.Add(this.tbToolingNo, 6, 0);
@@ -180,29 +180,30 @@
             this.tlpParameter.Name = "tlpParameter";
             this.tlpParameter.RowCount = 1;
             this.tlpParameter.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpParameter.Size = new System.Drawing.Size(1024, 73);
+            this.tlpParameter.Size = new System.Drawing.Size(1200, 73);
             this.tlpParameter.TabIndex = 1;
             // 
             // tbToolingNo2
             // 
             this.tbToolingNo2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbToolingNo2.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbToolingNo2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.tbToolingNo2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.tbToolingNo2.ForeColor = System.Drawing.Color.White;
-            this.tbToolingNo2.Location = new System.Drawing.Point(899, 23);
+            this.tbToolingNo2.Location = new System.Drawing.Point(1083, 24);
             this.tbToolingNo2.Name = "tbToolingNo2";
-            this.tbToolingNo2.Size = new System.Drawing.Size(122, 26);
+            this.tbToolingNo2.Size = new System.Drawing.Size(114, 24);
             this.tbToolingNo2.TabIndex = 3;
             // 
             // label4
             // 
             this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(809, 26);
+            this.label4.Location = new System.Drawing.Point(1000, 27);
+            this.label4.Margin = new System.Windows.Forms.Padding(0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(82, 20);
+            this.label4.Size = new System.Drawing.Size(76, 18);
             this.label4.TabIndex = 1;
             this.label4.Text = "工装编号2";
             // 
@@ -210,22 +211,23 @@
             // 
             this.tbToolingNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbToolingNo.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbToolingNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.tbToolingNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.tbToolingNo.ForeColor = System.Drawing.Color.White;
-            this.tbToolingNo.Location = new System.Drawing.Point(685, 23);
+            this.tbToolingNo.Location = new System.Drawing.Point(879, 24);
             this.tbToolingNo.Name = "tbToolingNo";
-            this.tbToolingNo.Size = new System.Drawing.Size(116, 26);
+            this.tbToolingNo.Size = new System.Drawing.Size(114, 24);
             this.tbToolingNo.TabIndex = 3;
             // 
             // label3
             // 
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(595, 26);
+            this.label3.Location = new System.Drawing.Point(796, 27);
+            this.label3.Margin = new System.Windows.Forms.Padding(0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(82, 20);
+            this.label3.Size = new System.Drawing.Size(76, 18);
             this.label3.TabIndex = 1;
             this.label3.Text = "工装编号1";
             // 
@@ -233,11 +235,12 @@
             // 
             this.tbPumpNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbPumpNo.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.tbPumpNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.tbPumpNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.tbPumpNo.ForeColor = System.Drawing.Color.White;
-            this.tbPumpNo.Location = new System.Drawing.Point(399, 23);
+            this.tbPumpNo.Location = new System.Drawing.Point(456, 24);
+            this.tbPumpNo.Margin = new System.Windows.Forms.Padding(0);
             this.tbPumpNo.Name = "tbPumpNo";
-            this.tbPumpNo.Size = new System.Drawing.Size(188, 26);
+            this.tbPumpNo.Size = new System.Drawing.Size(336, 24);
             this.tbPumpNo.TabIndex = 3;
             this.tbPumpNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbPumpNo_KeyPress);
             // 
@@ -245,11 +248,12 @@
             // 
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(319, 26);
+            this.label2.Location = new System.Drawing.Point(380, 27);
+            this.label2.Margin = new System.Windows.Forms.Padding(0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 20);
+            this.label2.Size = new System.Drawing.Size(68, 18);
             this.label2.TabIndex = 1;
             this.label2.Text = "产品序号";
             // 
@@ -258,12 +262,13 @@
             this.cbPumpType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbPumpType.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.cbPumpType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbPumpType.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.cbPumpType.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.cbPumpType.ForeColor = System.Drawing.Color.White;
             this.cbPumpType.FormattingEnabled = true;
-            this.cbPumpType.Location = new System.Drawing.Point(155, 22);
+            this.cbPumpType.Location = new System.Drawing.Point(168, 23);
+            this.cbPumpType.Margin = new System.Windows.Forms.Padding(0);
             this.cbPumpType.Name = "cbPumpType";
-            this.cbPumpType.Size = new System.Drawing.Size(157, 28);
+            this.cbPumpType.Size = new System.Drawing.Size(204, 26);
             this.cbPumpType.TabIndex = 2;
             this.cbPumpType.SelectedIndexChanged += new System.EventHandler(this.cbPumpType_SelectedIndexChanged);
             // 
@@ -271,12 +276,12 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(77, 26);
+            this.label1.Location = new System.Drawing.Point(92, 27);
             this.label1.Margin = new System.Windows.Forms.Padding(0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(73, 20);
+            this.label1.Size = new System.Drawing.Size(68, 18);
             this.label1.TabIndex = 1;
             this.label1.Text = "机器型号";
             // 
@@ -284,12 +289,12 @@
             // 
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(1, 26);
+            this.label5.Location = new System.Drawing.Point(8, 27);
             this.label5.Margin = new System.Windows.Forms.Padding(0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(73, 20);
+            this.label5.Size = new System.Drawing.Size(68, 18);
             this.label5.TabIndex = 1;
             this.label5.Text = "参数设置";
             // 
@@ -308,14 +313,14 @@
             this.tlpChart.Name = "tlpChart";
             this.tlpChart.RowCount = 1;
             this.tlpChart.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpChart.Size = new System.Drawing.Size(1024, 614);
+            this.tlpChart.Size = new System.Drawing.Size(1200, 614);
             this.tlpChart.TabIndex = 2;
             // 
             // picSplit
             // 
             this.picSplit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.picSplit.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.picSplit.Location = new System.Drawing.Point(510, 0);
+            this.picSplit.Location = new System.Drawing.Point(598, 0);
             this.picSplit.Margin = new System.Windows.Forms.Padding(0);
             this.picSplit.Name = "picSplit";
             this.picSplit.Size = new System.Drawing.Size(3, 614);
@@ -328,11 +333,11 @@
             this.chart2.Channel = 1;
             this.chart2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chart2.Enabled = false;
-            this.chart2.Location = new System.Drawing.Point(516, 3);
+            this.chart2.Location = new System.Drawing.Point(604, 3);
             this.chart2.Name = "chart2";
             this.chart2.PumpNo = "";
             this.chart2.SampleInterval = 500;
-            this.chart2.Size = new System.Drawing.Size(505, 608);
+            this.chart2.Size = new System.Drawing.Size(593, 608);
             this.chart2.TabIndex = 3;
             this.chart2.ToolingNo = "";
             // 
@@ -346,7 +351,7 @@
             this.chart1.Name = "chart1";
             this.chart1.PumpNo = "";
             this.chart1.SampleInterval = 500;
-            this.chart1.Size = new System.Drawing.Size(504, 608);
+            this.chart1.Size = new System.Drawing.Size(592, 608);
             this.chart1.TabIndex = 3;
             this.chart1.ToolingNo = "";
             // 
@@ -355,7 +360,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1024, 730);
+            this.ClientSize = new System.Drawing.Size(1200, 730);
             this.Controls.Add(this.tlpMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

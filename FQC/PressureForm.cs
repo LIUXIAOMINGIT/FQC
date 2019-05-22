@@ -503,8 +503,8 @@ namespace FQC
                         chart1.Close();
                         chart2.Close();
                         //写入excel,调用chart类中函数
-                        string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-                        string path2 = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出备份";
+                        string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
+                        string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
                         PumpID pid = PumpID.None;
                         switch (m_LocalPid)
                         {
@@ -539,16 +539,16 @@ namespace FQC
                             tbPumpNo.Clear();
                         //导出后就可以清空
                         m_SampleDataList.Clear();
-
+                        string strError = "";
                         bool ch1 = true, ch2 = true;
                         if (chart1.IsAuto())
-                            ch1 = chart1.IsPassAuto();
+                            ch1 = chart1.IsPassAuto(ref strError);
                         else
-                            ch1 = chart1.IsPassManual();
+                            ch1 = chart1.IsPassManual(ref strError);
                         if (chart2.IsAuto())
-                            ch2 = chart2.IsPassAuto();
+                            ch2 = chart2.IsPassAuto(ref strError);
                         else
-                            ch2 = chart2.IsPassManual();
+                            ch2 = chart2.IsPassManual(ref strError);
                         #endregion
                     }
                     else
@@ -588,8 +588,8 @@ namespace FQC
                     chart1.Close();
                     chart2.Close();
                     //写入excel,调用chart类中函数
-                    string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-                    string path2 = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出备份";
+                    string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
+                    string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
 
                     PumpID pid = PumpID.None;
                     switch (m_LocalPid)
@@ -627,18 +627,35 @@ namespace FQC
                     //导出后就可以清空
                     m_SampleDataList.Clear();
 
+                    string strError1 = "", strError2 = "";
                     bool ch1 = true, ch2 = true;
                     if (chart1.IsAuto())
-                        ch1 = chart1.IsPassAuto();
+                        ch1 = chart1.IsPassAuto(ref strError1);
                     else
-                        ch1 = chart1.IsPassManual();
+                        ch1 = chart1.IsPassManual(ref strError1);
                     if (chart2.IsAuto())
-                        ch2 = chart2.IsPassAuto();
+                        ch2 = chart2.IsPassAuto(ref strError2);
                     else
-                        ch2 = chart2.IsPassManual();
+                        ch2 = chart2.IsPassManual(ref strError2);
+                    if(!string.IsNullOrEmpty(strError1))
+                    {
+                        strError1 = "通道1失败:" + strError1;
+                    }
+                    if (!string.IsNullOrEmpty(strError2))
+                    {
+                        strError2 = "通道2失败:" + strError2;
+                    }
                     //双道泵是否通过测试，弹出框
-                    ResultDialog dlg = new ResultDialog(ch1 && ch2);
-                    dlg.ShowDialog();
+                    if(ch1 && ch2)
+                    {
+                        ResultDialogPass dlg = new ResultDialogPass(ch1 && ch2);
+                        dlg.ShowDialog();
+                    }
+                    else
+                    {
+                        ResultDialogFail dlg = new ResultDialogFail(ch1 && ch2, strError1 + strError2);
+                        dlg.ShowDialog();
+                    }
                     #endregion
                 }
                 else
@@ -668,6 +685,7 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "道数";
             ws.Cell(1, ++columnIndex).Value = "工装编号";
             ws.Cell(1, ++columnIndex).Value = "注射器品牌";
+            ws.Cell(1, ++columnIndex).Value = "频道";
             ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
             ws.Cell(1, ++columnIndex).Value = "速率";
             ws.Cell(1, ++columnIndex).Value = "N(Kpa)";
@@ -676,6 +694,7 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
             ws.Cell(1, ++columnIndex).Value = "操作员";
+            ws.Cell(1, ++columnIndex).Value = "不合格详情";
 
             ws.Columns(1, 1).Width = 30;
             ws.Columns(2, columnIndex).Width = 15;
@@ -691,6 +710,12 @@ namespace FQC
                 ws.Cell(2 + i, ++columnIndex).Value = i + 1;
                 ws.Cell(2 + i, ++columnIndex).Value = (i == 0 ? tbToolingNo.Text : tbToolingNo2.Text);
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.brand;
+
+                if(i==0)
+                    ws.Cell(2 + i, ++columnIndex).Value = (chart1.cmbSetBrand.SelectedIndex + 1).ToString();
+                else
+                    ws.Cell(2 + i, ++columnIndex).Value = (chart2.cmbSetBrand.SelectedIndex + 1).ToString();
+
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.syrangeSize;
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.rate;
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureN > 0 ? fqcData.pressureN.ToString("F1") : "N/A";
@@ -698,37 +723,50 @@ namespace FQC
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureC > 0 ? fqcData.pressureC.ToString("F1") : "N/A";
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.pressureH > 0 ? fqcData.pressureH.ToString("F1") : "N/A";
                 bool bPass = true;
-                if(i==0)
+                string strError1 = string.Empty;
+                string strError2 = string.Empty;
+                if (i==0)
                 {
                     if(chart1.IsAuto())
-                        bPass = chart1.IsPassAuto();
+                        bPass = chart1.IsPassAuto(ref strError1);
                     else
-                        bPass = chart1.IsPassManual();
+                        bPass = chart1.IsPassManual(ref strError1);
                 }
                 else if(i==1)
                 {
                      if(chart2.IsAuto())
-                        bPass = chart2.IsPassAuto();
+                        bPass = chart2.IsPassAuto(ref strError2);
                     else
-                        bPass = chart2.IsPassManual();
+                        bPass = chart2.IsPassManual(ref strError2);
                 }
                 if (bPass)
                 {
                     ws.Cell(2 + i, ++columnIndex).Value = "通过";
                     if(i==0)
-                        ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
+                        ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Green;
                     if(i==1)
-                        ws.Range("A3", "L3").Style.Font.FontColor = XLColor.Green;
+                        ws.Range("A3", "N3").Style.Font.FontColor = XLColor.Green;
                 }
                 else
                 {
                     ws.Cell(2 + i, ++columnIndex).Value = "失败";
                     if (i == 0)
-                        ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
+                        ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Red;
                     if (i == 1)
-                        ws.Range("A3", "L3").Style.Font.FontColor = XLColor.Red;
+                        ws.Range("A3", "N3").Style.Font.FontColor = XLColor.Red;
                 }
+
                 ws.Cell(2 + i, ++columnIndex).Value = opratorNumber;
+
+                if (!string.IsNullOrEmpty(strError1))
+                {
+                    strError1 = "通道1失败:" + strError1;
+                }
+                if (!string.IsNullOrEmpty(strError2))
+                {
+                    strError2 = "通道2失败:" + strError2;
+                }
+                ws.Cell(2 + i, ++columnIndex).Value = strError1 + strError2;
             }
             ws.Range(1, 1, 3, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 3, 4).SetDataType(XLCellValues.Text);
@@ -824,6 +862,7 @@ namespace FQC
             }
             else
             {
+                chart1.Enabled = true;
                 chart2.Enabled = false;
             }
             chart2.SetPid(m_LocalPid);

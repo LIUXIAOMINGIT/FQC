@@ -1429,6 +1429,7 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "道数";
             ws.Cell(1, ++columnIndex).Value = "工装编号";
             ws.Cell(1, ++columnIndex).Value = "注射器品牌";
+            ws.Cell(1, ++columnIndex).Value = "频道";
             ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
             ws.Cell(1, ++columnIndex).Value = "速率";
             ws.Cell(1, ++columnIndex).Value = "N(Kpa)";
@@ -1437,6 +1438,8 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
             ws.Cell(1, ++columnIndex).Value = "操作员";
+            ws.Cell(1, ++columnIndex).Value = "不合格详情";
+            
 
             ws.Columns(1, 1).Width = 30;
             ws.Columns(2, columnIndex).Width = 15;
@@ -1448,6 +1451,7 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = m_Channel;
             ws.Cell(2, ++columnIndex).Value = m_ToolingNo;
             ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
+            ws.Cell(2, ++columnIndex).Value = (cmbSetBrand.SelectedIndex+1).ToString();
             ws.Cell(2, ++columnIndex).Value = mFQCData.syrangeSize;
             ws.Cell(2, ++columnIndex).Value = tbRate.Text;
             if(m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
@@ -1457,23 +1461,27 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureL;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureC;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureH;
+
             bool bPass = true;
+            string strError = string.Empty;
             if (IsAuto())
-                bPass = IsPassAuto();
+                bPass = IsPassAuto(ref strError);
             else
-                bPass = IsPassManual();
+                bPass = IsPassManual(ref strError);
 
             if (bPass)
             {
                 ws.Cell(2, ++columnIndex).Value = "通过";
-                ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
+                ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Green;
             }
             else
             {
                 ws.Cell(2, ++columnIndex).Value = "失败";
-                ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
+                ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Red;
             }
+
             ws.Cell(2, ++columnIndex).Value = tbOprator.Text;
+            ws.Cell(2, ++columnIndex).Value = strError;
 
             ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 2, 4).SetDataType(XLCellValues.Text);
@@ -1494,12 +1502,21 @@ namespace FQC
                 return;
             }
             bool bPass = false;
-            if(cmbPattern.SelectedIndex==0)
-                bPass = IsPassAuto();
+            string strError = string.Empty;
+            if (cmbPattern.SelectedIndex==0)
+                bPass = IsPassAuto(ref strError);
             else
-                bPass = IsPassManual();
-            ResultDialog dlg = new ResultDialog(bPass);
-            dlg.ShowDialog();
+                bPass = IsPassManual(ref strError);
+            if (bPass)
+            {
+                ResultDialogPass dlg = new ResultDialogPass(bPass);
+                dlg.ShowDialog();
+            }
+            else
+            {
+                ResultDialogFail dlg = new ResultDialogFail(bPass, strError);
+                dlg.ShowDialog();
+            }
         }
 
         private void AlertMaxKpa()
@@ -1511,7 +1528,7 @@ namespace FQC
         }
 
         #region 是否通过 
-        public bool IsPassAuto()
+        public bool IsPassAuto(ref string strError)
         {
             bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
@@ -1526,6 +1543,7 @@ namespace FQC
                 else
                 {
                     bPass = false;
+                    strError = string.Format("N档压力值超范围,N={0},正常范围:{1}到{2}", mFQCData.pressureN, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.L);
@@ -1537,6 +1555,7 @@ namespace FQC
                 else
                 {
                     bPass = false;
+                    strError = string.Format("L档压力值超范围,L={0},正常范围:{1}到{2}", mFQCData.pressureL, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.C);
@@ -1548,6 +1567,7 @@ namespace FQC
                 else
                 {
                     bPass = false;
+                    strError = string.Format("C档压力值超范围,C={0},正常范围:{1}到{2}", mFQCData.pressureC, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.H);
@@ -1559,6 +1579,7 @@ namespace FQC
                 else
                 {
                     bPass = false;
+                    strError = string.Format("H档压力值超范围,H={0},正常范围:{1}到{2}", mFQCData.pressureH, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             return bPass;
@@ -1576,7 +1597,7 @@ namespace FQC
         /// 手动模式下只要判断一个档位
         /// </summary>
         /// <returns></returns>
-        public bool IsPassManual()
+        public bool IsPassManual(ref string strError)
         {
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
@@ -1589,28 +1610,40 @@ namespace FQC
                     if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
                         bPass = true;
                     else
+                    {
                         bPass = false;
+                        strError = string.Format("N档压力值超范围,N={0},正常范围:{1}到{2}", mFQCData.pressureN, parameter.Item2, parameter.Item3);
+                    }
                 }
                 else if (m_CurrentLevel == Misc.OcclusionLevel.L && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L))
                 {
                     if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
                         bPass = true;
                     else
+                    {
                         bPass = false;
+                        strError = string.Format("L档压力值超范围,L={0},正常范围:{1}到{2}", mFQCData.pressureL, parameter.Item2, parameter.Item3);
+                    }
                 }
                 else if (m_CurrentLevel == Misc.OcclusionLevel.C && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C))
                 {
                     if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
                         bPass = true;
                     else
+                    {
                         bPass = false;
+                        strError = string.Format("C档压力值超范围,C={0},正常范围:{1}到{2}", mFQCData.pressureC, parameter.Item2, parameter.Item3);
+                    }
                 }
                 else if (m_CurrentLevel == Misc.OcclusionLevel.H && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H))
                 {
                     if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
-                            bPass = true;
-                        else
-                            bPass = false;
+                        bPass = true;
+                    else
+                    {
+                        bPass = false;
+                        strError = string.Format("H档压力值超范围,H={0},正常范围:{1}到{2}", mFQCData.pressureH, parameter.Item2, parameter.Item3);
+                    }
                 }
             }
             return bPass;
@@ -1711,9 +1744,10 @@ namespace FQC
             if (m_LocalPid == PumpID.GrasebyF8_2)
             {
                 //第一道测试完成，判断是否合格，不合格要提示，是否重测
+                string strError = "";
                 if(IsAuto())
                 {
-                   if( IsPassAuto() )
+                   if( IsPassAuto(ref strError) )
                        OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
                    else
                    {
@@ -1722,7 +1756,7 @@ namespace FQC
                 }
                 else
                 {
-                    if (IsPassManual())
+                    if (IsPassManual(ref strError))
                        OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
                     else
                     {
@@ -1733,13 +1767,14 @@ namespace FQC
             else
             {
                 var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
-                string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                //string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
                 string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
                 if (!System.IO.Directory.Exists(path))
                     System.IO.Directory.CreateDirectory(path);
                 string saveFileName = path + "\\" + fileName + ".xlsx";
 
-                string path2 = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出备份";
+                string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
                 if (!System.IO.Directory.Exists(path2))
                     System.IO.Directory.CreateDirectory(path2);
                 string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
