@@ -128,13 +128,13 @@ namespace FQC
                     pid = PumpID.Graseby2000;
                     break;
                 case "WZ50C6":
-                    pid = PumpID.GrasebyC6;
+                    pid = PumpID.WZ50C6;
                     break;
                 case "WZS50F6单道":
-                    pid = PumpID.GrasebyF6;
+                    pid = PumpID.WZS50F6;
                     break;
                 case "WZ50C6T":
-                    pid = PumpID.GrasebyC6T;
+                    pid = PumpID.WZ50C6T;
                     break;
                 case "GrasebyF6双道":
                     pid = PumpID.GrasebyF6_2;

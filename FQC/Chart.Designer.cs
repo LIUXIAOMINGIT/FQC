@@ -30,6 +30,7 @@
         {
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.tlpChannel = new System.Windows.Forms.TableLayoutPanel();
+            this.picChannel = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -43,32 +44,32 @@
             this.cmbSetBrand = new System.Windows.Forms.ComboBox();
             this.cmbLevel = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.picPumpPortStatus = new System.Windows.Forms.PictureBox();
+            this.picGaugePortStatus = new System.Windows.Forms.PictureBox();
             this.label6 = new System.Windows.Forms.Label();
             this.cmbPattern = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.tbOprator = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlChart = new System.Windows.Forms.Panel();
-            this.WavelinePanel = new System.Windows.Forms.Panel();
-            this.detail = new FQC.Detail();
-            this.picChannel = new System.Windows.Forms.PictureBox();
-            this.picPumpPortStatus = new System.Windows.Forms.PictureBox();
-            this.picGaugePortStatus = new System.Windows.Forms.PictureBox();
             this.picStart = new System.Windows.Forms.PictureBox();
             this.picStop = new System.Windows.Forms.PictureBox();
             this.picDetail = new System.Windows.Forms.PictureBox();
+            this.pnlChart = new System.Windows.Forms.Panel();
+            this.WavelinePanel = new System.Windows.Forms.Panel();
+            this.btnStopAlarm = new System.Windows.Forms.Button();
+            this.detail = new FQC.Detail();
             this.tlpMain.SuspendLayout();
             this.tlpChannel.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.pnlChart.SuspendLayout();
-            this.WavelinePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picChannel)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPumpPortStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGaugePortStatus)).BeginInit();
+            this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDetail)).BeginInit();
+            this.pnlChart.SuspendLayout();
+            this.WavelinePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // tlpMain
@@ -108,6 +109,18 @@
             this.tlpChannel.Size = new System.Drawing.Size(96, 178);
             this.tlpChannel.TabIndex = 0;
             // 
+            // picChannel
+            // 
+            this.picChannel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.picChannel.Image = global::FQC.Properties.Resources.icon_1;
+            this.picChannel.Location = new System.Drawing.Point(7, 64);
+            this.picChannel.Name = "picChannel";
+            this.tlpChannel.SetRowSpan(this.picChannel, 2);
+            this.picChannel.Size = new System.Drawing.Size(34, 50);
+            this.picChannel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picChannel.TabIndex = 0;
+            this.picChannel.TabStop = false;
+            // 
             // label1
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -146,6 +159,7 @@
             this.tableLayoutPanel1.Controls.Add(this.cmbPattern, 4, 2);
             this.tableLayoutPanel1.Controls.Add(this.label9, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.tbOprator, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.btnStopAlarm, 4, 3);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(96, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
@@ -293,6 +307,31 @@
             this.label5.TabIndex = 1;
             this.label5.Text = "压力";
             // 
+            // picPumpPortStatus
+            // 
+            this.picPumpPortStatus.Dock = System.Windows.Forms.DockStyle.Left;
+            this.picPumpPortStatus.Location = new System.Drawing.Point(474, 0);
+            this.picPumpPortStatus.Margin = new System.Windows.Forms.Padding(0);
+            this.picPumpPortStatus.Name = "picPumpPortStatus";
+            this.picPumpPortStatus.Size = new System.Drawing.Size(30, 44);
+            this.picPumpPortStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picPumpPortStatus.TabIndex = 4;
+            this.picPumpPortStatus.TabStop = false;
+            this.picPumpPortStatus.Visible = false;
+            // 
+            // picGaugePortStatus
+            // 
+            this.picGaugePortStatus.Dock = System.Windows.Forms.DockStyle.Left;
+            this.picGaugePortStatus.Image = global::FQC.Properties.Resources.error;
+            this.picGaugePortStatus.InitialImage = global::FQC.Properties.Resources.error;
+            this.picGaugePortStatus.Location = new System.Drawing.Point(284, 0);
+            this.picGaugePortStatus.Margin = new System.Windows.Forms.Padding(0);
+            this.picGaugePortStatus.Name = "picGaugePortStatus";
+            this.picGaugePortStatus.Size = new System.Drawing.Size(30, 44);
+            this.picGaugePortStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picGaugePortStatus.TabIndex = 4;
+            this.picGaugePortStatus.TabStop = false;
+            // 
             // label6
             // 
             this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -318,6 +357,7 @@
             this.cmbPattern.Name = "cmbPattern";
             this.cmbPattern.Size = new System.Drawing.Size(80, 24);
             this.cmbPattern.TabIndex = 2;
+            this.cmbPattern.SelectedIndexChanged += new System.EventHandler(this.cmbPattern_SelectedIndexChanged);
             // 
             // label9
             // 
@@ -341,6 +381,7 @@
             this.tbOprator.Name = "tbOprator";
             this.tbOprator.Size = new System.Drawing.Size(209, 26);
             this.tbOprator.TabIndex = 3;
+            this.tbOprator.Text = "12345678";
             this.tbOprator.TextChanged += new System.EventHandler(this.tbOprator_TextChanged);
             this.tbOprator.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbOprator_KeyPress);
             // 
@@ -364,84 +405,6 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(600, 60);
             this.tableLayoutPanel2.TabIndex = 6;
-            // 
-            // pnlChart
-            // 
-            this.pnlChart.BackColor = System.Drawing.Color.White;
-            this.tlpMain.SetColumnSpan(this.pnlChart, 2);
-            this.pnlChart.Controls.Add(this.WavelinePanel);
-            this.pnlChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlChart.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.pnlChart.ForeColor = System.Drawing.Color.Black;
-            this.pnlChart.Location = new System.Drawing.Point(0, 178);
-            this.pnlChart.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlChart.Name = "pnlChart";
-            this.pnlChart.Size = new System.Drawing.Size(600, 357);
-            this.pnlChart.TabIndex = 5;
-            // 
-            // WavelinePanel
-            // 
-            this.WavelinePanel.BackColor = System.Drawing.Color.White;
-            this.WavelinePanel.Controls.Add(this.detail);
-            this.WavelinePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WavelinePanel.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.WavelinePanel.ForeColor = System.Drawing.Color.Black;
-            this.WavelinePanel.Location = new System.Drawing.Point(0, 0);
-            this.WavelinePanel.Margin = new System.Windows.Forms.Padding(0);
-            this.WavelinePanel.Name = "WavelinePanel";
-            this.WavelinePanel.Size = new System.Drawing.Size(600, 357);
-            this.WavelinePanel.TabIndex = 5;
-            this.WavelinePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.WavelinePanel_Paint);
-            // 
-            // detail
-            // 
-            this.detail.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
-            this.detail.Channel = 1;
-            this.detail.Location = new System.Drawing.Point(36, 156);
-            this.detail.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.detail.Name = "detail";
-            this.detail.Pid = FQC.PumpID.GrasebyC6;
-            this.detail.Size = new System.Drawing.Size(460, 143);
-            this.detail.SyrangeSize = 50;
-            this.detail.TabIndex = 0;
-            this.detail.Visible = false;
-            // 
-            // picChannel
-            // 
-            this.picChannel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.picChannel.Image = global::FQC.Properties.Resources.icon_1;
-            this.picChannel.Location = new System.Drawing.Point(7, 64);
-            this.picChannel.Name = "picChannel";
-            this.tlpChannel.SetRowSpan(this.picChannel, 2);
-            this.picChannel.Size = new System.Drawing.Size(34, 50);
-            this.picChannel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picChannel.TabIndex = 0;
-            this.picChannel.TabStop = false;
-            // 
-            // picPumpPortStatus
-            // 
-            this.picPumpPortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picPumpPortStatus.Location = new System.Drawing.Point(474, 0);
-            this.picPumpPortStatus.Margin = new System.Windows.Forms.Padding(0);
-            this.picPumpPortStatus.Name = "picPumpPortStatus";
-            this.picPumpPortStatus.Size = new System.Drawing.Size(30, 44);
-            this.picPumpPortStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picPumpPortStatus.TabIndex = 4;
-            this.picPumpPortStatus.TabStop = false;
-            this.picPumpPortStatus.Visible = false;
-            // 
-            // picGaugePortStatus
-            // 
-            this.picGaugePortStatus.Dock = System.Windows.Forms.DockStyle.Left;
-            this.picGaugePortStatus.Image = global::FQC.Properties.Resources.error;
-            this.picGaugePortStatus.InitialImage = global::FQC.Properties.Resources.error;
-            this.picGaugePortStatus.Location = new System.Drawing.Point(284, 0);
-            this.picGaugePortStatus.Margin = new System.Windows.Forms.Padding(0);
-            this.picGaugePortStatus.Name = "picGaugePortStatus";
-            this.picGaugePortStatus.Size = new System.Drawing.Size(30, 44);
-            this.picGaugePortStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picGaugePortStatus.TabIndex = 4;
-            this.picGaugePortStatus.TabStop = false;
             // 
             // picStart
             // 
@@ -483,6 +446,57 @@
             this.picDetail.TabStop = false;
             this.picDetail.Click += new System.EventHandler(this.picDetail_Click);
             // 
+            // pnlChart
+            // 
+            this.pnlChart.BackColor = System.Drawing.Color.White;
+            this.tlpMain.SetColumnSpan(this.pnlChart, 2);
+            this.pnlChart.Controls.Add(this.WavelinePanel);
+            this.pnlChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlChart.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.pnlChart.ForeColor = System.Drawing.Color.Black;
+            this.pnlChart.Location = new System.Drawing.Point(0, 178);
+            this.pnlChart.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlChart.Name = "pnlChart";
+            this.pnlChart.Size = new System.Drawing.Size(600, 357);
+            this.pnlChart.TabIndex = 5;
+            // 
+            // WavelinePanel
+            // 
+            this.WavelinePanel.BackColor = System.Drawing.Color.White;
+            this.WavelinePanel.Controls.Add(this.detail);
+            this.WavelinePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.WavelinePanel.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.WavelinePanel.ForeColor = System.Drawing.Color.Black;
+            this.WavelinePanel.Location = new System.Drawing.Point(0, 0);
+            this.WavelinePanel.Margin = new System.Windows.Forms.Padding(0);
+            this.WavelinePanel.Name = "WavelinePanel";
+            this.WavelinePanel.Size = new System.Drawing.Size(600, 357);
+            this.WavelinePanel.TabIndex = 5;
+            this.WavelinePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.WavelinePanel_Paint);
+            // 
+            // btnStopAlarm
+            // 
+            this.btnStopAlarm.Location = new System.Drawing.Point(397, 135);
+            this.btnStopAlarm.Name = "btnStopAlarm";
+            this.btnStopAlarm.Size = new System.Drawing.Size(74, 23);
+            this.btnStopAlarm.TabIndex = 5;
+            this.btnStopAlarm.UseVisualStyleBackColor = true;
+            this.btnStopAlarm.Visible = false;
+            this.btnStopAlarm.Click += new System.EventHandler(this.btnStopAlarm_Click);
+            // 
+            // detail
+            // 
+            this.detail.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
+            this.detail.Channel = 1;
+            this.detail.Location = new System.Drawing.Point(74, 154);
+            this.detail.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.detail.Name = "detail";
+            this.detail.Pid = FQC.PumpID.GrasebyC6;
+            this.detail.Size = new System.Drawing.Size(460, 143);
+            this.detail.SyrangeSize = 50;
+            this.detail.TabIndex = 0;
+            this.detail.Visible = false;
+            // 
             // Chart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -496,17 +510,17 @@
             this.tlpMain.ResumeLayout(false);
             this.tlpChannel.ResumeLayout(false);
             this.tlpChannel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picChannel)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.pnlChart.ResumeLayout(false);
-            this.WavelinePanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.picChannel)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPumpPortStatus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGaugePortStatus)).EndInit();
+            this.tableLayoutPanel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picStart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStop)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDetail)).EndInit();
+            this.pnlChart.ResumeLayout(false);
+            this.WavelinePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -542,5 +556,6 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox tbOprator;
         public System.Windows.Forms.ComboBox cmbSetBrand;
+        private System.Windows.Forms.Button btnStopAlarm;
     }
 }

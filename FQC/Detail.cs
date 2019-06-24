@@ -38,6 +38,9 @@ namespace FQC
         private int    m_Channel  = 1;               //1号通道，默认值
         private TestResult _result = new TestResult();
 
+        public delegate void DelegateFuctionNoParamater(FQCData data);
+
+
         public int SyrangeSize
         {
             set { m_SyrangeSize = value; }
@@ -97,7 +100,13 @@ namespace FQC
 
         public void SetFQCResult(FQCData data)
         {
-            if(string.IsNullOrEmpty(data.brand))
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new DelegateFuctionNoParamater(SetFQCResult), new object[] { data });
+                return;
+            }
+
+            if (string.IsNullOrEmpty(data.brand))
                 return;
 
             lbBrandValue.Text = data.brand;
@@ -129,6 +138,15 @@ namespace FQC
         {
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
+            if(cfg==null)
+            {
+                lbNValue.ForeColor = Color.Red;
+                lbLValue.ForeColor = Color.Red;
+                lbCValue.ForeColor = Color.Red;
+                lbHValue.ForeColor = Color.Red;
+                return;
+            }
+
             var parameter = cfg.Find(Misc.OcclusionLevel.N);
             if (parameter != null && n>0)
                 if (n >= parameter.Item2 && n <= parameter.Item3)

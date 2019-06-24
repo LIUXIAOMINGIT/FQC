@@ -57,12 +57,34 @@ namespace FQC
         private int m_PressCount                    = 0;
         public static int SerialNumberCount = 28;               //在指定时间内连续输入字符数量不低于28个时方可认为是由条码枪输入
 
+        public static int MaxThreshold = 150;               //150Kpajb最大阈值时要停止泵
+
+
+
 
         public PressureForm()
         {
             InitializeComponent();
             InitUI();
         }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x1002)
+            {
+                tbPumpNo.Enabled = true;
+                tbToolingNo.Enabled = true;
+                tbToolingNo2.Enabled = true;
+            }
+            else if (m.Msg == 0x2001)
+            {
+                tbPumpNo.Enabled = false;
+                tbToolingNo.Enabled = false;
+                tbToolingNo2.Enabled = false;
+            }
+            base.WndProc(ref m);
+        }
+
 
         private void PressureForm_Load(object sender, EventArgs e)
         {
@@ -89,7 +111,6 @@ namespace FQC
                 tbToolingNo.Text = strTool1;
                 tbToolingNo2.Text = strTool2;
                 SerialNumberCount = Int32.Parse(ConfigurationManager.AppSettings.Get("SerialNumberCount"));
-
             }
             catch (Exception ex)
             {
@@ -256,6 +277,186 @@ namespace FQC
             }
             #endregion
 
+            #region 加载C6T串口参数，泵端
+            try
+            {
+                //if key not exist
+                NameValueCollection config = (NameValueCollection)ConfigurationManager.GetSection("GrasebyC6TSerialSet");
+                int baudRate = 0;
+                if (!Int32.TryParse(config["BaudRate"], out baudRate))
+                {
+                    MessageBox.Show("GrasebyC6T波特率参数非法，请检查config文件");
+                    return;
+                }
+                int dataBits = 0;
+                if (!Int32.TryParse(config["DataBits"], out dataBits))
+                {
+                    MessageBox.Show("GrasebyC6T数据位参数非法，请检查config文件");
+                    return;
+                }
+                StopBits stopBits = StopBits.None;
+                if (!Enum.IsDefined(typeof(StopBits), config["StopBits"]))
+                {
+                    MessageBox.Show("GrasebyC6T停止位参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    stopBits = (StopBits)Enum.Parse(typeof(StopBits), config["StopBits"]);
+                }
+                Parity parity = Parity.None;
+                if (!Enum.IsDefined(typeof(Parity), config["Parity"]))
+                {
+                    MessageBox.Show("GrasebyC6T奇偶校验参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    parity = (Parity)Enum.Parse(typeof(Parity), config["Parity"]);
+                }
+                m_DicPumpPortParameter.Add(Misc.ProductID.GrasebyC6T, new SerialPortParameter(baudRate, dataBits, stopBits, parity));
+            }
+            catch
+            {
+            }
+            #endregion
+
+            #region 加载Graseby2000串口参数，泵端
+            try
+            {
+                //if key not exist
+                NameValueCollection config = (NameValueCollection)ConfigurationManager.GetSection("Graseby2000SerialSet");
+                int baudRate = 0;
+                if (!Int32.TryParse(config["BaudRate"], out baudRate))
+                {
+                    MessageBox.Show("Graseby2000波特率参数非法，请检查config文件");
+                    return;
+                }
+                int dataBits = 0;
+                if (!Int32.TryParse(config["DataBits"], out dataBits))
+                {
+                    MessageBox.Show("Graseby2000数据位参数非法，请检查config文件");
+                    return;
+                }
+                StopBits stopBits = StopBits.None;
+                if (!Enum.IsDefined(typeof(StopBits), config["StopBits"]))
+                {
+                    MessageBox.Show("Graseby2000停止位参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    stopBits = (StopBits)Enum.Parse(typeof(StopBits), config["StopBits"]);
+                }
+                Parity parity = Parity.None;
+                if (!Enum.IsDefined(typeof(Parity), config["Parity"]))
+                {
+                    MessageBox.Show("Graseby2000奇偶校验参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    parity = (Parity)Enum.Parse(typeof(Parity), config["Parity"]);
+                }
+                m_DicPumpPortParameter.Add(Misc.ProductID.Graseby2000, new SerialPortParameter(baudRate, dataBits, stopBits, parity));
+            }
+            catch
+            {
+            }
+            #endregion
+
+            #region 加载Graseby2100串口参数，泵端
+            try
+            {
+                //if key not exist
+                NameValueCollection config = (NameValueCollection)ConfigurationManager.GetSection("Graseby2100SerialSet");
+                int baudRate = 0;
+                if (!Int32.TryParse(config["BaudRate"], out baudRate))
+                {
+                    MessageBox.Show("Graseby2100波特率参数非法，请检查config文件");
+                    return;
+                }
+                int dataBits = 0;
+                if (!Int32.TryParse(config["DataBits"], out dataBits))
+                {
+                    MessageBox.Show("Graseby2100数据位参数非法，请检查config文件");
+                    return;
+                }
+                StopBits stopBits = StopBits.None;
+                if (!Enum.IsDefined(typeof(StopBits), config["StopBits"]))
+                {
+                    MessageBox.Show("Graseby2100停止位参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    stopBits = (StopBits)Enum.Parse(typeof(StopBits), config["StopBits"]);
+                }
+                Parity parity = Parity.None;
+                if (!Enum.IsDefined(typeof(Parity), config["Parity"]))
+                {
+                    MessageBox.Show("Graseby2100奇偶校验参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    parity = (Parity)Enum.Parse(typeof(Parity), config["Parity"]);
+                }
+                m_DicPumpPortParameter.Add(Misc.ProductID.Graseby2100, new SerialPortParameter(baudRate, dataBits, stopBits, parity));
+            }
+            catch
+            {
+            }
+            #endregion
+
+            #region 加载GrasebyF6串口参数，泵端
+            try
+            {
+                //if key not exist
+                NameValueCollection config = (NameValueCollection)ConfigurationManager.GetSection("GrasebyF6SerialSet");
+                int baudRate = 0;
+                if (!Int32.TryParse(config["BaudRate"], out baudRate))
+                {
+                    MessageBox.Show("GrasebyF6波特率参数非法，请检查config文件");
+                    return;
+                }
+                int dataBits = 0;
+                if (!Int32.TryParse(config["DataBits"], out dataBits))
+                {
+                    MessageBox.Show("GrasebyF6数据位参数非法，请检查config文件");
+                    return;
+                }
+                StopBits stopBits = StopBits.None;
+                if (!Enum.IsDefined(typeof(StopBits), config["StopBits"]))
+                {
+                    MessageBox.Show("GrasebyF6停止位参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    stopBits = (StopBits)Enum.Parse(typeof(StopBits), config["StopBits"]);
+                }
+                Parity parity = Parity.None;
+                if (!Enum.IsDefined(typeof(Parity), config["Parity"]))
+                {
+                    MessageBox.Show("GrasebyF6奇偶校验参数非法，请检查config文件");
+                    return;
+                }
+                else
+                {
+                    parity = (Parity)Enum.Parse(typeof(Parity), config["Parity"]);
+                }
+                m_DicPumpPortParameter.Add(Misc.ProductID.GrasebyF6, new SerialPortParameter(baudRate, dataBits, stopBits, parity));
+            }
+            catch
+            {
+            }
+            #endregion
+
+            #region 加载GrasebyC9串口参数，泵端XXXXXXXXXXXXXXXXXXXXXX没有C9
+            
+            #endregion
+
             #region 加载串口参数，压力表
             try
             {
@@ -357,12 +558,15 @@ namespace FQC
                     break;
                 case PumpID.WZ50C6:
                     m_ProductID = Misc.ProductID.GrasebyC6;
-                    m_ProductModel = ProductModel.GrasebyC6;
+                    m_ProductModel = ProductModel.WZ50C6;
                     break;
                 case PumpID.GrasebyC6T:
-                case PumpID.WZ50C6T:
                     m_ProductID = Misc.ProductID.GrasebyC6T;
                     m_ProductModel = ProductModel.GrasebyC6T;
+                    break;
+                case PumpID.WZ50C6T:
+                    m_ProductID = Misc.ProductID.GrasebyC6T;
+                    m_ProductModel = ProductModel.WZ50C6T;
                     break;
                 case PumpID.Graseby2000:
                     m_ProductID = Misc.ProductID.Graseby2000;
@@ -374,7 +578,7 @@ namespace FQC
                     break;
                 case PumpID.WZS50F6:
                     m_ProductID = Misc.ProductID.GrasebyF6;
-                    m_ProductModel = ProductModel.GrasebyF6;
+                    m_ProductModel = ProductModel.WZS50F6;
                     break;
                 case PumpID.GrasebyF6:
                     m_ProductID = Misc.ProductID.GrasebyF6;
@@ -386,13 +590,20 @@ namespace FQC
                     break;
                 case PumpID.WZS50F6_2:
                     m_ProductID = Misc.ProductID.GrasebyF6;
-                    m_ProductModel = ProductModel.GrasebyF6;
+                    m_ProductModel = ProductModel.WZS50F6;
                     break;
                 default:
                     m_ProductID = Misc.ProductID.None;
                     m_ProductModel = ProductModel.None;
                     break;
             }
+            chart1.m_ProductModel = m_ProductModel;
+            chart2.m_ProductModel = m_ProductModel;
+            chart1.SetDefaultRate();
+            chart2.SetDefaultRate();
+            chart1.SetDefaultBrand();
+            chart2.SetDefaultBrand();
+
             #endregion
         }
 
@@ -514,6 +725,15 @@ namespace FQC
                             case PumpID.GrasebyF8_2:
                                 pid = PumpID.GrasebyF8;
                                 break;
+                            case PumpID.GrasebyF6:
+                                pid = PumpID.GrasebyF6;
+                                break;
+                            case PumpID.GrasebyF6_2:
+                                pid = PumpID.GrasebyF6;
+                                break;
+                            case PumpID.WZS50F6_2:
+                                pid = PumpID.WZS50F6;
+                                break;
                             default:
                                 pid = m_LocalPid;
                                 break;
@@ -530,7 +750,7 @@ namespace FQC
                         //生成表格，两份
                         GenDualReport(saveFileName, saveFileName2);
 
-                        if (m_LocalPid == PumpID.GrasebyF8_2)
+                        if (m_LocalPid == PumpID.GrasebyF8_2 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
                         {
                             if (m_SampleDataList.Count >= 2)
                                 tbPumpNo.Clear();
@@ -600,6 +820,12 @@ namespace FQC
                         case PumpID.GrasebyF8_2:
                             pid = PumpID.GrasebyF8;
                             break;
+                        case PumpID.GrasebyF6_2:
+                            pid = PumpID.GrasebyF6;
+                            break;
+                        case PumpID.WZS50F6_2:
+                            pid = PumpID.WZS50F6;
+                            break;
                         default:
                             pid = m_LocalPid;
                             break;
@@ -620,10 +846,21 @@ namespace FQC
                     if (m_LocalPid == PumpID.GrasebyF8_2)
                     {
                         if (m_SampleDataList.Count >= 2)
+#if DEBUG
+                            ;
+#else
                             tbPumpNo.Clear();
+
+#endif
                     }
                     else
-                        tbPumpNo.Clear();
+
+#if DEBUG
+                        ;
+#else
+                            tbPumpNo.Clear();
+
+#endif
                     //导出后就可以清空
                     m_SampleDataList.Clear();
 
@@ -741,19 +978,19 @@ namespace FQC
                 }
                 if (bPass)
                 {
-                    ws.Cell(2 + i, ++columnIndex).Value = "通过";
+                    ws.Cell(2 + i, ++columnIndex).Value = "Pass";
                     if(i==0)
-                        ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Green;
+                        ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Green;
                     if(i==1)
-                        ws.Range("A3", "N3").Style.Font.FontColor = XLColor.Green;
+                        ws.Range("A3", "O3").Style.Font.FontColor = XLColor.Green;
                 }
                 else
                 {
-                    ws.Cell(2 + i, ++columnIndex).Value = "失败";
+                    ws.Cell(2 + i, ++columnIndex).Value = "Fail";
                     if (i == 0)
-                        ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Red;
+                        ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Red;
                     if (i == 1)
-                        ws.Range("A3", "N3").Style.Font.FontColor = XLColor.Red;
+                        ws.Range("A3", "O3").Style.Font.FontColor = XLColor.Red;
                 }
 
                 ws.Cell(2 + i, ++columnIndex).Value = opratorNumber;

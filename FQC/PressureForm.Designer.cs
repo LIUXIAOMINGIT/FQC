@@ -136,6 +136,7 @@
             this.picSetting.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picSetting.TabIndex = 2;
             this.picSetting.TabStop = false;
+            this.picSetting.Visible = false;
             this.picSetting.Click += new System.EventHandler(this.picSetting_Click);
             // 
             // picCloseWindow
@@ -365,7 +366,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PressureForm";
-            this.Text = "压力测试工具";
+            this.Text = "FQC压力检验工具";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PressureForm_FormClosing);
             this.Load += new System.EventHandler(this.PressureForm_Load);
             this.tlpMain.ResumeLayout(false);

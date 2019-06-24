@@ -154,4 +154,60 @@
       <Brand12>-12-Dispovan</Brand12>
     </ZH>
   </Graseby2100Brand>
+
+  <WZ50C6Brand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-龙德</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-JMS</Brand11>
+      <Brand12>-12-龙心</Brand12>
+      <Brand13>-13-洪达</Brand13>
+    </ZH>
+  </WZ50C6Brand>
+
+ <WZS50F6Brand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-龙德</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-JMS</Brand11>
+      <Brand12>-12-龙心</Brand12>
+      <Brand13>-13-洪达</Brand13>
+    </ZH>
+  </WZS50F6Brand>
+
+
+  <WZ50C6TBrand>
+    <ZH>
+      <Brand1>-01-玉升</Brand1>
+      <Brand2>-02-龙德</Brand2>
+      <Brand3>-03-威高</Brand3>
+      <Brand4>-04-新华</Brand4>
+      <Brand5>-05-哈娜好</Brand5>
+      <Brand6>-06-苏云</Brand6>
+      <Brand7>-07-康德莱</Brand7>
+      <Brand8>-08-双鸽</Brand8>
+      <Brand9>-09-灵洋</Brand9>
+      <Brand10>-10-B-D</Brand10>
+      <Brand11>-11-JMS</Brand11>
+      <Brand12>-12-龙心</Brand12>
+      <Brand13>-13-洪达</Brand13>
+    </ZH>
+  </WZ50C6TBrand>
+
  </SyringeBrand>

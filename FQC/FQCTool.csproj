@@ -147,6 +147,7 @@
     <Compile Include="ResultDialogFail.Designer.cs">
       <DependentUpon>ResultDialogFail.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserMessageHelper.cs" />
     <EmbeddedResource Include="Chart.resx">
       <DependentUpon>Chart.cs</DependentUpon>
     </EmbeddedResource>

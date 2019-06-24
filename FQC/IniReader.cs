@@ -61,29 +61,29 @@ namespace FQC
             ReadGrasebyPumpPressureSettings(ProductID.GrasebyF8, Misc.OcclusionLevel.C);
             ReadGrasebyPumpPressureSettings(ProductID.GrasebyF8, Misc.OcclusionLevel.H);
 
-            //ReadGrasebyPumpPressureSettings(ProductID.Graseby2000, Misc.OcclusionLevel.L);
-            //ReadGrasebyPumpPressureSettings(ProductID.Graseby2000, Misc.OcclusionLevel.C);
-            //ReadGrasebyPumpPressureSettings(ProductID.Graseby2000, Misc.OcclusionLevel.H);
+            ReadGrasebyPumpPressureSettings(ProductID.Graseby2000, Misc.OcclusionLevel.L);
+            ReadGrasebyPumpPressureSettings(ProductID.Graseby2000, Misc.OcclusionLevel.C);
+            ReadGrasebyPumpPressureSettings(ProductID.Graseby2000, Misc.OcclusionLevel.H);
 
-            //ReadGrasebyPumpPressureSettings(ProductID.Graseby2100, Misc.OcclusionLevel.L);
-            //ReadGrasebyPumpPressureSettings(ProductID.Graseby2100, Misc.OcclusionLevel.C);
-            //ReadGrasebyPumpPressureSettings(ProductID.Graseby2100, Misc.OcclusionLevel.H);
+            ReadGrasebyPumpPressureSettings(ProductID.Graseby2100, Misc.OcclusionLevel.L);
+            ReadGrasebyPumpPressureSettings(ProductID.Graseby2100, Misc.OcclusionLevel.C);
+            ReadGrasebyPumpPressureSettings(ProductID.Graseby2100, Misc.OcclusionLevel.H);
 
-            //ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6T, Misc.OcclusionLevel.L);
-            //ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6T, Misc.OcclusionLevel.C);
-            //ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6T, Misc.OcclusionLevel.H);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6T, Misc.OcclusionLevel.L);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6T, Misc.OcclusionLevel.C);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6T, Misc.OcclusionLevel.H);
 
-            //ReadGrasebyPumpPressureSettings(ProductID.WZ50C6, Misc.OcclusionLevel.L);
-            //ReadGrasebyPumpPressureSettings(ProductID.WZ50C6, Misc.OcclusionLevel.C);
-            //ReadGrasebyPumpPressureSettings(ProductID.WZ50C6, Misc.OcclusionLevel.H);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6, Misc.OcclusionLevel.L);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6, Misc.OcclusionLevel.C);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC6, Misc.OcclusionLevel.H);
 
             //ReadGrasebyPumpPressureSettings(ProductID.WZ50C6T, Misc.OcclusionLevel.L);
             //ReadGrasebyPumpPressureSettings(ProductID.WZ50C6T, Misc.OcclusionLevel.C);
             //ReadGrasebyPumpPressureSettings(ProductID.WZ50C6T, Misc.OcclusionLevel.H);
 
-            //ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6, Misc.OcclusionLevel.L);
-            //ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6, Misc.OcclusionLevel.C);
-            //ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6, Misc.OcclusionLevel.H);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6, Misc.OcclusionLevel.L);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6, Misc.OcclusionLevel.C);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6, Misc.OcclusionLevel.H);
 
             //ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6_2, Misc.OcclusionLevel.L);
             //ReadGrasebyPumpPressureSettings(ProductID.GrasebyF6_2, Misc.OcclusionLevel.C);
