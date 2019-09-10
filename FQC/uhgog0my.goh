@@ -24,7 +24,6 @@ namespace FQC
 {
     public partial class Chart : UserControl
     {
-        private const double MAXKPALIMIT                                      = 150;
         private const string VOL                                              = "Kpa";
         private const int LEFTBORDEROFFSET                                    = 30;
         private const int RIGHTBORDEROFFSET                                   = 10;
@@ -34,12 +33,12 @@ namespace FQC
         private const int TRYCOUNTSAMPLINGTIMEOUT                             = 5;                                         //采样超时次数为5.超时5次就停止 
         private Graphics                              m_gh                    = null;
         private System.Drawing.Rectangle              m_Rect;
-        private Pen                                   m_WaveLinePen           = new Pen(Color.FromArgb(128, 0, 128));
-        private SolidBrush                            m_WaveLineBrush         = new SolidBrush(Color.FromArgb(128, 0, 128));
+        private Pen                                   m_WaveLinePen           = new Pen(Color.FromArgb(19, 113, 185));
+        private SolidBrush                            m_WaveLineBrush         = new SolidBrush(Color.FromArgb(19, 113, 185));
         private float                                 m_XCoordinateMaxValue   = 120;                                       //X轴最大长度：120秒
-        private int                                   m_YCoordinateMaxValue   = 150;                                       //y轴最大Kpa
+        private int                                   m_YCoordinateMaxValue   = 200;                                       //y轴最大Kpa
         private int                                   m_XSectionCount         = 20;
-        private int                                   m_YSectionCount         = 15;
+        private int                                   m_YSectionCount         = 20;
         private float                                 m_CoordinateIntervalX   = 0;                                         //X轴上的区间实际长度，单位为像素
         private float                                 m_CoordinateIntervalY   = 0;                                         //Y轴上的区间实际长度，单位为像素
         private float                                 m_ValueInervalX         = 0;                                         //X轴上的坐标值，根据实际放大倍数和量程决定
@@ -51,11 +50,9 @@ namespace FQC
         private Graseby9600                           m_GrasebyDevice         = new Graseby9600();                         //只用于串口刷新
         private DeviceBase                            _GrasebyDevice4FindPort = new DeviceBase();                          //只用于泵串口刷新
         private PumpID                                m_LocalPid              = PumpID.GrasebyF8;                          //默认显示的是
-        public ProductModel                          m_ProductModel          = ProductModel.GrasebyF8;
+        private ProductModel                          m_ProductModel          = ProductModel.GrasebyF8;
         private System.Timers.Timer                   m_Ch1Timer              = new System.Timers.Timer();
-        private System.Timers.Timer                   m_GaugeTimer            = new System.Timers.Timer();
-        private int                                   m_SampleInterval        = 600;                                       //采样频率：毫秒
-        private int                                   m_GaugeSampleInterval   = 350;                                       //压力表采样频率：350毫秒
+        private int                                   m_SampleInterval        = 500;                                       //采样频率：毫秒
         private int                                   m_Channel               = 1;                                         //1号通道，默认值
         private string                                m_PumpNo                = string.Empty;                              //产品序号
         private string                                m_ToolingNo             = string.Empty;                              //工装编号
@@ -66,25 +63,14 @@ namespace FQC
         private Misc.SyringeBrand                     m_CurrentBrand          = Misc.SyringeBrand.None;
         private List<Misc.SyringeBrand>               m_LevelNBrands          = new List<Misc.SyringeBrand>();             //不同品牌压力档位不同
         private Misc.OcclusionLevel                   m_CurrentLevel          = Misc.OcclusionLevel.None;                  //当前测试的压力
-        //private Misc.OcclusionLevel                   m_PreLevel              = Misc.OcclusionLevel.None;                  //上一步测试的压力
+        private Misc.OcclusionLevel                   m_PreLevel              = Misc.OcclusionLevel.None;                  //上一步测试的压力
         private Queue<Misc.ApplicationRequestCommand> m_RequestCommands       = new Queue<Misc.ApplicationRequestCommand>();
         protected DateTime                            m_StopTime              = DateTime.Now;                              //停止时间
         protected DateTime                            m_StartTime             = DateTime.Now;                              //开始时间
         protected AutoResetEvent                      m_FreshPumpPortEvent    = new AutoResetEvent(false);                 //用于泵串口刷新
         protected AutoResetEvent                      m_StopPumpEvent         = new AutoResetEvent(false);                 //用于泵停止事件
-        protected AutoResetEvent                      m_StopPumpPumpStatusEvent         = new AutoResetEvent(false);       //用于泵停止事件，泵停止时，查询状态，是否真正停止
         protected bool                                m_bTestOverFlag         = false;                                     //是否是调用了StopTest函数
-        protected bool                                m_bMaxKpaFlag           = false;                                     //是否是超过了200Kpa并停止泵
         private FQCData mFQCData                                              = new FQCData();
-        private int                                   m_LevelTryCount         = 0;                                         //当压力档命令没有响应超过2次，就完全停止测试
-
-        private int m_CuurentPatterIndex = 0;
-
-        private DateTime m_OcclusionTimeStamp = DateTime.Now;//换档成功并且泵停止后立即读报警信息，可能会有一条阻塞报警，导致直接从L档升到H档,所以过滤前10秒的报警信息
-
-        private bool m_bStartTimer = true;
-        private bool m_bStartPumpStatusThread = true;
-
 
         #region 委托+事件
         public delegate void DelegateSetWeightValue(float weight, bool isDetect);
@@ -92,24 +78,19 @@ namespace FQC
         public delegate void DelegateEnableContols(bool bEnabled);
         public delegate void DelegateAlertTestResult();
         public delegate void DelegateContinueStopTest();
-        public delegate void DelegateInputOpratorNumber(string number);
-        public delegate void DelegatePauseTest();
-        public delegate void DelegateFuctionNoParamater();
-
         /// <summary>
         /// 当启动或停止时通知主界面
         /// </summary>
         public event EventHandler<EventArgs> SamplingStartOrStop;
+
         public event EventHandler<EventArgs> ClearPumpNoWhenCompleteTest;
+
         public event EventHandler<EventArgs> StopTestManual;//人工干预停止时，所有数据都清零
         /// <summary>
         /// 当双道泵，测量结束后通知主界面，把数据传入
         /// </summary>
         public event EventHandler<DoublePumpDataArgs> OnSamplingComplete;
         public event EventHandler<EventArgs> OnPortFreshedSuccess;  //F8双通道模式下，第一道泵成功刷新后，第二道泵串口一起刷新
-        public event EventHandler<EventArgs> Clear2ndChannelData;  //F8双通道模式下，第一道泵成功启动，清空第二道数据
-        public event EventHandler<OpratorNumberArgs> OpratorNumberInput;
-
         #endregion
 
         #region 属性
@@ -160,29 +141,7 @@ namespace FQC
             InitializeComponent();
             picGaugePortStatus.Tag = false;
             if (cmbSetBrand.Items.Count > 4)
-            {
-                switch (m_ProductModel)
-                {
-                    case ProductModel.GrasebyC8:
-                    case ProductModel.GrasebyF8:
-                        cmbSetBrand.SelectedIndex = 3;
-                        break;
-                    case ProductModel.GrasebyC6:
-                    case ProductModel.GrasebyF6:
-                    case ProductModel.Graseby1200:
-                    case ProductModel.GrasebyC6T:
-                    case ProductModel.Graseby2000:
-                    case ProductModel.Graseby2100:
-                    case ProductModel.WZ50C6:
-                    case ProductModel.WZS50F6:
-                    case ProductModel.WZ50C6T:
-                        cmbSetBrand.SelectedIndex = 2;
-                        break;
-                    default:
-                        cmbSetBrand.SelectedIndex = 3;
-                        break;
-                }
-            }
+                cmbSetBrand.SelectedIndex = 3;
             cmbPattern.SelectedIndex = 0;
             m_Channel = 1;
             m_gh = WavelinePanel.CreateGraphics();
@@ -201,6 +160,7 @@ namespace FQC
             m_Rect = WavelinePanel.ClientRectangle;
         }
         #endregion
+
 
         public void SetPid(PumpID pid)
         {
@@ -266,8 +226,7 @@ namespace FQC
                 m_ConnResponse.SetStopControlResponse += new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse += new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse += new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
-                m_ConnResponse.GetPumpStatusResponse += new EventHandler<ResponseEventArgs<Misc.PumpStatusInfo>>(GetPumpStatus);
-                m_ConnResponse.GetInfusionParameterResponse += new EventHandler<ResponseEventArgs<Misc.InfusionParamemter>>(GetInfusionParameter);
+                //m_ConnResponse.GetPressureCalibrationPValueResponse += new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
             }
             catch 
             { 
@@ -288,8 +247,7 @@ namespace FQC
                 m_ConnResponse.SetStopControlResponse -= new EventHandler<ResponseEventArgs<String>>(SetStopControl);
                 m_ConnResponse.GetSyringSizeResponse -= new EventHandler<ResponseEventArgs<Misc.SyringeSizeInfo>>(GetSyringSize);
                 m_ConnResponse.GetPumpAlarmsResponse -= new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
-                m_ConnResponse.GetPumpStatusResponse -= new EventHandler<ResponseEventArgs<Misc.PumpStatusInfo>>(GetPumpStatus);
-                m_ConnResponse.GetInfusionParameterResponse -= new EventHandler<ResponseEventArgs<Misc.InfusionParamemter>>(GetInfusionParameter);
+                //m_ConnResponse.GetPressureCalibrationPValueResponse -= new EventHandler<ResponseEventArgs<PValueInfo>>(GetPressureCalibrationPValue);
             }
             catch
             { 
@@ -303,23 +261,10 @@ namespace FQC
             m_Ch1Timer.Start();
             m_Ch1Timer.Enabled = true;
             Logger.Instance().Info("StartTimer执行！");
-            if (m_ConnResponse != null)
-            {
-                m_ConnResponse.GetPumpAlarmsResponse -= new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
-                m_ConnResponse.GetPumpAlarmsResponse += new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
-            }
         }
 
         private void StopTimer()
         {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new DelegateFuctionNoParamater(StopTimer), null);
-                return;
-            }
-
-            if (m_ConnResponse != null)
-                m_ConnResponse.GetPumpAlarmsResponse -= new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms);
             m_Ch1Timer.Stop();
             m_Ch1Timer.Enabled = false;
             Logger.Instance().Info("StopTimer执行！");
@@ -327,40 +272,18 @@ namespace FQC
 
         private void OnTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (m_bStartTimer && !m_bMaxKpaFlag && m_ConnResponse != null && m_ConnResponse.IsOpen())
+            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
             {
                 //查询报警信息
                 m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetPumpAlarms);
                 SendNextRequest();
-            }
-        }
-
-        private void StartTimerGauge()
-        {
-            StopTimerGauge();
-            m_GaugeTimer.Start();
-            m_GaugeTimer.Enabled = true;
-            Logger.Instance().Info("StartTimerGauge执行！");
-        }
-
-        private void StopTimerGauge()
-        {
-            m_GaugeTimer.Stop();
-            m_GaugeTimer.Enabled = false;
-            Logger.Instance().Info("StopTimerGauge执行！");
-        }
-
-        private void OnTimerGauge(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            if (!m_bMaxKpaFlag)
-            {
                 if (m_GaugeTool != null && m_GaugeTool.IsOpen())
                 {
                     m_GaugeTool.SendQueryCmd(); //向压力表请求数据
                 }
             }
         }
-        
+
         #endregion
                
         /// <summary>
@@ -375,24 +298,12 @@ namespace FQC
 
         private void OnGaugeDataRecerived(object sender, PressureGaugeDataEventArgs e)
         {
-            if (m_bMaxKpaFlag)
-                return;
             m_Ch1SampleDataList.Add(new SampleData(DateTime.Now, e.PressureValue));
-            float count = m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval;
+            float count = m_XCoordinateMaxValue * 1000 / m_SampleInterval;
             if (m_Ch1SampleDataList.Count > count)
                 ReDrawCoordinate();
             else
-                DrawSingleAccuracyMap(m_XSectionCount, m_YSectionCount);
-            if (e.PressureValue >= MAXKPALIMIT)
-            {
-                m_bMaxKpaFlag = true;
-                //超过最大值，报警，并停止泵
-                StopTimer();
-                StopTimerGauge();
-                AlertMaxKpaSub();
-                this.InvokeOnClick(this.picStop, null);
-                //StopTest();
-            }
+                DrawSingleAccuracyMap();
         }
 
         #region 画图
@@ -422,8 +333,8 @@ namespace FQC
                 int i = m_Ch1SampleDataList.Count - 1;
                 y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i - 1].m_PressureValue / m_ValueInervalY)));
                 y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[i].m_PressureValue / m_ValueInervalY)));
-                x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (i) + xOriginalPoint.X;
-                x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (i + 1) + xOriginalPoint.X;
+                x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i) + xOriginalPoint.X;
+                x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (i + 1) + xOriginalPoint.X;
                 try
                 {
                     m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
@@ -467,8 +378,8 @@ namespace FQC
                     {
                         y0 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop - 1].m_PressureValue / m_ValueInervalY)));
                         y1 = xOriginalPoint.Y - ((yOriginalPoint.Y - yEndPoint.Y) / ySectionCount * ((m_Ch1SampleDataList[iLoop].m_PressureValue / m_ValueInervalY)));
-                        x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (iLoop) + xOriginalPoint.X;
-                        x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval) * (iLoop + 1) + xOriginalPoint.X;
+                        x0 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop) + xOriginalPoint.X;
+                        x1 = (xEndPoint.X - xOriginalPoint.X) / (m_XCoordinateMaxValue * 1000 / m_SampleInterval) * (iLoop + 1) + xOriginalPoint.X;
                         m_gh.DrawLine(m_WaveLinePen, new PointF(x0, y0), new PointF(x1, y1));
                     }
                 }
@@ -563,7 +474,7 @@ namespace FQC
 
         private void ReDrawCoordinate()
         {
-            m_XCoordinateMaxValue += 60;
+            m_XCoordinateMaxValue += 20;
             this.WavelinePanel.Invalidate();
         }
         #endregion
@@ -577,9 +488,6 @@ namespace FQC
             cbToolingPort.Items.AddRange(SerialPort.GetPortNames());
             m_Ch1Timer.Interval = m_SampleInterval;
             m_Ch1Timer.Elapsed += OnTimer;
-
-            m_GaugeTimer.Interval = m_GaugeSampleInterval;
-            m_GaugeTimer.Elapsed += OnTimerGauge;
         }
 
         /// <summary>
@@ -671,10 +579,6 @@ namespace FQC
                         _GrasebyDevice4FindPort = new Graseby9600();
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.GrasebyF6);
                         break;
-                    case PumpID.GrasebyF6_2:
-                        _GrasebyDevice4FindPort = new Graseby9600();
-                        _GrasebyDevice4FindPort.SetDeviceType(DeviceType.GrasebyF6);
-                        break;
                     case PumpID.GrasebyC6T:
                         _GrasebyDevice4FindPort = new Graseby9600();
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.GrasebyC6T);
@@ -692,10 +596,6 @@ namespace FQC
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.WZ50C6);
                         break;
                     case PumpID.WZS50F6:
-                        _GrasebyDevice4FindPort = new Graseby9600();
-                        _GrasebyDevice4FindPort.SetDeviceType(DeviceType.WZS50F6);
-                        break;
-                    case PumpID.WZS50F6_2:
                         _GrasebyDevice4FindPort = new Graseby9600();
                         _GrasebyDevice4FindPort.SetDeviceType(DeviceType.WZS50F6);
                         break;
@@ -736,29 +636,16 @@ namespace FQC
         /// </summary>
         public void Start()
         {
-            #region 第一道泵是否已经测试完成
-            if (m_LocalPid == PumpID.GrasebyF8_2 && this.Channel == 2)// && PressureForm.SampleDataList[0].Channel!=1)
-            {
-                if (PressureForm.SampleDataList.Count == 0 || PressureForm.SampleDataList[0].Channel != 1)
-                {
-                    MessageBox.Show("请先完成第一道测试！");
-                    return;
-                }
-            }
-            #endregion
-
+            detail.ClearLabelValue();
+            mFQCData.brand = string.Empty;
+            mFQCData.pressureN = 0;
+            mFQCData.pressureL = 0;
+            mFQCData.pressureC = 0;
+            mFQCData.pressureH = 0;
+            mFQCData.syrangeSize = 0;
+            m_Ch1SampleDataList.Clear();
+            WavelinePanel.Invalidate();
             #region 参数输入检查
-
-            if (string.IsNullOrEmpty(tbOprator.Text))
-            {
-                MessageBox.Show("请输入操作员工号");
-                return;
-            }
-            if (tbOprator.Text.Length != 8)
-            {
-                MessageBox.Show("请输入正确操作员工号");
-                return;
-            }
 
             if (SamplingStartOrStop != null)
             {
@@ -770,11 +657,7 @@ namespace FQC
                 MessageBox.Show("请输入产品序号");
                 return;
             }
-            if (PumpNo.Length != PressureForm.SerialNumberCount)
-            {
-                MessageBox.Show("产品序号长度不正确");
-                return;
-            }
+
             float rate = 0;
             if (cbToolingPort.SelectedIndex < 0)
             {
@@ -865,14 +748,11 @@ namespace FQC
                 MessageBox.Show("选择的泵类型错误，请联系管理员!");
                 return;
             }
-            if(m_ConnResponse != null)
-                RemoveHandler();
-            if (m_ConnResponse != null)
+
+            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
             {
                 m_ConnResponse.CloseConnection();
-                Thread.Sleep(1500);
-                m_ConnResponse.Dispose();
-                m_ConnResponse = null;
+                Thread.Sleep(500);
             }
             SerialPortParameter para = PressureForm.m_DicPumpPortParameter[pid] as SerialPortParameter;
             m_ConnResponse = new GlobalResponse(pid, Misc.CommunicationProtocolType.General);
@@ -883,7 +763,6 @@ namespace FQC
                 MessageBox.Show("串口被占用，请关闭本软件后重新测试!");
                 return;
             }
-            m_ConnResponse.SetStartControl();
 
             RemoveHandler();
             AddHandler();
@@ -911,42 +790,14 @@ namespace FQC
                     return;
                 }
             }
-
-            #region Clear Value
-            detail.ClearLabelValue();
-            detail.Pid = m_LocalPid;
-            mFQCData.Channel = 0;
-            mFQCData.brand = string.Empty;
-            mFQCData.pressureN = 0;
-            mFQCData.pressureL = 0;
-            mFQCData.pressureC = 0;
-            mFQCData.pressureH = 0;
-            mFQCData.syrangeSize = 0;
-            m_Ch1SampleDataList.Clear();
-            WavelinePanel.Invalidate();
-            if(Channel==1)
-            {
-                PressureForm.SampleDataList.Clear();
-                //清空第二道泵数据
-                if(this.m_LocalPid == PumpID.GrasebyF8_2 && Clear2ndChannelData!=null)
-                {
-                    Clear2ndChannelData(this, null);
-                }
-            }
-            #endregion
-
             mFQCData.brand = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString().Substring(4);
             InitAllParameters();
-            m_ConnResponse.ClearAllCommand();
-            m_RequestCommands.Clear();
-            if (pid == Misc.ProductID.GrasebyC8 || pid == Misc.ProductID.GrasebyF8)
-                m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
-            else
-                m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetInfusionParameter);
+            m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.GetSyringeSize);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetSyringeBrand);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetVTBIParameter);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
             m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
+            //m_RequestCommands.Enqueue(ApplicationRequestCommand.GetPressureCalibrationPValue);
             SendNextRequest();
             EnableContols(false);
         }
@@ -954,19 +805,9 @@ namespace FQC
         private void picStop_Click(object sender, EventArgs e)
         {
             StopTimer();
-            StopTimerGauge();
             BeginStopTestThread();
-            m_Ch1SampleDataList.Clear();
-            if (Channel == 1)
-                PressureForm.SampleDataList.Clear();
-            else if (Channel == 2)
-            {
-                if(PressureForm.SampleDataList.Count >= 2)
-                    PressureForm.SampleDataList.RemoveRange(1, PressureForm.SampleDataList.Count - 1);
-            }
-            else
-                PressureForm.SampleDataList.Clear();
-            EnableContols(true);
+            //if (StopTestManual!=null)
+            //    StopTestManual(this, null);
         }
 
         private void picDetail_Click(object sender, EventArgs e)
@@ -985,12 +826,8 @@ namespace FQC
             string brandName = cmbSetBrand.Items[cmbSetBrand.SelectedIndex].ToString();
             m_CurrentBrand = FindSyringeBrandByName(brandName);//由品牌名称查询枚举值
             //当前品牌,有没有N档?
-
-            if (m_ProductModel == ProductModel.GrasebyC8 || m_ProductModel == ProductModel.GrasebyF8)
-            {
-                if (m_LevelNBrands.Contains(m_CurrentBrand))
-                    m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.N);
-            }
+            if (m_LevelNBrands.Contains(m_CurrentBrand))
+                m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.N);
             m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.L);
             m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.C);
             m_OcclusionLevelOfBrand.Add(Misc.OcclusionLevel.H);
@@ -1066,8 +903,7 @@ namespace FQC
             {
                 Logger.Instance().ErrorFormat("命令'SetSyringeBrand'指令返回错误！ErrorMessage = {0}", args.ErrorMessage);
                 MessageBox.Show("设置注射器品牌失败！");
-                //m_CurrentLevel = m_PreLevel;
-                StopTestWithoutStartPump();
+                m_CurrentLevel = m_PreLevel;
             }
             else
             {
@@ -1094,8 +930,7 @@ namespace FQC
             {
                 Logger.Instance().ErrorFormat("命令'SetInfusionParas'指令返回错误！ErrorMessage = {0}", args.ErrorMessage);
                 MessageBox.Show("设置速率失败！");
-                //m_CurrentLevel = m_PreLevel;
-                StopTestWithoutStartPump();
+                m_CurrentLevel = m_PreLevel;
             }
             else
             {
@@ -1118,28 +953,12 @@ namespace FQC
             }
             if (String.Empty != args.ErrorMessage)
             {
-                ++m_LevelTryCount;
-                Logger.Instance().ErrorFormat("命令'SetOcclusionLevel'指令返回错误！ErrorMessage = {0}, m_LevelTryCount = {1}, m_CurrentLevel={2}", args.ErrorMessage, m_LevelTryCount, m_CurrentLevel);
-                if (m_LevelTryCount < 3)
-                {
-                    //m_ConnResponse.SetOcclusionLevel(m_CurrentLevel);
-                    //m_ConnResponse.ClearAllCommand();
-                    m_RequestCommands.Clear();
-                    m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
-                    //m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
-                    SendNextRequest();
-                    //SendNextRequest();
-                }
-                else
-                {
-                    ErrorDialog dlg = new ErrorDialog("设置压力档失败，请选择最低档后重新开始测试！");
-                    dlg.Show();
-                    StopTestWithoutStartPump();
-                }
+                Logger.Instance().ErrorFormat("命令'SetOcclusionLevel'指令返回错误！ErrorMessage = {0}", args.ErrorMessage);
+                MessageBox.Show("设置压力档失败！");
+                m_CurrentLevel = m_PreLevel;
             }
             else
             {
-                m_LevelTryCount = 0;
                 Logger.Instance().Info("命令'SetOcclusionLevel'指令成功返回！");
                 SendNextRequest();
             }
@@ -1162,34 +981,11 @@ namespace FQC
             if (String.Empty != args.ErrorMessage)
             {
                 Logger.Instance().ErrorFormat("命令'GetSyringSize'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                StopTestWithoutStartPump();
-                ErrorDialog dlg = new ErrorDialog("读注射器尺寸失败！");
-                dlg.Show();
+                MessageBox.Show("读注射器尺寸失败！");
             }
             else
             {
                 mFQCData.syrangeSize = args.EventData.size;
-                SendNextRequest();
-            }
-        }
-
-        private void GetInfusionParameter(object sender, ResponseEventArgs<Misc.InfusionParamemter> args)
-        {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke(new EventHandler<ResponseEventArgs<Misc.InfusionParamemter>>(GetInfusionParameter), new object[] { sender, args });
-                return;
-            }
-            if (String.Empty != args.ErrorMessage)
-            {
-                Logger.Instance().ErrorFormat("命令'GetInfusionParameter'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                StopTestWithoutStartPump();
-                ErrorDialog dlg = new ErrorDialog("读注射器尺寸失败！");
-                dlg.Show();
-            }
-            else
-            {
-                mFQCData.syrangeSize = args.EventData.syringeSize;
                 SendNextRequest();
             }
         }
@@ -1231,14 +1027,12 @@ namespace FQC
             if (String.Empty != args.ErrorMessage)
             {
                 Logger.Instance().ErrorFormat("命令'SetStartControl'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                ErrorDialog dlg = new ErrorDialog("启动泵失败！");
-                dlg.Show();
+                MessageBox.Show("启动泵失败！");
             }
             else
             {
                 Logger.Instance().Info("命令'SetStartControl'指令成功返回！");
                 StartTimer();
-                StartTimerGauge();
                 m_StartTime = DateTime.Now;
                 //EnableAllControls(false);
                 SendNextRequest();
@@ -1254,7 +1048,7 @@ namespace FQC
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new EventHandler<ResponseEventArgs<String>>(SetStopControl), new object[] { sender, args });
+                this.BeginInvoke(new EventHandler<ResponseEventArgs<String>>(SetStopControl), new object[] { sender, args });
                 return;
             }
             if (String.Empty != args.ErrorMessage)
@@ -1278,31 +1072,20 @@ namespace FQC
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms), new object[] { sender, args });
+                this.Invoke(new EventHandler<ResponseEventArgs<Misc.AlarmInfo>>(GetPumpAlarms), new object[] { sender, args });
                 return;
             }
-
-            //当刚刚完成压力档设置后，忽略掉后面10秒的报警，否则又要换档
-
-            //TimeSpan ts = DateTime.Now - m_OcclusionTimeStamp;
-            //if (ts.TotalSeconds < 10)
-            //{
-            //    Logger.Instance().Info("命令'GetPumpAlarms'指令返回！但不要响应，未过10秒。");
-            //    SendNextRequest();
-            //    return;
-            //}
-
             System.Diagnostics.Debug.WriteLine("begin Invoke GetPumpAlarms");
             if (String.Empty != args.ErrorMessage)
             {
                 Logger.Instance().ErrorFormat("命令'GetPumpAlarms'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
                 m_AlarmInfo = new Misc.AlarmInfo();//set false
                 m_TryCount++;
-                if (m_TryCount > 5)
+                if (m_TryCount >= 3)
                 {
-                    ShowErrorDialog("读取报警数据失败,停止测试！");
                     StopTest();
                 }
+                MessageBox.Show("读取报警信息失败！");
             }
             else
             {
@@ -1325,176 +1108,92 @@ namespace FQC
                 {
                     if ("Occlusion" == s)
                     {
-                        //lock (m_RequestCommands)
-                        //{
-                        //    m_RequestCommands.Clear();
-                        //}
-                        //收到了报警信息后面不能再响应了，应该禁止
-                        //StopTimer();
-                        //StopTimerGauge();
-                        //m_bStartTimer = false;
-                        Logger.Instance().Info("命令'GetPumpAlarms'测到Occlusion报警，启动停止泵线程");
-                        InvokeOnClick(btnStopAlarm, null);
-                        BeginPauseTestThread();
-                        //PauseTest();
+                        PauseTest();
                         break;
                     }
-                    else if (s.Contains("Near Empty"))
+                    else if ("Near Empty" == s)
                     {
-                        SendNextRequest();
                         continue;
                     }
                     else
                     {
                         StopTimer();
-                        StopTimerGauge();
                         this.InvokeOnClick(this.picStop, null);
                         break;
                     }
                 }
             }
-
+            SendNextRequest();
         }
-
-        /// <summary>
-        /// 泵状态响应函数
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void GetPumpStatus(object sender, ResponseEventArgs<Misc.PumpStatusInfo> args)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new EventHandler<ResponseEventArgs<Misc.PumpStatusInfo>>(GetPumpStatus), new object[] { sender, args });
-                return;
-            }
-            if (String.Empty != args.ErrorMessage)
-            {
-                Logger.Instance().ErrorFormat("命令'GetPumpStatus'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                ShowErrorDialog("读取泵状态数据失败,停止测试！");
-                StopTest();
-            }
-            else
-            {
-                Misc.PumpStatus pumpStatus = args.EventData.pumpStatus;
-                if(pumpStatus == Misc.PumpStatus.Stop || pumpStatus == Misc.PumpStatus.Off || pumpStatus == Misc.PumpStatus.Pause)
-                {
-                    m_StopPumpPumpStatusEvent.Set();
-                    Logger.Instance().InfoFormat("命令'GetPumpStatus'指令返回！信号量已有信号！当前泵状态，pumpStatus={0}", pumpStatus);
-                }
-                else
-                {
-                    Logger.Instance().InfoFormat("命令'GetPumpStatus'指令返回！pumpStatus={0}", pumpStatus);
-                }
-            }
-        }
-
 
         private void SendNextRequest()
         {
-            try
+            lock (m_RequestCommands)
             {
-                lock (m_RequestCommands)
+                if (m_RequestCommands.Count <= 0)
                 {
-                    #region
-                    if (m_RequestCommands.Count <= 0)
-                    {
-                        return;
-                    }
-                    Misc.ApplicationRequestCommand cmd = m_RequestCommands.Peek();
-                    switch (cmd)
-                    {
-                        case Misc.ApplicationRequestCommand.SetSyringeBrand:
-                            {
-                                m_ConnResponse.SetSyringeBrand(m_CurrentBrand);
-                                Logger.Instance().Info("命令'SetSyringeBrand'指令发出！");
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.SetVTBIParameter:
-                            {
-                                float rate = 0;
-                                if (float.TryParse(tbRate.Text, out rate))
-                                {
-                                    m_ConnResponse.SetVTBIParameter(0, rate);
-                                    Logger.Instance().InfoFormat("命令'SetVTBIParameter'指令发出！速率={0}", rate);
-                                }
-                                else
-                                    MessageBox.Show("请正确输入速率！");
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.SetOcclusionLevel:
-                            {
-                                if (m_CurrentLevel == Misc.OcclusionLevel.None)
-                                {
-                                    string level = cmbLevel.Items[cmbLevel.SelectedIndex].ToString();
-                                    if (Enum.IsDefined(typeof(Misc.OcclusionLevel), level))
-                                    {
-                                        m_CurrentLevel = (Misc.OcclusionLevel)Enum.Parse(typeof(Misc.OcclusionLevel), level);
-                                    }
-                                }
-                                m_ConnResponse.SetOcclusionLevel(m_CurrentLevel);
-                                Logger.Instance().InfoFormat("命令'SetOcclusionLevel'指令发出！压力档位={0}", m_CurrentLevel);
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.SetStartControl:
-                            {
-                                m_ConnResponse.SetStartControl();
-                                Logger.Instance().Info("命令'SetStartControl'指令发出！");
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.GetSyringeSize: //C8/F8
-                            {
-                                m_ConnResponse.GetSyringeSize();
-                                Logger.Instance().Info("命令'GetSyringeSize'指令发出！");
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.GetInfusionParameter://C6/F6等其他老泵
-                            {
-                                m_ConnResponse.GetInfusionParamemter(); 
-                                Logger.Instance().Info("命令'GetInfusionParamemter'指令发出！");
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.GetPressureCalibrationPValue:
-                            {
-                                m_ConnResponse.GetPressureCalibrationPValue();
-                                Logger.Instance().Info("命令'GetPressureCalibrationPValue'指令发出！");
-                                break;
-                            }
-                        case Misc.ApplicationRequestCommand.GetPumpAlarms:
-                            {
-                                m_ConnResponse.GetPumpAlarms();
-                                Logger.Instance().Info("命令'GetPumpAlarms'指令发出！");
-                                break;
-                            }
-                        default:
-                            break;
-                    }
-                    if (m_RequestCommands.Count <= 0)
-                    {
-                        return;
-                    }
-                    m_RequestCommands.Dequeue();
-                    #endregion
+                    return;
                 }
+                Misc.ApplicationRequestCommand cmd = m_RequestCommands.Peek();
+                switch (cmd)
+                {
+                    case Misc.ApplicationRequestCommand.SetSyringeBrand:
+                        {
+                            m_ConnResponse.SetSyringeBrand(m_CurrentBrand);
+                            Logger.Instance().Info("命令'SetSyringeBrand'指令发出！");
+                            break;
+                        }
+                    case Misc.ApplicationRequestCommand.SetVTBIParameter:
+                        {
+                            float rate = 0;
+                            if (float.TryParse(tbRate.Text, out rate))
+                            {
+                                m_ConnResponse.SetVTBIParameter(0, rate);
+                                Logger.Instance().InfoFormat("命令'SetVTBIParameter'指令发出！速率={0}", rate);
+                            }
+                            else
+                                MessageBox.Show("请正确输入速率！");
+                            break;
+                        }
+                    case Misc.ApplicationRequestCommand.SetOcclusionLevel:
+                        {
+                            m_ConnResponse.SetOcclusionLevel(m_CurrentLevel);
+                            Logger.Instance().InfoFormat("命令'SetOcclusionLevel'指令发出！压力档位={0}", m_CurrentLevel);
+                            break;
+                        }
+                    case Misc.ApplicationRequestCommand.SetStartControl:
+                        {
+                            m_ConnResponse.SetStartControl();
+                            Logger.Instance().Info("命令'SetStartControl'指令发出！");
+                            break;
+                        }
+                    case Misc.ApplicationRequestCommand.GetSyringeSize:
+                        {
+                            m_ConnResponse.GetSyringeSize();
+                            Logger.Instance().Info("命令'GetSyringeSize'指令发出！");
+                            break;
+                        }
+                    case Misc.ApplicationRequestCommand.GetPressureCalibrationPValue:
+                        {
+                            m_ConnResponse.GetPressureCalibrationPValue();
+                            Logger.Instance().Info("命令'GetPressureCalibrationPValue'指令发出！");
+                            break;
+                        }
+                    case Misc.ApplicationRequestCommand.GetPumpAlarms:
+                        {
+                            m_ConnResponse.GetPumpAlarms();
+                            Logger.Instance().Info("命令'GetPumpAlarms'指令发出！");
+                            break;
+                        }
+                    default:
+                        break;
+                }
+                if (m_RequestCommands.Count <= 0)
+                {
+                    return;
+                }
+                m_RequestCommands.Dequeue();
             }
-            catch(Exception ex)
-            {
-                Logger.Instance().Fatal("Chart::SendNextRequest() -> " + ex.Message);
-            }
-            
-        }
-
-        private void ShowErrorDialog(string message)
-        {
-            Thread th = new Thread((ParameterizedThreadStart)ProcShowErrorDialog);
-            th.Start(message);
-            //th.Join();
-        }
-        private void ProcShowErrorDialog(object message)
-        {
-            string msg = message as string;
-            ErrorDialog dlg = new ErrorDialog(msg);
-            dlg.ShowDialog();
         }
 
         #endregion
@@ -1521,16 +1220,25 @@ namespace FQC
                 this.Invoke(new DelegateEnableContols(EnableContols), new object[] { bEnabled });
                 return;
             }
-            UserMessageHelper.EnableContols(bEnabled);
             cbToolingPort.Enabled = bEnabled;
             cbPumpPort.Enabled = bEnabled;
             tbRate.Enabled = bEnabled;
-            tbOprator.Enabled = bEnabled;
             picStart.Enabled = bEnabled;
             cmbSetBrand.Enabled = bEnabled;
             cmbLevel.Enabled =  bEnabled;
             cmbPattern.Enabled =  bEnabled;
             picStop.Enabled = !bEnabled;
+
+            //if (!bEnabled)
+            //{
+            //    picStart.Image = global::FQC.Properties.Resources.icon_start_gray;
+            //    picStop.Image = global::FQC.Properties.Resources.icon_stop_blue;
+            //}
+            //else
+            //{
+            //    picStart.Image = global::FQC.Properties.Resources.icon_start_Blue;
+            //    picStop.Image = global::FQC.Properties.Resources.icon_stop_gray;
+            //}
             if (SamplingStartOrStop != null)
             {
                 SamplingStartOrStop(this, new StartOrStopArgs(bEnabled));
@@ -1542,7 +1250,7 @@ namespace FQC
         /// </summary>
         /// <param name="name"></param>
         /// <param name="caliParameters">已经生成好的数据，直接写到表格中</param>
-        private void GenReport(string name, string name2)
+        private void GenReport(string name)
         {
             string title = string.Empty;
             if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2)
@@ -1561,66 +1269,46 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "道数";
             ws.Cell(1, ++columnIndex).Value = "工装编号";
             ws.Cell(1, ++columnIndex).Value = "注射器品牌";
-            ws.Cell(1, ++columnIndex).Value = "频道";
             ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
             ws.Cell(1, ++columnIndex).Value = "速率";
-            ws.Cell(1, ++columnIndex).Value = "N(Kpa)";
-            ws.Cell(1, ++columnIndex).Value = "L(Kpa)";
-            ws.Cell(1, ++columnIndex).Value = "C(Kpa)";
-            ws.Cell(1, ++columnIndex).Value = "H(Kpa)";
+            ws.Cell(1, ++columnIndex).Value = "N";
+            ws.Cell(1, ++columnIndex).Value = "L";
+            ws.Cell(1, ++columnIndex).Value = "C";
+            ws.Cell(1, ++columnIndex).Value = "H";
             ws.Cell(1, ++columnIndex).Value = "是否合格";
-            ws.Cell(1, ++columnIndex).Value = "操作员";
-            ws.Cell(1, ++columnIndex).Value = "不合格详情";
-            
 
-            ws.Columns(1, 1).Width = 30;
-            ws.Columns(2, columnIndex).Width = 15;
-            ws.Columns(4, 4).Width = 20;
-            
             columnIndex = 0;
             ws.Cell(2, ++columnIndex).Value = m_PumpNo;
             ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
             ws.Cell(2, ++columnIndex).Value = m_Channel;
             ws.Cell(2, ++columnIndex).Value = m_ToolingNo;
             ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
-            ws.Cell(2, ++columnIndex).Value = (cmbSetBrand.SelectedIndex+1).ToString();
             ws.Cell(2, ++columnIndex).Value = mFQCData.syrangeSize;
             ws.Cell(2, ++columnIndex).Value = tbRate.Text;
-            if(m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
-                ws.Cell(2, ++columnIndex).Value = mFQCData.pressureN;
-            else
-                ws.Cell(2, ++columnIndex).Value = "N/A";
+            ws.Cell(2, ++columnIndex).Value = mFQCData.pressureN;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureL;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureC;
             ws.Cell(2, ++columnIndex).Value = mFQCData.pressureH;
-
             bool bPass = true;
-            string strError = string.Empty;
             if (IsAuto())
-                bPass = IsPassAuto(ref strError);
+                bPass = IsPassAuto();
             else
-                bPass = IsPassManual(ref strError);
+                bPass = IsPassManual();
 
             if (bPass)
             {
-                ws.Cell(2, ++columnIndex).Value = "Pass";
-                ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Green;
+                ws.Cell(2, ++columnIndex).Value = "通过";
+                ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Green;
             }
             else
             {
-                ws.Cell(2, ++columnIndex).Value = "Fail";
-                ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Red;
+                ws.Cell(2, ++columnIndex).Value = "失败";
+                ws.Range("A2", "L2").Style.Font.FontColor = XLColor.Red;
             }
-
-            ws.Cell(2, ++columnIndex).Value = tbOprator.Text;
-            ws.Cell(2, ++columnIndex).Value = strError;
-
             ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 2, 4).SetDataType(XLCellValues.Text);
-            ws.Range(1, 1, 2, columnIndex).Style.Alignment.SetWrapText();
+           
             wb.SaveAs(name);
-            Thread.Sleep(1000);
-            File.Copy(name, name2, true);
         }
 
         /// <summary>
@@ -1634,40 +1322,22 @@ namespace FQC
                 return;
             }
             bool bPass = false;
-            string strError = string.Empty;
-            if (cmbPattern.SelectedIndex==0)
-                bPass = IsPassAuto(ref strError);
+            if(cmbPattern.SelectedIndex==0)
+                bPass = IsPassAuto();
             else
-                bPass = IsPassManual(ref strError);
-            if (bPass)
-            {
-                ResultDialogPass dlg = new ResultDialogPass(bPass);
-                dlg.ShowDialog();
-            }
-            else
-            {
-                ResultDialogFail dlg = new ResultDialogFail(bPass, strError);
-                dlg.ShowDialog();
-            }
-        }
-
-        private void AlertMaxKpa()
-        {
-            Thread.Sleep(1000);
-            MaxKpaAlertForm dlg = new MaxKpaAlertForm();
+                bPass = IsPassManual();
+            ResultDialog dlg = new ResultDialog(bPass);
             dlg.ShowDialog();
-            m_bMaxKpaFlag = false;
         }
 
         #region 是否通过 
-        public bool IsPassAuto(ref string strError)
+        public bool IsPassAuto()
         {
             bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
-            
             var parameter = cfg.Find(Misc.OcclusionLevel.N);
-            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N) && parameter != null)
+            if (parameter != null)
                 if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
                 {
                     bPass = true;
@@ -1675,11 +1345,10 @@ namespace FQC
                 else
                 {
                     bPass = false;
-                    strError = string.Format("N档压力值超范围,N={0},正常范围:{1}到{2}", mFQCData.pressureN, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.L);
-            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L) && parameter != null)
+            if (parameter != null)
                 if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
                 {
                     bPass = true;
@@ -1687,11 +1356,10 @@ namespace FQC
                 else
                 {
                     bPass = false;
-                    strError = string.Format("L档压力值超范围,L={0},正常范围:{1}到{2}", mFQCData.pressureL, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.C);
-            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C) && parameter != null)
+            if (parameter != null)
                 if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
                 {
                     bPass = true;
@@ -1699,11 +1367,10 @@ namespace FQC
                 else
                 {
                     bPass = false;
-                    strError = string.Format("C档压力值超范围,C={0},正常范围:{1}到{2}", mFQCData.pressureC, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             parameter = cfg.Find(Misc.OcclusionLevel.H);
-            if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H) && parameter != null)
+            if (parameter != null)
                 if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
                 {
                     bPass = true;
@@ -1711,7 +1378,6 @@ namespace FQC
                 else
                 {
                     bPass = false;
-                    strError = string.Format("H档压力值超范围,H={0},正常范围:{1}到{2}", mFQCData.pressureH, parameter.Item2, parameter.Item3);
                     return bPass;
                 }
             return bPass;
@@ -1729,7 +1395,7 @@ namespace FQC
         /// 手动模式下只要判断一个档位
         /// </summary>
         /// <returns></returns>
-        public bool IsPassManual(ref string strError)
+        public bool IsPassManual()
         {
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
@@ -1737,45 +1403,32 @@ namespace FQC
             var parameter = cfg.Find(m_CurrentLevel);
             if (parameter != null)
             {
-                if (m_CurrentLevel == Misc.OcclusionLevel.N && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
+                switch(m_CurrentLevel)
                 {
-                    if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
-                        bPass = true;
-                    else
-                    {
-                        bPass = false;
-                        strError = string.Format("N档压力值超范围,N={0},正常范围:{1}到{2}", mFQCData.pressureN, parameter.Item2, parameter.Item3);
-                    }
-                }
-                else if (m_CurrentLevel == Misc.OcclusionLevel.L && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L))
-                {
-                    if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
-                        bPass = true;
-                    else
-                    {
-                        bPass = false;
-                        strError = string.Format("L档压力值超范围,L={0},正常范围:{1}到{2}", mFQCData.pressureL, parameter.Item2, parameter.Item3);
-                    }
-                }
-                else if (m_CurrentLevel == Misc.OcclusionLevel.C && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C))
-                {
-                    if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
-                        bPass = true;
-                    else
-                    {
-                        bPass = false;
-                        strError = string.Format("C档压力值超范围,C={0},正常范围:{1}到{2}", mFQCData.pressureC, parameter.Item2, parameter.Item3);
-                    }
-                }
-                else if (m_CurrentLevel == Misc.OcclusionLevel.H && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H))
-                {
-                    if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
-                        bPass = true;
-                    else
-                    {
-                        bPass = false;
-                        strError = string.Format("H档压力值超范围,H={0},正常范围:{1}到{2}", mFQCData.pressureH, parameter.Item2, parameter.Item3);
-                    }
+                    case Misc.OcclusionLevel.N:
+                        if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                    case Misc.OcclusionLevel.L:
+                        if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                    case Misc.OcclusionLevel.C:
+                        if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
+                    case Misc.OcclusionLevel.H:
+                        if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
+                            bPass = true;
+                        else
+                            bPass = false;
+                        break;
                 }
             }
             return bPass;
@@ -1810,75 +1463,30 @@ namespace FQC
             th.Start();
         }
 
-        private void AlertMaxKpaSub()
-        {
-            Thread th = new Thread(AlertMaxKpa);
-            th.Start();
-        }
-
         private void StopTest()
         {
-            StopTimer();
-            StopTimerGauge();
-            m_ConnResponse.ClearAllCommand();
-            //int iTryStopCount = 3;
-            //do
-            //{
-            //    m_StopPumpPumpStatusEvent.Reset();
-            //    BeginStopPumpThread();
-            //    --iTryStopCount;
-            //    if (m_StopPumpPumpStatusEvent.WaitOne(5000))
-            //    {
-            //        break;
-            //    }
-            //} while (iTryStopCount > 0);
+            m_ConnResponse.SetStopControl();
+            int iTryStopCount = 3;
+            do
+            {
+                m_StopPumpEvent.Reset();
+                m_bTestOverFlag = true;
+                m_ConnResponse.SetStopControl();
+                --iTryStopCount;
+                if (m_StopPumpEvent.WaitOne(2000))
+                {
+                    break;
+                }
+            } while (iTryStopCount > 0);
 
-            //m_StopPumpPumpStatusEvent.Reset();
-        
-
-            //int iTryStopCount = 5;
-            //do
-            //{
-            //    m_ConnResponse.GetPumpStatus();
-            //    if (m_StopPumpPumpStatusEvent.WaitOne(3000))
-            //    {
-            //        hasStoped = true;
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        InvokeOnClick(btnStopAlarm, null);
-            //    }
-            //} while (--iTryStopCount > 0);
-
-            //m_bStartPumpStatusThread = true;
-
-
-            InvokeOnClick(btnStopAlarm, null);
-
-
-
-
-            ContinueStopTest();
-            //if (iTryStopCount <= 0)
-            //{
-            //    StopTestWithoutStartPump();
-            //    ShowErrorDialog("停止泵失败，请手动停止！");
-            //}
-            //else
-            //{
-            //    ContinueStopTest();
-            //}
-        }
-
-        private void StopTestWithoutStartPump()
-        {
-            StopTimer();
-            StopTimerGauge();
-            m_RequestCommands.Clear();
-            m_ConnResponse.ClearAllCommand();
-            Close();
-            EnableContols(true);
+            if (iTryStopCount <= 0)
+            {
+                MessageBox.Show("停止泵失败，请手动停止！");
+            }
+            else
+            {
+                ContinueStopTest();
+            }
         }
 
         private void ContinueStopTest()
@@ -1899,43 +1507,17 @@ namespace FQC
                 cmbLevel.SelectedIndex = 0;
             if (m_LocalPid == PumpID.GrasebyF8_2)
             {
-                //第一道测试完成，判断是否合格，不合格要提示，是否重测
-                string strError = "";
-                if(IsAuto())
-                {
-                   if( IsPassAuto(ref strError) )
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
-                   else
-                   {
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, false));
-                   }
-                }
-                else
-                {
-                    if (IsPassManual(ref strError))
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
-                    else
-                    {
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, false));
-                    }
-                }
+                OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData));
             }
             else
             {
                 var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
-                //string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
+                string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
                 string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
                 if (!System.IO.Directory.Exists(path))
                     System.IO.Directory.CreateDirectory(path);
                 string saveFileName = path + "\\" + fileName + ".xlsx";
-
-                string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
-                if (!System.IO.Directory.Exists(path2))
-                    System.IO.Directory.CreateDirectory(path2);
-                string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
-
-                GenReport(saveFileName, saveFileName2);
+                GenReport(saveFileName);
                 if (ClearPumpNoWhenCompleteTest != null)
                     ClearPumpNoWhenCompleteTest(this, null);
                 AlertTestResultSub();
@@ -1949,127 +1531,48 @@ namespace FQC
             th.Start();
         }
 
-        //private void StopPump()
-        //{
-        //    UserMessageHelper.SendStopPumpMessage();
-        //    Thread.Sleep(500);
-        //}
-
-        //private void BeginStopPumpThread()
-        //{
-        //    Thread th = new Thread(StopPump);
-        //    th.Start();
-        //}
-
-        /// <summary>
-        /// 如果报警一直响，不能创建多个线程，只要一个线程等待，泵的状态返回就可以了
-        /// </summary>
-        private void BeginPauseTestThread()
-        {
-            if (m_bStartPumpStatusThread)
-            {
-                m_bStartPumpStatusThread = false;
-                m_StopPumpPumpStatusEvent.Reset();
-                Thread th = new Thread(PauseTest);
-                th.Start();
-            }
-        }
-
         private void PauseTest()
         {
-            //if (this.InvokeRequired)
-            //{
-            //    this.BeginInvoke(new DelegatePauseTest(PauseTest), null);
-            //    return;
-            //}
-            
-           
-            bool hasStoped = false;
-            int iTryStopCount = 3;
-            do
-            {
-                m_ConnResponse.GetPumpStatus();
-                if (m_StopPumpPumpStatusEvent.WaitOne(3000))
-                {
-                    hasStoped = true;
-                    break;
-                }
-                else
-                {
-                    
-                }
-            } while (--iTryStopCount > 0);
-
-            m_bStartPumpStatusThread = true;
-
-
-
             StopTimer();
-            StopTimerGauge();
-
             lock (m_RequestCommands)
             {
                 m_RequestCommands.Clear();
-                m_ConnResponse.ClearAllCommand();
             }
-
-           
+            m_ConnResponse.SetStopControl();
             float max = FindMaxPressure();
             switch (m_CurrentLevel)
             {
                 case Misc.OcclusionLevel.N:
-                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
-                        mFQCData.pressureN = max;
-                    else
-                        mFQCData.pressureN = -1;
+                    mFQCData.pressureN = max;
                     break;
                 case Misc.OcclusionLevel.L:
-                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L))
-                        mFQCData.pressureL = max;
-                    else
-                        mFQCData.pressureL = -1;
+                    mFQCData.pressureL = max;
                     break;
                 case Misc.OcclusionLevel.C:
-                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C))
-                        mFQCData.pressureC = max;
-                    else
-                        mFQCData.pressureC = -1;
+                    mFQCData.pressureC = max;
                     break;
                 case Misc.OcclusionLevel.H:
-                    if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H))
-                        mFQCData.pressureH = max;
-                    else
-                        mFQCData.pressureH = -1;
+                    mFQCData.pressureH = max;
                     break;
                 default: break;
             }
-            mFQCData.Channel = m_Channel;
             mFQCData.rate = float.Parse(tbRate.Text);
             //如果是自动模式下
-            if(m_CuurentPatterIndex == 0)
+            if(cmbPattern.SelectedIndex==0)
             {
                 if (m_CurrentLevel == Misc.OcclusionLevel.H)
                 {
-                    Logger.Instance().InfoFormat("PauseTest()-> 泵即将停止,当前的压力档为={0}", m_CurrentLevel);
                     this.detail.SetFQCResult(mFQCData);
                     BeginStopTestThread();
                 }
                 else
                 {
-                    if (hasStoped)
-                    {
-                        Logger.Instance().InfoFormat("BeginStopPumpThread()-> 线程停止泵成功,当前的压力档为={0}", m_CurrentLevel);
-                        //不管有没有停止成功，最好还是直接设置下一档位
-                        //cmbLevel.SelectedIndex = cmbLevel.SelectedIndex + 1;
-                        SetPumpOcclusion();
-                        m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
-                        m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
-                        SendNextRequest();
-                    }
-                    else
-                    {
-                        Logger.Instance().ErrorFormat("BeginStopPumpThread()-> 线程停止泵失败,当前的压力档为={0}", m_CurrentLevel);
-                    }
+                    cmbLevel.SelectedIndex = cmbLevel.SelectedIndex + 1;
+                    Thread.Sleep(500);
+                    m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetOcclusionLevel);
+                    m_RequestCommands.Enqueue(Misc.ApplicationRequestCommand.SetStartControl);
+                    SendNextRequest();
+                    StartTimer();
                 }
             }
             else
@@ -2084,18 +1587,7 @@ namespace FQC
         {
            if (m_Ch1SampleDataList.Count == 0)
                 return 0;
-           float max = 0;
-           lock (m_Ch1SampleDataList)
-           {
-               try
-               {
-                  max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
-               }
-               catch(Exception e)
-               {
-                   Logger.Instance().Error("FindMaxPressure Error:" + e.Message);
-               }
-           }
+           float max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
            return max;
         }
 
@@ -2116,164 +1608,11 @@ namespace FQC
 
         public void Close()
         {
-            StopTimer();
-            StopTimerGauge();
-            //m_Ch1SampleDataList.Clear();
-            //mFQCData.Clear();
-            if (m_ConnResponse != null)
+            if (m_ConnResponse!=null)
                 m_ConnResponse.AbortConnection();
             if (m_GaugeTool != null)
                 m_GaugeTool.Close();
         }
-
-        public void ClearTestData()
-        {
-            m_Ch1SampleDataList.Clear();
-            mFQCData.Clear();
-            WavelinePanel.Invalidate();
-        }
-
-        private void tbOprator_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            TextBox txt = sender as TextBox;
-            if (char.IsNumber(e.KeyChar) || e.KeyChar == (char)Keys.Back)
-            {
-                e.Handled = false;                         //让操作生效
-                if (txt.Text.Length >= 8)
-                {
-                    if (e.KeyChar == (char)Keys.Back)
-                        e.Handled = false;             //让操作生效
-                    else
-                        e.Handled = true;              //让操作失效，如果第一个字符是2以上，不能输入其他字符
-                }
-                else
-                {
-                    e.Handled = false;                 //让操作生效
-                }
-            }
-            else
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void tbOprator_TextChanged(object sender, EventArgs e)
-        {
-            if (this.Channel == 1)
-            {
-                if (OpratorNumberInput != null)
-                {
-                    OpratorNumberInput(this, new OpratorNumberArgs(tbOprator.Text));
-                }
-            }
-        }
-
-        public void InputOpratorNumber(string number)
-        {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke(new DelegateInputOpratorNumber(InputOpratorNumber), new object[] { number });
-            }
-            else
-            {
-                this.tbOprator.Text = number;
-            }
-        }
-
-        public string GetOpratorNumber()
-        {
-            return tbOprator.Text;
-        }
-
-        public void SetDefaultRate()
-        {
-            switch(m_ProductModel)
-            {
-                case ProductModel.GrasebyC8:
-                case ProductModel.GrasebyF8:
-                    tbRate.Text = "210";
-                    break;
-                case ProductModel.GrasebyC6:
-                case ProductModel.GrasebyF6:
-                case ProductModel.Graseby1200:
-                case ProductModel.GrasebyC6T:
-                case ProductModel.Graseby2000:
-                case ProductModel.Graseby2100:
-                case ProductModel.WZ50C6:
-                case ProductModel.WZS50F6:
-                case ProductModel.WZ50C6T:
-                    tbRate.Text = "300";
-                    break;
-                default:
-                    tbRate.Text = "450";
-                    break;
-            }
-        }
-
-        public void SetDefaultBrand()
-        {
-            if (cmbSetBrand.Items.Count > 4)
-            {
-                switch (m_ProductModel)
-                {
-                    case ProductModel.GrasebyC8:
-                    case ProductModel.GrasebyF8:
-                        cmbSetBrand.SelectedIndex = 3;
-                        break;
-                    case ProductModel.GrasebyC6:
-                    case ProductModel.GrasebyF6:
-                    case ProductModel.Graseby1200:
-                    case ProductModel.GrasebyC6T:
-                    case ProductModel.Graseby2000:
-                    case ProductModel.Graseby2100:
-                    case ProductModel.WZ50C6:
-                    case ProductModel.WZS50F6:
-                    case ProductModel.WZ50C6T:
-                        cmbSetBrand.SelectedIndex = 2;
-                        break;
-                    default:
-                        cmbSetBrand.SelectedIndex = 3;
-                        break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 消息驱动界面线程停止泵，因为其他线程无法停止。
-        /// </summary>
-        public void StopPumpByOcclusionSwitch()
-        {
-            //if(m_ConnResponse!=null && m_ConnResponse.IsOpen())
-            //    m_ConnResponse.SetStopControl(GlobalResponse.CommandPriority.High);
-        }
-
-        public void SetPumpOcclusion()
-        {
-            if(this.InvokeRequired)
-            {
-                this.Invoke(new DelegateFuctionNoParamater(SetPumpOcclusion), null);
-                return;
-            }
-            if(cmbLevel.SelectedIndex + 1 <= cmbLevel.Items.Count-1)
-                cmbLevel.SelectedIndex = cmbLevel.SelectedIndex + 1;
-        }
-
-
-        private void cmbPattern_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            m_CuurentPatterIndex = cmbPattern.SelectedIndex;
-        }
-
-        private void btnStopAlarm_Click(object sender, EventArgs e)
-        {
-            //m_StopPumpPumpStatusEvent.Reset();
-            if (m_ConnResponse != null && m_ConnResponse.IsOpen())
-            {
-                m_ConnResponse.SetStopControl(GlobalResponse.CommandPriority.High);
-                Logger.Instance().Info("btnStopAlarm_Click()调用成功");
-            }
-          
-
-        }
+       
     }
 }

@@ -50,7 +50,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>FQCLogo.ico</ApplicationIcon>
+    <ApplicationIcon>FLogo.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
@@ -243,7 +243,6 @@
     <None Include="image\close_blue.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icon\FQCLogo.ico" />
     <None Include="image\ok.jpg" />
     <None Include="image\error.jpg" />
     <None Include="image\fqc.png" />
@@ -266,9 +265,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="icon\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="FLogo.ico" />
     <Content Include="FQCLogo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

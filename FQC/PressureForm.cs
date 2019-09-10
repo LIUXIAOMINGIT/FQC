@@ -610,12 +610,12 @@ namespace FQC
 
         private void InitUI()
         {
-            lbTitle.ForeColor = Color.FromArgb(3, 116, 214);
-            tlpParameter.BackColor = Color.FromArgb(19, 113, 185);
-            cbPumpType.BackColor = Color.FromArgb(19, 113, 185);
-            tbPumpNo.BackColor = Color.FromArgb(19, 113, 185);
-            tbToolingNo.BackColor = Color.FromArgb(19, 113, 185);
-            tbToolingNo2.BackColor = Color.FromArgb(19, 113, 185);
+            lbTitle.ForeColor = Color.FromArgb(128, 0, 128);
+            tlpParameter.BackColor = Color.FromArgb(128, 0, 128);
+            cbPumpType.BackColor = Color.FromArgb(128, 0, 128);
+            tbPumpNo.BackColor = Color.FromArgb(128, 0, 128);
+            tbToolingNo.BackColor = Color.FromArgb(128, 0, 128);
+            tbToolingNo2.BackColor = Color.FromArgb(128, 0, 128);
             chart1.Channel = 1;
             chart2.Channel = 2;
             chart2.Enabled = false;

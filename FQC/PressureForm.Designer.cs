@@ -103,11 +103,12 @@
             // 
             // picLogo
             // 
+            this.picLogo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.picLogo.Image = global::FQC.Properties.Resources.fqc;
-            this.picLogo.Location = new System.Drawing.Point(9, 9);
-            this.picLogo.Margin = new System.Windows.Forms.Padding(9);
+            this.picLogo.Location = new System.Drawing.Point(5, 5);
+            this.picLogo.Margin = new System.Windows.Forms.Padding(5);
             this.picLogo.Name = "picLogo";
-            this.picLogo.Size = new System.Drawing.Size(32, 25);
+            this.picLogo.Size = new System.Drawing.Size(40, 33);
             this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picLogo.TabIndex = 0;
             this.picLogo.TabStop = false;
@@ -155,7 +156,7 @@
             // 
             // tlpParameter
             // 
-            this.tlpParameter.BackColor = System.Drawing.SystemColors.HotTrack;
+            this.tlpParameter.BackColor = System.Drawing.Color.Purple;
             this.tlpParameter.ColumnCount = 9;
             this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
             this.tlpParameter.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));

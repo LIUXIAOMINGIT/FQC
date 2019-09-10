@@ -272,7 +272,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
+            this.BackColor = System.Drawing.Color.Purple;
             this.Controls.Add(this.tlpMain);
             this.Name = "Detail";
             this.Size = new System.Drawing.Size(460, 143);

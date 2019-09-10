@@ -50,13 +50,13 @@
             this.cmbPattern = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.tbOprator = new System.Windows.Forms.TextBox();
+            this.btnStopAlarm = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.picStart = new System.Windows.Forms.PictureBox();
             this.picStop = new System.Windows.Forms.PictureBox();
             this.picDetail = new System.Windows.Forms.PictureBox();
             this.pnlChart = new System.Windows.Forms.Panel();
             this.WavelinePanel = new System.Windows.Forms.Panel();
-            this.btnStopAlarm = new System.Windows.Forms.Button();
             this.detail = new FQC.Detail();
             this.tlpMain.SuspendLayout();
             this.tlpChannel.SuspendLayout();
@@ -237,7 +237,7 @@
             this.cbToolingPort.BackColor = System.Drawing.Color.White;
             this.cbToolingPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cbToolingPort.FormattingEnabled = true;
-            this.cbToolingPort.Location = new System.Drawing.Point(75, 9);
+            this.cbToolingPort.Location = new System.Drawing.Point(75, 10);
             this.cbToolingPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbToolingPort.Name = "cbToolingPort";
             this.cbToolingPort.Size = new System.Drawing.Size(209, 24);
@@ -251,7 +251,7 @@
             this.cbPumpPort.BackColor = System.Drawing.Color.White;
             this.cbPumpPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cbPumpPort.FormattingEnabled = true;
-            this.cbPumpPort.Location = new System.Drawing.Point(394, 9);
+            this.cbPumpPort.Location = new System.Drawing.Point(394, 10);
             this.cbPumpPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbPumpPort.Name = "cbPumpPort";
             this.cbPumpPort.Size = new System.Drawing.Size(80, 24);
@@ -276,7 +276,7 @@
             this.cmbSetBrand.BackColor = System.Drawing.Color.White;
             this.cmbSetBrand.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cmbSetBrand.FormattingEnabled = true;
-            this.cmbSetBrand.Location = new System.Drawing.Point(75, 53);
+            this.cmbSetBrand.Location = new System.Drawing.Point(75, 54);
             this.cmbSetBrand.Margin = new System.Windows.Forms.Padding(0);
             this.cmbSetBrand.Name = "cmbSetBrand";
             this.cmbSetBrand.Size = new System.Drawing.Size(209, 24);
@@ -289,7 +289,7 @@
             this.cmbLevel.BackColor = System.Drawing.Color.White;
             this.cmbLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cmbLevel.FormattingEnabled = true;
-            this.cmbLevel.Location = new System.Drawing.Point(394, 53);
+            this.cmbLevel.Location = new System.Drawing.Point(394, 54);
             this.cmbLevel.Margin = new System.Windows.Forms.Padding(0);
             this.cmbLevel.Name = "cmbLevel";
             this.cmbLevel.Size = new System.Drawing.Size(80, 24);
@@ -352,7 +352,7 @@
             this.cmbPattern.Items.AddRange(new object[] {
             "自动",
             "手动"});
-            this.cmbPattern.Location = new System.Drawing.Point(394, 97);
+            this.cmbPattern.Location = new System.Drawing.Point(394, 98);
             this.cmbPattern.Margin = new System.Windows.Forms.Padding(0);
             this.cmbPattern.Name = "cmbPattern";
             this.cmbPattern.Size = new System.Drawing.Size(80, 24);
@@ -384,6 +384,16 @@
             this.tbOprator.Text = "12345678";
             this.tbOprator.TextChanged += new System.EventHandler(this.tbOprator_TextChanged);
             this.tbOprator.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbOprator_KeyPress);
+            // 
+            // btnStopAlarm
+            // 
+            this.btnStopAlarm.Location = new System.Drawing.Point(397, 135);
+            this.btnStopAlarm.Name = "btnStopAlarm";
+            this.btnStopAlarm.Size = new System.Drawing.Size(74, 23);
+            this.btnStopAlarm.TabIndex = 5;
+            this.btnStopAlarm.UseVisualStyleBackColor = true;
+            this.btnStopAlarm.Visible = false;
+            this.btnStopAlarm.Click += new System.EventHandler(this.btnStopAlarm_Click);
             // 
             // tableLayoutPanel2
             // 
@@ -474,19 +484,9 @@
             this.WavelinePanel.TabIndex = 5;
             this.WavelinePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.WavelinePanel_Paint);
             // 
-            // btnStopAlarm
-            // 
-            this.btnStopAlarm.Location = new System.Drawing.Point(397, 135);
-            this.btnStopAlarm.Name = "btnStopAlarm";
-            this.btnStopAlarm.Size = new System.Drawing.Size(74, 23);
-            this.btnStopAlarm.TabIndex = 5;
-            this.btnStopAlarm.UseVisualStyleBackColor = true;
-            this.btnStopAlarm.Visible = false;
-            this.btnStopAlarm.Click += new System.EventHandler(this.btnStopAlarm_Click);
-            // 
             // detail
             // 
-            this.detail.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(19)))), ((int)(((byte)(113)))), ((int)(((byte)(185)))));
+            this.detail.BackColor = System.Drawing.Color.Purple;
             this.detail.Channel = 1;
             this.detail.Location = new System.Drawing.Point(74, 154);
             this.detail.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
