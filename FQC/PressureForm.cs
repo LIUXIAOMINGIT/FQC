@@ -49,19 +49,15 @@ namespace FQC
         }
 
 
-
         private const int INPUTSPEED                = 50;//条码枪输入字符速率小于50毫秒
         private DateTime m_CharInputTimestamp       = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
         private DateTime m_FirstCharInputTimestamp  = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
         private DateTime m_SecondCharInputTimestamp = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
         private int m_PressCount                    = 0;
         public static int SerialNumberCount = 28;               //在指定时间内连续输入字符数量不低于28个时方可认为是由条码枪输入
-
         public static int MaxThreshold = 150;               //150Kpajb最大阈值时要停止泵
 
-
-
-
+         
         public PressureForm()
         {
             InitializeComponent();
@@ -73,14 +69,14 @@ namespace FQC
             if (m.Msg == 0x1002)
             {
                 tbPumpNo.Enabled = true;
-                tbToolingNo.Enabled = true;
-                tbToolingNo2.Enabled = true;
+                tbOprator.Enabled = true;
+                //tbToolingNo2.Enabled = true;
             }
             else if (m.Msg == 0x2001)
             {
                 tbPumpNo.Enabled = false;
-                tbToolingNo.Enabled = false;
-                tbToolingNo2.Enabled = false;
+                tbOprator.Enabled = false;
+                //tbToolingNo2.Enabled = false;
             }
             base.WndProc(ref m);
         }
@@ -108,8 +104,10 @@ namespace FQC
                     m_SampleInterval = 500;
                 string strTool1 = ConfigurationManager.AppSettings.Get("Tool1");
                 string strTool2 = ConfigurationManager.AppSettings.Get("Tool2");
-                tbToolingNo.Text = strTool1;
-                tbToolingNo2.Text = strTool2;
+                chart1.ToolingNo = strTool1;
+                chart2.ToolingNo = strTool2;
+                //tbToolingNo.Text = strTool1;
+                //tbToolingNo2.Text = strTool2;
                 SerialNumberCount = Int32.Parse(ConfigurationManager.AppSettings.Get("SerialNumberCount"));
             }
             catch (Exception ex)
@@ -518,8 +516,8 @@ namespace FQC
         private void SaveLastToolingNo()
         {
             Configuration cfa = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            cfa.AppSettings.Settings["Tool1"].Value = tbToolingNo.Text;
-            cfa.AppSettings.Settings["Tool2"].Value = tbToolingNo2.Text;
+            cfa.AppSettings.Settings["Tool1"].Value = chart1.ToolingNo;
+            cfa.AppSettings.Settings["Tool2"].Value = chart2.ToolingNo;
             cfa.Save();
         }
 
@@ -614,8 +612,8 @@ namespace FQC
             tlpParameter.BackColor = Color.FromArgb(128, 0, 128);
             cbPumpType.BackColor = Color.FromArgb(128, 0, 128);
             tbPumpNo.BackColor = Color.FromArgb(128, 0, 128);
-            tbToolingNo.BackColor = Color.FromArgb(128, 0, 128);
-            tbToolingNo2.BackColor = Color.FromArgb(128, 0, 128);
+            //tbToolingNo.BackColor = Color.FromArgb(128, 0, 128);
+            //tbToolingNo2.BackColor = Color.FromArgb(128, 0, 128);
             chart1.Channel = 1;
             chart2.Channel = 2;
             chart2.Enabled = false;
@@ -937,7 +935,7 @@ namespace FQC
             ws.Columns(2, columnIndex).Width = 15;
             ws.Columns(4, 4).Width = 20;
 
-            var opratorNumber = chart1.GetOpratorNumber();
+            var opratorNumber = tbOprator.Text;
             for (int i = 0; i < m_SampleDataList.Count;i++ )
             {
                 var fqcData = m_SampleDataList[i];
@@ -945,7 +943,7 @@ namespace FQC
                 ws.Cell(2 + i, ++columnIndex).Value = tbPumpNo.Text;
                 ws.Cell(2 + i, ++columnIndex).Value = m_LocalPid.ToString();
                 ws.Cell(2 + i, ++columnIndex).Value = i + 1;
-                ws.Cell(2 + i, ++columnIndex).Value = (i == 0 ? tbToolingNo.Text : tbToolingNo2.Text);
+                ws.Cell(2 + i, ++columnIndex).Value = (i == 0 ? chart1.ToolingNo : chart1.ToolingNo);
                 ws.Cell(2 + i, ++columnIndex).Value = fqcData.brand;
 
                 if(i==0)
@@ -1017,8 +1015,8 @@ namespace FQC
         {
             StartOrStopArgs args = e as StartOrStopArgs;
             cbPumpType.Enabled = args.IsStart;
-            chart1.ToolingNo = tbToolingNo.Text;
-            chart2.ToolingNo = tbToolingNo2.Text;
+            chart1.Operator = tbOprator.Text;
+            chart2.Operator = tbOprator.Text;
             chart1.PumpNo = tbPumpNo.Text;
             chart2.PumpNo = tbPumpNo.Text;
         }

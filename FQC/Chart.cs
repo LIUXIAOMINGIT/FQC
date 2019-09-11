@@ -58,7 +58,7 @@ namespace FQC
         private int                                   m_GaugeSampleInterval   = 350;                                       //压力表采样频率：350毫秒
         private int                                   m_Channel               = 1;                                         //1号通道，默认值
         private string                                m_PumpNo                = string.Empty;                              //产品序号
-        private string                                m_ToolingNo             = string.Empty;                              //工装编号
+        private string                                m_Operator               = string.Empty;                              //操作员
         private Misc.AlarmInfo                        m_AlarmInfo             = new Misc.AlarmInfo();
         private int                                   m_TryCount              = 0;                                         //当命令没有响应超过3次，就完全停止测试
         private Dictionary<Misc.SyringeBrand, String> m_SyringeBrands         = new Dictionary<Misc.SyringeBrand, string>();
@@ -145,12 +145,22 @@ namespace FQC
         }
 
         /// <summary>
+        /// 操作员
+        /// </summary>
+        public string Operator
+        {
+            get { return m_Operator; }
+            set { m_Operator = value; }
+        }
+
+
+        /// <summary>
         /// 工装编号
         /// </summary>
         public string ToolingNo
         {
-            get { return m_ToolingNo; }
-            set { m_ToolingNo = value; }
+            get { return tbToolingNo.Text; }
+            set { tbToolingNo.Text = value; }
         }
         #endregion
 
@@ -549,10 +559,10 @@ namespace FQC
                         m_gh.DrawString((i * 10).ToString(), xValuefont, Brushes.Black, new PointF(yOriginalPoint.X - 24, yOriginalPoint.Y - intervalY * i - 6));
                     }
                     //画legend
-                    m_gh.DrawString(VOL, fontTitle, m_WaveLineBrush, new PointF(xEndPoint.X - 80, 10));
+                    m_gh.DrawString(VOL, fontTitle, m_WaveLineBrush, new PointF(xEndPoint.X - 200, 10));
                     SizeF fontSize = m_gh.MeasureString(VOL, fontTitle);
 
-                    m_gh.DrawLine(m_WaveLinePen, new PointF(xEndPoint.X - 100, 10 + fontSize.Height / 2), new PointF(xEndPoint.X - 80, 10 + fontSize.Height / 2));
+                    m_gh.DrawLine(m_WaveLinePen, new PointF(xEndPoint.X - 180, 10 + fontSize.Height / 2), new PointF(xEndPoint.X - 160, 10 + fontSize.Height / 2));
                 }
                 catch (Exception e)
                 {
@@ -749,16 +759,16 @@ namespace FQC
 
             #region 参数输入检查
 
-            if (string.IsNullOrEmpty(tbOprator.Text))
-            {
-                MessageBox.Show("请输入操作员工号");
-                return;
-            }
-            if (tbOprator.Text.Length != 8)
-            {
-                MessageBox.Show("请输入正确操作员工号");
-                return;
-            }
+            //if (string.IsNullOrEmpty(tbOprator.Text))
+            //{
+            //    MessageBox.Show("请输入操作员工号");
+            //    return;
+            //}
+            //if (tbOprator.Text.Length != 8)
+            //{
+            //    MessageBox.Show("请输入正确操作员工号");
+            //    return;
+            //}
 
             if (SamplingStartOrStop != null)
             {
@@ -1525,7 +1535,7 @@ namespace FQC
             cbToolingPort.Enabled = bEnabled;
             cbPumpPort.Enabled = bEnabled;
             tbRate.Enabled = bEnabled;
-            tbOprator.Enabled = bEnabled;
+            //tbOprator.Enabled = bEnabled;
             picStart.Enabled = bEnabled;
             cmbSetBrand.Enabled = bEnabled;
             cmbLevel.Enabled =  bEnabled;
@@ -1547,11 +1557,11 @@ namespace FQC
             string title = string.Empty;
             if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2)
             {
-                title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", "GrasebyF8", m_Channel, m_PumpNo, m_ToolingNo);
+                title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", "GrasebyF8", m_Channel, m_PumpNo, ToolingNo);
             }
             else
             {
-                title = string.Format("泵型号：{0} 产品序号:{1} 工装编号:{2}", m_LocalPid.ToString(), m_PumpNo, m_ToolingNo);
+                title = string.Format("泵型号：{0} 产品序号:{1} 工装编号:{2}", m_LocalPid.ToString(), m_PumpNo, ToolingNo);
             }
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("FQC压力数据");
@@ -1581,7 +1591,7 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = m_PumpNo;
             ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
             ws.Cell(2, ++columnIndex).Value = m_Channel;
-            ws.Cell(2, ++columnIndex).Value = m_ToolingNo;
+            ws.Cell(2, ++columnIndex).Value = ToolingNo;
             ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
             ws.Cell(2, ++columnIndex).Value = (cmbSetBrand.SelectedIndex+1).ToString();
             ws.Cell(2, ++columnIndex).Value = mFQCData.syrangeSize;
@@ -1612,7 +1622,7 @@ namespace FQC
                 ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Red;
             }
 
-            ws.Cell(2, ++columnIndex).Value = tbOprator.Text;
+            ws.Cell(2, ++columnIndex).Value = this.Operator;
             ws.Cell(2, ++columnIndex).Value = strError;
 
             ws.Range(1, 1, 2, 1).SetDataType(XLCellValues.Text);
@@ -2163,7 +2173,7 @@ namespace FQC
             {
                 if (OpratorNumberInput != null)
                 {
-                    OpratorNumberInput(this, new OpratorNumberArgs(tbOprator.Text));
+                    //OpratorNumberInput(this, new OpratorNumberArgs("操作员编号"));
                 }
             }
         }
@@ -2176,13 +2186,13 @@ namespace FQC
             }
             else
             {
-                this.tbOprator.Text = number;
+                //this.tbOprator.Text = number;
             }
         }
 
         public string GetOpratorNumber()
         {
-            return tbOprator.Text;
+            return Operator;
         }
 
         public void SetDefaultRate()
