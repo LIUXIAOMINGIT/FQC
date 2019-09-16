@@ -885,7 +885,11 @@ namespace FQC
                 m_ConnResponse = null;
             }
             SerialPortParameter para = PressureForm.m_DicPumpPortParameter[pid] as SerialPortParameter;
+#if DEBUG
+            m_ConnResponse = new GlobalResponse(Misc.ProductID.GrasebyC6, Misc.CommunicationProtocolType.General);
+#else
             m_ConnResponse = new GlobalResponse(pid, Misc.CommunicationProtocolType.General);
+#endif
             m_ConnResponse.ChannelNumber = this.Channel;
             m_ConnResponse.Initialize(cbPumpPort.Items[cbPumpPort.SelectedIndex].ToString(), para.BaudRate);
             if(!m_ConnResponse.IsOpen())
@@ -1292,16 +1296,6 @@ namespace FQC
                 return;
             }
 
-            //当刚刚完成压力档设置后，忽略掉后面10秒的报警，否则又要换档
-
-            //TimeSpan ts = DateTime.Now - m_OcclusionTimeStamp;
-            //if (ts.TotalSeconds < 10)
-            //{
-            //    Logger.Instance().Info("命令'GetPumpAlarms'指令返回！但不要响应，未过10秒。");
-            //    SendNextRequest();
-            //    return;
-            //}
-
             System.Diagnostics.Debug.WriteLine("begin Invoke GetPumpAlarms");
             if (String.Empty != args.ErrorMessage)
             {
@@ -1335,18 +1329,9 @@ namespace FQC
                 {
                     if ("Occlusion" == s)
                     {
-                        //lock (m_RequestCommands)
-                        //{
-                        //    m_RequestCommands.Clear();
-                        //}
-                        //收到了报警信息后面不能再响应了，应该禁止
-                        //StopTimer();
-                        //StopTimerGauge();
-                        //m_bStartTimer = false;
                         Logger.Instance().Info("命令'GetPumpAlarms'测到Occlusion报警，启动停止泵线程");
                         InvokeOnClick(btnStopAlarm, null);
                         BeginPauseTestThread();
-                        //PauseTest();
                         break;
                     }
                     else if (s.Contains("Near Empty"))
@@ -1831,54 +1816,8 @@ namespace FQC
             StopTimer();
             StopTimerGauge();
             m_ConnResponse.ClearAllCommand();
-            //int iTryStopCount = 3;
-            //do
-            //{
-            //    m_StopPumpPumpStatusEvent.Reset();
-            //    BeginStopPumpThread();
-            //    --iTryStopCount;
-            //    if (m_StopPumpPumpStatusEvent.WaitOne(5000))
-            //    {
-            //        break;
-            //    }
-            //} while (iTryStopCount > 0);
-
-            //m_StopPumpPumpStatusEvent.Reset();
-        
-
-            //int iTryStopCount = 5;
-            //do
-            //{
-            //    m_ConnResponse.GetPumpStatus();
-            //    if (m_StopPumpPumpStatusEvent.WaitOne(3000))
-            //    {
-            //        hasStoped = true;
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        InvokeOnClick(btnStopAlarm, null);
-            //    }
-            //} while (--iTryStopCount > 0);
-
-            //m_bStartPumpStatusThread = true;
-
-
             InvokeOnClick(btnStopAlarm, null);
-
-
-
-
             ContinueStopTest();
-            //if (iTryStopCount <= 0)
-            //{
-            //    StopTestWithoutStartPump();
-            //    ShowErrorDialog("停止泵失败，请手动停止！");
-            //}
-            //else
-            //{
-            //    ContinueStopTest();
-            //}
         }
 
         private void StopTestWithoutStartPump()
@@ -1893,11 +1832,13 @@ namespace FQC
 
         private void ContinueStopTest()
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new DelegateContinueStopTest(ContinueStopTest), null);
+                Invoke(new DelegateContinueStopTest(ContinueStopTest), null);
                 return;
             }
+            Logger.Instance().Info("======ContinueStopTest()函数调用 begin=====");
+
             lock (m_RequestCommands)
             {
                 m_RequestCommands.Clear();
@@ -1907,7 +1848,7 @@ namespace FQC
             //自动模式下，完成测试后要归到最低档
             if (cmbPattern.SelectedIndex == 0)
                 cmbLevel.SelectedIndex = 0;
-            if (m_LocalPid == PumpID.GrasebyF8_2)
+            if (m_LocalPid == PumpID.GrasebyF8_2 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
             {
                 //第一道测试完成，判断是否合格，不合格要提示，是否重测
                 string strError = "";
@@ -1932,6 +1873,8 @@ namespace FQC
             }
             else
             {
+                Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 begin=====");
+
                 var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
                 //string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
@@ -1948,9 +1891,13 @@ namespace FQC
                 GenReport(saveFileName, saveFileName2);
                 if (ClearPumpNoWhenCompleteTest != null)
                     ClearPumpNoWhenCompleteTest(this, null);
+
+                Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 end=====");
+
                 AlertTestResultSub();
                 PumpCloseConnectionSub();
             }
+            Logger.Instance().Info("======ContinueStopTest()函数调用 end=====");
         }
 
         private void BeginStopTestThread()

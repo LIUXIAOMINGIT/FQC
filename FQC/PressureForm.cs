@@ -841,7 +841,7 @@ namespace FQC
                     //生成表格，两份
                     GenDualReport(saveFileName, saveFileName2);
 
-                    if (m_LocalPid == PumpID.GrasebyF8_2)
+                    if (m_LocalPid == PumpID.GrasebyF8_2 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
                     {
                         if (m_SampleDataList.Count >= 2)
 #if DEBUG
