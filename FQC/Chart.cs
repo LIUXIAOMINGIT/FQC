@@ -1539,10 +1539,20 @@ namespace FQC
         /// <param name="caliParameters">已经生成好的数据，直接写到表格中</param>
         private void GenReport(string name, string name2)
         {
+            Logger.Instance().InfoFormat("======GenReport()函数调用 begin===== name={0},name2={1}", name, name2);
+
             string title = string.Empty;
             if (m_LocalPid == PumpID.GrasebyF8 || m_LocalPid == PumpID.GrasebyF8_2)
             {
                 title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", "GrasebyF8", m_Channel, m_PumpNo, ToolingNo);
+            }
+            else if (m_LocalPid == PumpID.GrasebyF6 || m_LocalPid == PumpID.GrasebyF6_2)
+            {
+                title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", "GrasebyF6", m_Channel, m_PumpNo, ToolingNo);
+            }
+            else if (m_LocalPid == PumpID.WZS50F6 || m_LocalPid == PumpID.WZS50F6_2)
+            {
+                title = string.Format("泵型号:{0}{1}道 产品序号:{2} 工装编号:{3}", "WZS50F6", m_Channel, m_PumpNo, ToolingNo);
             }
             else
             {
@@ -1616,6 +1626,7 @@ namespace FQC
             wb.SaveAs(name);
             Thread.Sleep(1000);
             File.Copy(name, name2, true);
+            Logger.Instance().InfoFormat("======GenReport()函数调用 end=====");
         }
 
         /// <summary>
@@ -1660,6 +1671,12 @@ namespace FQC
             bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
+
+            if (cfg == null)
+            {
+                Logger.Instance().FatalFormat("======IsPassAuto()函数调用出错，PressureConfig is null, 可能是泵类型转换错误。m_LocalPid={0}, pid={1}=====", m_LocalPid, pid);
+                return false;
+            }
             
             var parameter = cfg.Find(Misc.OcclusionLevel.N);
             if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N) && parameter != null)
@@ -1728,6 +1745,11 @@ namespace FQC
         {
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
+            if (cfg == null)
+            {
+                Logger.Instance().FatalFormat("======IsPassManual()函数调用出错，PressureConfig is null, 可能是泵类型转换错误。m_LocalPid={0}, pid={1}=====", m_LocalPid, pid);
+                return false;
+            }
             bool bPass = false;
             var parameter = cfg.Find(m_CurrentLevel);
             if (parameter != null)
@@ -1887,10 +1909,18 @@ namespace FQC
                 if (!System.IO.Directory.Exists(path2))
                     System.IO.Directory.CreateDirectory(path2);
                 string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
-
-                GenReport(saveFileName, saveFileName2);
+                try
+                {
+                    GenReport(saveFileName, saveFileName2);
+                }
+                catch(Exception ex)
+                {
+                    Logger.Instance().ErrorFormat("======ContinueStopTest() 生成压力数据文件出错,错误信息={0}", ex.Message);
+                }
                 if (ClearPumpNoWhenCompleteTest != null)
+                {
                     ClearPumpNoWhenCompleteTest(this, null);
+                }
 
                 Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 end=====");
 

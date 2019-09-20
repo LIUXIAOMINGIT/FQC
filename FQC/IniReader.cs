@@ -56,6 +56,11 @@ namespace FQC
 
         public void ReadSettings()
         {
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC8, Misc.OcclusionLevel.N);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC8, Misc.OcclusionLevel.L);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC8, Misc.OcclusionLevel.C);
+            ReadGrasebyPumpPressureSettings(ProductID.GrasebyC8, Misc.OcclusionLevel.H);
+
             ReadGrasebyPumpPressureSettings(ProductID.GrasebyF8, Misc.OcclusionLevel.N);
             ReadGrasebyPumpPressureSettings(ProductID.GrasebyF8, Misc.OcclusionLevel.L);
             ReadGrasebyPumpPressureSettings(ProductID.GrasebyF8, Misc.OcclusionLevel.C);

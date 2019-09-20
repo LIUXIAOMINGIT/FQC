@@ -71,6 +71,9 @@ namespace FQC
                 case PumpID.Graseby2100:
                     pid = ProductID.Graseby2100;
                     break;
+                case PumpID.Graseby2000:
+                    pid = ProductID.Graseby2000;
+                    break;
                 case PumpID.WZ50C6:
                     pid = ProductID.GrasebyC6;
                     break;
