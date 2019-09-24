@@ -24,6 +24,8 @@ namespace FQC
 {
     public partial class Chart : UserControl
     {
+        private const string DoublePumpLevelTips = "{0}道{1}档压力{2}Kpa,合格范围{3}~{4}Kpa;";
+        private const string SinglePumpLevelTips = "{0}档压力{1}Kpa,合格范围{2}~{3}Kpa;";
         private const double MAXKPALIMIT                                      = 150;
         private const string VOL                                              = "Kpa";
         private const int LEFTBORDEROFFSET                                    = 30;
@@ -51,7 +53,7 @@ namespace FQC
         private Graseby9600                           m_GrasebyDevice         = new Graseby9600();                         //只用于串口刷新
         private DeviceBase                            _GrasebyDevice4FindPort = new DeviceBase();                          //只用于泵串口刷新
         private PumpID                                m_LocalPid              = PumpID.GrasebyF8;                          //默认显示的是
-        public ProductModel                          m_ProductModel          = ProductModel.GrasebyF8;
+        public ProductModel                           m_ProductModel          = ProductModel.GrasebyF8;
         private System.Timers.Timer                   m_Ch1Timer              = new System.Timers.Timer();
         private System.Timers.Timer                   m_GaugeTimer            = new System.Timers.Timer();
         private int                                   m_SampleInterval        = 600;                                       //采样频率：毫秒
@@ -153,6 +155,13 @@ namespace FQC
             set { m_Operator = value; }
         }
 
+        /// <summary>
+        /// 是否在运行中,当这个控件锁住了，表示在运行
+        /// </summary>
+        public bool IsRunning
+        {
+            get { return !tbRate.Enabled; }
+        }
 
         /// <summary>
         /// 工装编号
@@ -940,7 +949,14 @@ namespace FQC
             WavelinePanel.Invalidate();
             if(Channel==1)
             {
-                PressureForm.SampleDataList.Clear();
+                if (m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
+                {
+                    ;//不要清空数据，因为它们可以双道并行
+                }
+                else
+                {
+                    PressureForm.SampleDataList.Clear();
+                }
                 //清空第二道泵数据
                 if(this.m_LocalPid == PumpID.GrasebyF8_2 && Clear2ndChannelData!=null)
                 {
@@ -972,10 +988,19 @@ namespace FQC
             BeginStopTestThread();
             m_Ch1SampleDataList.Clear();
             if (Channel == 1)
-                PressureForm.SampleDataList.Clear();
+            {
+                if (m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
+                {
+                    ;//不要清空数据，因为它们可以双道并行
+                }
+                else
+                {
+                    PressureForm.SampleDataList.Clear();
+                }
+            }
             else if (Channel == 2)
             {
-                if(PressureForm.SampleDataList.Count >= 2)
+                if (PressureForm.SampleDataList.Count >= 2)
                     PressureForm.SampleDataList.RemoveRange(1, PressureForm.SampleDataList.Count - 1);
             }
             else
@@ -1516,11 +1541,11 @@ namespace FQC
                 this.Invoke(new DelegateEnableContols(EnableContols), new object[] { bEnabled });
                 return;
             }
-            UserMessageHelper.EnableContols(bEnabled);
+            Program.EnableContols(bEnabled);
             cbToolingPort.Enabled = bEnabled;
             cbPumpPort.Enabled = bEnabled;
             tbRate.Enabled = bEnabled;
-            //tbOprator.Enabled = bEnabled;
+            tbToolingNo.Enabled = bEnabled;
             picStart.Enabled = bEnabled;
             cmbSetBrand.Enabled = bEnabled;
             cmbLevel.Enabled =  bEnabled;
@@ -1565,7 +1590,7 @@ namespace FQC
             ws.Cell(1, ++columnIndex).Value = "机器型号";
             ws.Cell(1, ++columnIndex).Value = "道数";
             ws.Cell(1, ++columnIndex).Value = "工装编号";
-            ws.Cell(1, ++columnIndex).Value = "注射器品牌";
+            //ws.Cell(1, ++columnIndex).Value = "泵频道";//这列不要了
             ws.Cell(1, ++columnIndex).Value = "频道";
             ws.Cell(1, ++columnIndex).Value = "注射器尺寸";
             ws.Cell(1, ++columnIndex).Value = "速率";
@@ -1587,7 +1612,7 @@ namespace FQC
             ws.Cell(2, ++columnIndex).Value = m_LocalPid.ToString();
             ws.Cell(2, ++columnIndex).Value = m_Channel;
             ws.Cell(2, ++columnIndex).Value = ToolingNo;
-            ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
+            //ws.Cell(2, ++columnIndex).Value = mFQCData.brand;
             ws.Cell(2, ++columnIndex).Value = (cmbSetBrand.SelectedIndex+1).ToString();
             ws.Cell(2, ++columnIndex).Value = mFQCData.syrangeSize;
             ws.Cell(2, ++columnIndex).Value = tbRate.Text;
@@ -1601,20 +1626,29 @@ namespace FQC
 
             bool bPass = true;
             string strError = string.Empty;
+            List<LevelTips> strErrorList = new List<LevelTips>();
             if (IsAuto())
-                bPass = IsPassAuto(ref strError);
+                bPass = IsPassAuto(strErrorList);
             else
-                bPass = IsPassManual(ref strError);
+                bPass = IsPassManual(strErrorList);
+
+            foreach(var tips in strErrorList)
+            {
+                if (!tips.isPass)
+                {
+                    strError += tips.tips;
+                }
+            }
 
             if (bPass)
             {
                 ws.Cell(2, ++columnIndex).Value = "Pass";
-                ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Green;
+                ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Green;
             }
             else
             {
                 ws.Cell(2, ++columnIndex).Value = "Fail";
-                ws.Range("A2", "O2").Style.Font.FontColor = XLColor.Red;
+                ws.Range("A2", "N2").Style.Font.FontColor = XLColor.Red;
             }
 
             ws.Cell(2, ++columnIndex).Value = this.Operator;
@@ -1641,19 +1675,55 @@ namespace FQC
             }
             bool bPass = false;
             string strError = string.Empty;
-            if (cmbPattern.SelectedIndex==0)
-                bPass = IsPassAuto(ref strError);
+            List<LevelTips> strErrorList = new List<LevelTips>();
+            if (cmbPattern.SelectedIndex == 0)
+                bPass = IsPassAuto(strErrorList);
             else
-                bPass = IsPassManual(ref strError);
-            if (bPass)
+                bPass = IsPassManual(strErrorList);
+
+            NewTestAgainDialog dlg = new NewTestAgainDialog(strErrorList);
+            var result = dlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
             {
-                ResultDialogPass dlg = new ResultDialogPass(bPass);
-                dlg.ShowDialog();
+                Logger.Instance().Info("======AlertTestResult() 生成压力数据文件 begin=====");
+                var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
+                string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                if (!System.IO.Directory.Exists(path))
+                    System.IO.Directory.CreateDirectory(path);
+                string saveFileName = path + "\\" + fileName + ".xlsx";
+                string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
+                if (!System.IO.Directory.Exists(path2))
+                    System.IO.Directory.CreateDirectory(path2);
+                string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
+                try
+                {
+                    GenReport(saveFileName, saveFileName2);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance().ErrorFormat("======AlertTestResult() 生成压力数据文件出错,错误信息={0}", ex.Message);
+                }
+                if (ClearPumpNoWhenCompleteTest != null)
+                {
+                    ClearPumpNoWhenCompleteTest(this, null);
+                }
+                Logger.Instance().Info("======AlertTestResult() 生成压力数据文件 end=====");
+            }
+            else if (result == System.Windows.Forms.DialogResult.Cancel)
+            {
+                #region //重新测试
+                Close();
+                ClearTestData();
+                this.Enabled = true;
+                Thread.Sleep(1000);
+                Start();
+                #endregion
             }
             else
             {
-                ResultDialogFail dlg = new ResultDialogFail(bPass, strError);
-                dlg.ShowDialog();
+                //不要生成excel数据，不要清空文本框，等用户第二次测试
+                return;
             }
         }
 
@@ -1666,9 +1736,10 @@ namespace FQC
         }
 
         #region 是否通过 
-        public bool IsPassAuto(ref string strError)
+        public bool IsPassAuto(List<LevelTips> strErrorList)
         {
-            bool bPass = true;
+            strErrorList.Clear();
+            bool bPass = true; //总体有没有通过，只要有一个档位没有通过，则都不能通过
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
 
@@ -1677,55 +1748,104 @@ namespace FQC
                 Logger.Instance().FatalFormat("======IsPassAuto()函数调用出错，PressureConfig is null, 可能是泵类型转换错误。m_LocalPid={0}, pid={1}=====", m_LocalPid, pid);
                 return false;
             }
-            
+            //单泵与双道泵的格式化信息不一样
+            bool isSinglePump = true;
+            string strFormat = SinglePumpLevelTips;
+            if (m_LocalPid == PumpID.GrasebyF8 
+                || m_LocalPid == PumpID.GrasebyF8_2
+                || m_LocalPid == PumpID.GrasebyF6
+                || m_LocalPid == PumpID.GrasebyF6_2
+                || m_LocalPid == PumpID.WZS50F6
+                || m_LocalPid == PumpID.WZS50F6_2
+                )
+            {
+                strFormat = DoublePumpLevelTips;
+                isSinglePump = false;
+            }
+            else
+            {
+                strFormat = SinglePumpLevelTips;
+                isSinglePump = true;
+            }
+
             var parameter = cfg.Find(Misc.OcclusionLevel.N);
             if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N) && parameter != null)
-                if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
-                {
-                    bPass = true;
-                }
+            {
+                bool currentPass = true; //当前档位是否通过测试
+                string strError = string.Empty;
+                Logger.Instance().InfoFormat("======IsPassAuto()生成N档信息 begin=====格式化字符串:{0}", strFormat);
+                if (isSinglePump)
+                    strError = string.Format(strFormat, "N", mFQCData.pressureN, parameter.Item2, parameter.Item3);
                 else
-                {
-                    bPass = false;
-                    strError = string.Format("N档压力值超范围,N={0},正常范围:{1}到{2}", mFQCData.pressureN, parameter.Item2, parameter.Item3);
-                    return bPass;
-                }
+                    strError = string.Format(strFormat, m_Channel, "N", mFQCData.pressureN, parameter.Item2, parameter.Item3);
+                if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                    currentPass = true;
+                else
+                    currentPass = false;
+                bPass = bPass && currentPass;
+                strErrorList.Add(new LevelTips(currentPass, strError, 1));
+                Logger.Instance().InfoFormat("======IsPassAuto()生成N档信息 end {0}", strError);
+            }
+
+            //读L档的压力参数在pressure.ini中
             parameter = cfg.Find(Misc.OcclusionLevel.L);
             if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L) && parameter != null)
-                if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
-                {
-                    bPass = true;
-                }
+            {
+                bool currentPass = true; //当前档位是否通过测试
+                string strError = string.Empty;
+                Logger.Instance().InfoFormat("======IsPassAuto()生成L档信息 begin=====格式化字符串:{0}", strFormat);
+                if (isSinglePump)
+                    strError = string.Format(strFormat, "L", mFQCData.pressureL, parameter.Item2, parameter.Item3);
                 else
-                {
-                    bPass = false;
-                    strError = string.Format("L档压力值超范围,L={0},正常范围:{1}到{2}", mFQCData.pressureL, parameter.Item2, parameter.Item3);
-                    return bPass;
-                }
+                    strError = string.Format(strFormat, m_Channel, "L", mFQCData.pressureL, parameter.Item2, parameter.Item3);
+                if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
+                    currentPass = true;
+                else
+                    currentPass = false;
+                bPass = bPass && currentPass;
+                strErrorList.Add(new LevelTips(currentPass, strError, 2));
+                Logger.Instance().InfoFormat("======IsPassAuto()生成L档信息 end {0}", strError);
+            }
+
+            //读C档的压力参数在pressure.ini中
             parameter = cfg.Find(Misc.OcclusionLevel.C);
             if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C) && parameter != null)
-                if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
-                {
-                    bPass = true;
-                }
+            {
+                bool currentPass = true; //当前档位是否通过测试
+                string strError = string.Empty;
+                Logger.Instance().InfoFormat("======IsPassAuto()生成C档信息 begin=====格式化字符串:{0}", strFormat);
+                if (isSinglePump)
+                    strError = string.Format(strFormat, "C", mFQCData.pressureC, parameter.Item2, parameter.Item3);
                 else
-                {
-                    bPass = false;
-                    strError = string.Format("C档压力值超范围,C={0},正常范围:{1}到{2}", mFQCData.pressureC, parameter.Item2, parameter.Item3);
-                    return bPass;
-                }
+                    strError = string.Format(strFormat, m_Channel, "C", mFQCData.pressureC, parameter.Item2, parameter.Item3);
+                if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
+                    currentPass = true;
+                else
+                    currentPass = false;
+                bPass = bPass && currentPass;
+                strErrorList.Add(new LevelTips(currentPass, strError, 3));
+                Logger.Instance().InfoFormat("======IsPassAuto()生成C档信息 end {0}", strError);
+            }
+
+            //读H档的压力参数在pressure.ini中
             parameter = cfg.Find(Misc.OcclusionLevel.H);
             if (m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H) && parameter != null)
-                if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
-                {
-                    bPass = true;
-                }
+            {
+                bool currentPass = true; //当前档位是否通过测试
+                string strError = string.Empty;
+                Logger.Instance().InfoFormat("======IsPassAuto()生成H档信息 begin=====格式化字符串:{0}", strFormat);
+                if (isSinglePump)
+                    strError = string.Format(strFormat, "H", mFQCData.pressureH, parameter.Item2, parameter.Item3);
                 else
-                {
-                    bPass = false;
-                    strError = string.Format("H档压力值超范围,H={0},正常范围:{1}到{2}", mFQCData.pressureH, parameter.Item2, parameter.Item3);
-                    return bPass;
-                }
+                    strError = string.Format(strFormat, m_Channel, "H", mFQCData.pressureH, parameter.Item2, parameter.Item3);
+                if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
+                    currentPass = true;
+                else
+                    currentPass = false;
+                bPass = bPass && currentPass;
+                strErrorList.Add(new LevelTips(currentPass, strError, 4));
+                Logger.Instance().InfoFormat("======IsPassAuto()生成H档信息 end {0}", strError);
+            }
             return bPass;
         }
 
@@ -1738,11 +1858,13 @@ namespace FQC
         }
 
         /// <summary>
-        /// 手动模式下只要判断一个档位
+        /// 手动模式下只要判断1个档位
         /// </summary>
         /// <returns></returns>
-        public bool IsPassManual(ref string strError)
+        public bool IsPassManual(List<LevelTips> strErrorList)
         {
+            strErrorList.Clear();
+            bool bPass = true;
             ProductID pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
             PressureConfig cfg = PressureManager.Instance().Get(pid);
             if (cfg == null)
@@ -1750,50 +1872,108 @@ namespace FQC
                 Logger.Instance().FatalFormat("======IsPassManual()函数调用出错，PressureConfig is null, 可能是泵类型转换错误。m_LocalPid={0}, pid={1}=====", m_LocalPid, pid);
                 return false;
             }
-            bool bPass = false;
+            //单泵与双道泵的格式化信息不一样
+            bool isSinglePump = true;
+            string strFormat = SinglePumpLevelTips;
+            if (m_LocalPid == PumpID.GrasebyF8
+                || m_LocalPid == PumpID.GrasebyF8_2
+                || m_LocalPid == PumpID.GrasebyF6
+                || m_LocalPid == PumpID.GrasebyF6_2
+                || m_LocalPid == PumpID.WZS50F6
+                || m_LocalPid == PumpID.WZS50F6_2
+                )
+            {
+                strFormat = DoublePumpLevelTips;
+                isSinglePump = false;
+            }
+            else
+            {
+                strFormat = SinglePumpLevelTips;
+                isSinglePump = true;
+            }
+          
             var parameter = cfg.Find(m_CurrentLevel);
             if (parameter != null)
             {
+                bool currentPass = true; //当前档位是否通过测试
+                string strError = string.Empty;
                 if (m_CurrentLevel == Misc.OcclusionLevel.N && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.N))
                 {
-                    if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
-                        bPass = true;
+                    Logger.Instance().InfoFormat("======IsPassManual()生成N档信息 begin=====格式化字符串:{0}", strFormat);
+                    if (isSinglePump)
+                        strError = string.Format(strFormat, "N", mFQCData.pressureN, parameter.Item2, parameter.Item3);
                     else
-                    {
-                        bPass = false;
-                        strError = string.Format("N档压力值超范围,N={0},正常范围:{1}到{2}", mFQCData.pressureN, parameter.Item2, parameter.Item3);
-                    }
+                        strError = string.Format(strFormat, m_Channel, "N", mFQCData.pressureN, parameter.Item2, parameter.Item3);
+                    if (mFQCData.pressureN >= parameter.Item2 && mFQCData.pressureN <= parameter.Item3)
+                        currentPass = true;
+                    else
+                        currentPass = false;
+                    bPass = bPass && currentPass;
+                    Logger.Instance().InfoFormat("======IsPassAuto()生成N档信息 end {0}", strError);
                 }
                 else if (m_CurrentLevel == Misc.OcclusionLevel.L && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.L))
                 {
-                    if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
-                        bPass = true;
+                    Logger.Instance().InfoFormat("======IsPassManual()生成L档信息 begin=====格式化字符串:{0}", strFormat);
+                    if (isSinglePump)
+                        strError = string.Format(strFormat, "L", mFQCData.pressureL, parameter.Item2, parameter.Item3);
                     else
-                    {
-                        bPass = false;
-                        strError = string.Format("L档压力值超范围,L={0},正常范围:{1}到{2}", mFQCData.pressureL, parameter.Item2, parameter.Item3);
-                    }
+                        strError = string.Format(strFormat, m_Channel, "L", mFQCData.pressureL, parameter.Item2, parameter.Item3);
+                    if (mFQCData.pressureL >= parameter.Item2 && mFQCData.pressureL <= parameter.Item3)
+                        currentPass = true;
+                    else
+                        currentPass = false;
+                    bPass = bPass && currentPass;
+                    Logger.Instance().InfoFormat("======IsPassAuto()生成L档信息 end {0}", strError);
                 }
                 else if (m_CurrentLevel == Misc.OcclusionLevel.C && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.C))
                 {
-                    if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
-                        bPass = true;
+                    Logger.Instance().InfoFormat("======IsPassManual()生成C档信息 begin=====格式化字符串:{0}", strFormat);
+                    if (isSinglePump)
+                        strError = string.Format(strFormat, "C", mFQCData.pressureC, parameter.Item2, parameter.Item3);
                     else
-                    {
-                        bPass = false;
-                        strError = string.Format("C档压力值超范围,C={0},正常范围:{1}到{2}", mFQCData.pressureC, parameter.Item2, parameter.Item3);
-                    }
+                        strError = string.Format(strFormat, m_Channel, "C", mFQCData.pressureC, parameter.Item2, parameter.Item3);
+                    if (mFQCData.pressureC >= parameter.Item2 && mFQCData.pressureC <= parameter.Item3)
+                        currentPass = true;
+                    else
+                        currentPass = false;
+                    bPass = bPass && currentPass;
+                    Logger.Instance().InfoFormat("======IsPassAuto()生成C档信息 end {0}", strError);
                 }
                 else if (m_CurrentLevel == Misc.OcclusionLevel.H && m_OcclusionLevelOfBrand.Contains(Misc.OcclusionLevel.H))
                 {
-                    if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
-                        bPass = true;
+                    Logger.Instance().InfoFormat("======IsPassManual()生成H档信息 begin=====格式化字符串:{0}", strFormat);
+                    if (isSinglePump)
+                        strError = string.Format(strFormat, "H", mFQCData.pressureH, parameter.Item2, parameter.Item3);
                     else
-                    {
-                        bPass = false;
-                        strError = string.Format("H档压力值超范围,H={0},正常范围:{1}到{2}", mFQCData.pressureH, parameter.Item2, parameter.Item3);
-                    }
+                        strError = string.Format(strFormat, m_Channel, "H", mFQCData.pressureH, parameter.Item2, parameter.Item3);
+                    if (mFQCData.pressureH >= parameter.Item2 && mFQCData.pressureH <= parameter.Item3)
+                        currentPass = true;
+                    else
+                        currentPass = false;
+                    bPass = bPass && currentPass;
+                    Logger.Instance().InfoFormat("======IsPassAuto()生成H档信息 end {0}", strError);
                 }
+
+                int level = 1;
+                switch(m_CurrentLevel)
+                {
+                    case Misc.OcclusionLevel.N:
+                        level = 1;
+                        break;
+                    case Misc.OcclusionLevel.L:
+                        level = 2;
+                        break;
+                    case Misc.OcclusionLevel.C:
+                        level = 3;
+                        break;
+                    case Misc.OcclusionLevel.H:
+                        level = 4;
+                        break;
+                    default:
+                        level = 5;
+                        break;
+                }
+                strErrorList.Add(new LevelTips(currentPass, strError, level));
             }
             return bPass;
         }
@@ -1874,55 +2054,57 @@ namespace FQC
             {
                 //第一道测试完成，判断是否合格，不合格要提示，是否重测
                 string strError = "";
-                if(IsAuto())
+                List<LevelTips> strErrorList = new List<LevelTips>();
+                if (IsAuto())
                 {
-                   if( IsPassAuto(ref strError) )
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
+                   if( IsPassAuto(strErrorList) )
+                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, true));
                    else
                    {
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, false));
+                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, false));
                    }
                 }
                 else
                 {
-                    if (IsPassManual(ref strError))
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, true));
+                    if (IsPassManual(strErrorList))
+                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, true));
                     else
                     {
-                       OnSamplingComplete(this, new DoublePumpDataArgs(mFQCData, false));
+                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, false));
                     }
                 }
             }
             else
             {
-                Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 begin=====");
+                //不能在这里生成excel，等弹出框弹出，由用户选择是否生成
+                //Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 begin=====");
 
-                var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
-                //string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
-                string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-                if (!System.IO.Directory.Exists(path))
-                    System.IO.Directory.CreateDirectory(path);
-                string saveFileName = path + "\\" + fileName + ".xlsx";
+                //var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
+                ////string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
+                //string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
+                //string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                //if (!System.IO.Directory.Exists(path))
+                //    System.IO.Directory.CreateDirectory(path);
+                //string saveFileName = path + "\\" + fileName + ".xlsx";
 
-                string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
-                if (!System.IO.Directory.Exists(path2))
-                    System.IO.Directory.CreateDirectory(path2);
-                string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
-                try
-                {
-                    GenReport(saveFileName, saveFileName2);
-                }
-                catch(Exception ex)
-                {
-                    Logger.Instance().ErrorFormat("======ContinueStopTest() 生成压力数据文件出错,错误信息={0}", ex.Message);
-                }
-                if (ClearPumpNoWhenCompleteTest != null)
-                {
-                    ClearPumpNoWhenCompleteTest(this, null);
-                }
+                //string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
+                //if (!System.IO.Directory.Exists(path2))
+                //    System.IO.Directory.CreateDirectory(path2);
+                //string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
+                //try
+                //{
+                //    GenReport(saveFileName, saveFileName2);
+                //}
+                //catch(Exception ex)
+                //{
+                //    Logger.Instance().ErrorFormat("======ContinueStopTest() 生成压力数据文件出错,错误信息={0}", ex.Message);
+                //}
+                //if (ClearPumpNoWhenCompleteTest != null)
+                //{
+                //    ClearPumpNoWhenCompleteTest(this, null);
+                //}
 
-                Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 end=====");
+                //Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 end=====");
 
                 AlertTestResultSub();
                 PumpCloseConnectionSub();

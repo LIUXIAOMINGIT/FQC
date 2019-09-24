@@ -23,28 +23,28 @@ namespace FQC
 
         public static void SendStopPumpMessage()
         {
-            IntPtr handle = FindWindow(null, "FQC压力检验工具");
-            if (handle != IntPtr.Zero)
-                SendMessage(handle, 0x1EE1, 0, 0);
+            //IntPtr handle = FindWindow(null, "FQC压力检验工具");
+            //if (handle != IntPtr.Zero)
+            //    SendMessage(handle, 0x1EE1, 0, 0);
         }
 
-        public static void EnableContols(bool bEnable)
-        {
-            IntPtr handle = FindWindow(null, "FQC压力检验工具");
-            if (handle != IntPtr.Zero)
-            {
-                if(bEnable)
-                    SendMessage(handle, 0x1002, 0, 0);
-                else
-                    SendMessage(handle, 0x2001, 0, 0);
-            }
-        }
+        //public static void EnableContols(bool bEnable)
+        //{
+        //    IntPtr handle = FindWindow(null, "FQC压力检验工具");
+        //    if (handle != IntPtr.Zero)
+        //    {
+        //        if(bEnable)
+        //            SendMessage(handle, 0x1002, 0, 0);
+        //        else
+        //            SendMessage(handle, 0x2001, 0, 0);
+        //    }
+        //}
 
         public static void SendSetPumpOcclusionMessage()
         {
-            IntPtr handle = FindWindow(null, "FQC压力检验工具");
-            if (handle != IntPtr.Zero)
-                SendMessage(handle, 0x1EE2, 0, 0);
+            //IntPtr handle = FindWindow(null, "FQC压力检验工具");
+            //if (handle != IntPtr.Zero)
+            //    SendMessage(handle, 0x1EE2, 0, 0);
         }
     }
 }

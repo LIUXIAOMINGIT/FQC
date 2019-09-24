@@ -8,17 +8,21 @@ namespace FQC
 {
     static class Program
     {
+
+        static PressureForm mainForm = null;
         /// <summary>
         /// The main entry point for the application.MainForm
         /// </summary>
         [STAThread]
         static void Main()
         {
+            
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new PressureForm());
+            mainForm = new PressureForm();
+            Application.Run(mainForm);
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -43,5 +47,17 @@ namespace FQC
 
         [DllImport("user32.dll", EntryPoint = "SendMessage")]
         private static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, int lParam);
+
+        public static void EnableContols(bool bEnable)
+        {
+            IntPtr handle = mainForm.Handle;
+            if (handle != IntPtr.Zero)
+            {
+                if (bEnable)
+                    SendMessage(handle, 0x1002, 0, 0);
+                else
+                    SendMessage(handle, 0x2001, 0, 0);
+            }
+        }
     }
 }

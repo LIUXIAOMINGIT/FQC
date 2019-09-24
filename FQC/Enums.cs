@@ -5,6 +5,20 @@ using System.Text;
 
 namespace FQC
 {
+    public class LevelTips
+    {
+        public int level;
+        public bool isPass;
+        public string tips;
+
+        public LevelTips(bool bPass, string strTips, int ilevel)
+        {
+            isPass = bPass;
+            tips = strTips;
+            level = ilevel;
+        }
+    }
+
     public enum ProductID : byte
     {
         GrasebyC8   = 0x03,

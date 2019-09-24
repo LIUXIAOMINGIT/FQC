@@ -266,7 +266,7 @@
             this.lbBrand.Name = "lbBrand";
             this.lbBrand.Size = new System.Drawing.Size(38, 18);
             this.lbBrand.TabIndex = 0;
-            this.lbBrand.Text = "品牌";
+            this.lbBrand.Text = "泵频道";
             // 
             // Detail
             // 

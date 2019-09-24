@@ -33,16 +33,25 @@ namespace FQC
 
         private FQCData m_Data = new FQCData();
 
+        public List<LevelTips> m_ErrorList;
+
         public FQCData Data
         {
             get { return m_Data; }
             set { m_Data = value; }
         }
 
-        public DoublePumpDataArgs(FQCData data, bool isPass = true)
+        public List<LevelTips> ErrorList
+        {
+            get { return m_ErrorList; }
+            set { m_ErrorList = value; }
+        }
+
+        public DoublePumpDataArgs(List<LevelTips> errorList, FQCData data, bool isPass = true)
         {
             m_Data = data;
             IsPass = isPass;
+            m_ErrorList = errorList;
         }
     }
 

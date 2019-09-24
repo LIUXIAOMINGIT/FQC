@@ -112,6 +112,12 @@
     <Compile Include="ResultDialogPass.Designer.cs">
       <DependentUpon>ResultDialogPass.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewTestAgainDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewTestAgainDialog.Designer.cs">
+      <DependentUpon>NewTestAgainDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="TestAgainDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -159,6 +165,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ResultDialogPass.resx">
       <DependentUpon>ResultDialogPass.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewTestAgainDialog.resx">
+      <DependentUpon>NewTestAgainDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TestAgainDialog.resx">
       <DependentUpon>TestAgainDialog.cs</DependentUpon>

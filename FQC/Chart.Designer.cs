@@ -205,7 +205,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(41, 20);
             this.label4.TabIndex = 1;
-            this.label4.Text = "品牌";
+            this.label4.Text = "泵频道";
             // 
             // label7
             // 
