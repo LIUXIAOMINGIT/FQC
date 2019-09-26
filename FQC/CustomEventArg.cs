@@ -33,7 +33,7 @@ namespace FQC
 
         private FQCData m_Data = new FQCData();
 
-        public List<LevelTips> m_ErrorList;
+        public List<LevelTips> m_ErrorList = new List<LevelTips>();
 
         public FQCData Data
         {
@@ -51,7 +51,13 @@ namespace FQC
         {
             m_Data = data;
             IsPass = isPass;
-            m_ErrorList = errorList;
+            if (m_ErrorList == null)
+                m_ErrorList = new List<LevelTips>();
+            foreach (var error in errorList)
+            {
+                LevelTips tips = new LevelTips(error.isPass, error.tips, error.level);
+                m_ErrorList.Add(tips);
+            }
         }
     }
 

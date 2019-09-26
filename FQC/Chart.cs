@@ -1714,7 +1714,7 @@ namespace FQC
             {
                 #region //重新测试
                 Close();
-                ClearTestData();
+                //ClearTestData();
                 this.Enabled = true;
                 Thread.Sleep(1000);
                 Start();
@@ -2057,20 +2057,28 @@ namespace FQC
                 List<LevelTips> strErrorList = new List<LevelTips>();
                 if (IsAuto())
                 {
-                   if( IsPassAuto(strErrorList) )
-                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, true));
-                   else
-                   {
-                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, false));
-                   }
+                    if (IsPassAuto(strErrorList))
+                    {
+                        mFQCData.CopyErrorList(strErrorList);
+                        OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, true));
+                    }
+                    else
+                    {
+                        mFQCData.CopyErrorList(strErrorList);
+                        OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, false));
+                    }
                 }
                 else
                 {
                     if (IsPassManual(strErrorList))
-                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, true));
+                    {
+                        mFQCData.CopyErrorList(strErrorList);
+                        OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, true));
+                    }
                     else
                     {
-                       OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, false));
+                        mFQCData.CopyErrorList(strErrorList);
+                        OnSamplingComplete(this, new DoublePumpDataArgs(strErrorList, mFQCData, false));
                     }
                 }
             }

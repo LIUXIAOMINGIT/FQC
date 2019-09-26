@@ -21,6 +21,7 @@ namespace FQC
         public float pressureL;
         public float pressureC;
         public float pressureH;
+        public List<LevelTips> strErrorList;
 
         public void Clear()
         {
@@ -28,7 +29,39 @@ namespace FQC
             pressureL = 0;
             pressureC = 0;
             pressureH = 0;
+            if (strErrorList != null)
+                strErrorList.Clear();
         }
+        public void CopyErrorList(List<LevelTips> errorList)
+        {
+            if (strErrorList != null)
+                strErrorList.Clear();
+            else
+                strErrorList = new List<LevelTips>();
+            foreach (var error in errorList)
+            {
+                LevelTips tips = new LevelTips(error.isPass, error.tips, error.level);
+                strErrorList.Add(tips);
+            }
+        }
+
+        public bool IsPass()
+        {
+            if (strErrorList == null)
+                return true;
+            else
+            {
+                foreach (var error in strErrorList)
+                {
+                    if (!error.isPass)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
     }
 
     public partial class Detail : UserControl

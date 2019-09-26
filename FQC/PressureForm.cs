@@ -713,7 +713,7 @@ namespace FQC
                     else
                     {
                         chart1.Close();
-                        chart1.ClearTestData();
+                        //chart1.ClearTestData();
                         chart1.Enabled = true;
 
                         //只有F8第二道泵没有在运行，可以启动,F6双道独立运行，人工去点击
@@ -739,7 +739,7 @@ namespace FQC
                 else
                 {
                     chart1.Close();
-                    chart1.ClearTestData();
+                    //chart1.ClearTestData();
                     chart1.Enabled = true;
                     return;
                 }
@@ -832,7 +832,7 @@ namespace FQC
                     {
                         //测试结束了，用户点了确定，先把串口释放，数据清空
                         chart2.Close();
-                        chart2.ClearTestData();
+                        //chart2.ClearTestData();
                         chart2.Enabled = true;
                         //Logger.Instance().ErrorFormat("OnChart2SamplingComplete()函数被调用，结果不合格，m_SampleDataList.Count={0},m_SampleDataList[0].Channel={1},m_SampleDataList[1].Channel={2}", m_SampleDataList.Count, m_SampleDataList[0].Channel, m_SampleDataList[1].Channel);
                         //CompleteTestBecauseError();
@@ -844,7 +844,7 @@ namespace FQC
                 {
                     #region //重新测试
                     chart2.Close();
-                    chart2.ClearTestData();
+                    //chart2.ClearTestData();
                     chart2.Enabled = true;
                     Thread.Sleep(1000);
                     chart2.Start();
@@ -853,7 +853,7 @@ namespace FQC
                 else
                 {
                     chart2.Close();
-                    chart2.ClearTestData();
+                    //chart2.ClearTestData();
                     chart2.Enabled = true;
                     return;
                 }
@@ -1013,7 +1013,7 @@ namespace FQC
                 ws.Cell(2 + i, ++columnIndex).Value = tbPumpNo.Text;
                 ws.Cell(2 + i, ++columnIndex).Value = m_LocalPid.ToString();
                 ws.Cell(2 + i, ++columnIndex).Value = i + 1;
-                ws.Cell(2 + i, ++columnIndex).Value = (i == 0 ? chart1.ToolingNo : chart1.ToolingNo);
+                ws.Cell(2 + i, ++columnIndex).Value = (i == 0 ? chart1.ToolingNo : chart2.ToolingNo);
                 //ws.Cell(2 + i, ++columnIndex).Value = fqcData.brand;
 
                 if(i==0)
@@ -1031,20 +1031,7 @@ namespace FQC
                 string strError1 = string.Empty;
                 string strError2 = string.Empty;
                 List<LevelTips> strErrorList = new List<LevelTips>();
-                if (i==0)
-                {
-                    if(chart1.IsAuto())
-                        bPass = chart1.IsPassAuto(strErrorList);
-                    else
-                        bPass = chart1.IsPassManual(strErrorList);
-                }
-                else if(i==1)
-                {
-                     if(chart2.IsAuto())
-                        bPass = chart2.IsPassAuto(strErrorList);
-                    else
-                        bPass = chart2.IsPassManual(strErrorList);
-                }
+                bPass = fqcData.IsPass();
                 if (bPass)
                 {
                     ws.Cell(2 + i, ++columnIndex).Value = "Pass";
@@ -1064,15 +1051,13 @@ namespace FQC
 
                 ws.Cell(2 + i, ++columnIndex).Value = opratorNumber;
 
-                //if (!string.IsNullOrEmpty(strError1))
-                //{
-                //    strError1 = "通道1失败:" + strError1;
-                //}
-                //if (!string.IsNullOrEmpty(strError2))
-                //{
-                //    strError2 = "通道2失败:" + strError2;
-                //}
-                ws.Cell(2 + i, ++columnIndex).Value = strError1 + strError2;
+                StringBuilder sb = new StringBuilder();
+                foreach (var error in fqcData.strErrorList)
+                {
+                    if(!error.isPass)
+                        sb.Append(error.tips);
+                }
+                ws.Cell(2 + i, ++columnIndex).Value = sb.ToString();
             }
             ws.Range(1, 1, 3, 1).SetDataType(XLCellValues.Text);
             ws.Range(1, 4, 3, 4).SetDataType(XLCellValues.Text);
