@@ -48,8 +48,8 @@ namespace FQC
         private DateTime m_FirstCharInputTimestamp  = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
         private DateTime m_SecondCharInputTimestamp = DateTime.Now;  //定义一个成员函数用于保存每次的时间点
         private int m_PressCount                    = 0;
-        public static int SerialNumberCount = 28;               //在指定时间内连续输入字符数量不低于28个时方可认为是由条码枪输入
-        public static int MaxThreshold = 150;               //150Kpajb最大阈值时要停止泵
+        public static int SerialNumberCount = 28;           //在指定时间内连续输入字符数量不低于28个时方可认为是由条码枪输入
+        public static int MaxThreshold = 150;               //150Kpa最大阈值时要停止泵,弹出提示框
 
          
         public PressureForm()
@@ -103,6 +103,7 @@ namespace FQC
                 //tbToolingNo.Text = strTool1;
                 //tbToolingNo2.Text = strTool2;
                 SerialNumberCount = Int32.Parse(ConfigurationManager.AppSettings.Get("SerialNumberCount"));
+                MaxThreshold = Int32.Parse(ConfigurationManager.AppSettings.Get("MaxKpaLimit"));
             }
             catch (Exception ex)
             {

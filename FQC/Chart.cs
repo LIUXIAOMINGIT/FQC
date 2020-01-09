@@ -26,7 +26,6 @@ namespace FQC
     {
         private const string DoublePumpLevelTips = "{0}道{1}档压力{2}Kpa,合格范围{3}~{4}Kpa;";
         private const string SinglePumpLevelTips = "{0}档压力{1}Kpa,合格范围{2}~{3}Kpa;";
-        private const double MAXKPALIMIT                                      = 150;
         private const string VOL                                              = "Kpa";
         private const int LEFTBORDEROFFSET                                    = 30;
         private const int RIGHTBORDEROFFSET                                   = 10;
@@ -402,7 +401,7 @@ namespace FQC
                 ReDrawCoordinate();
             else
                 DrawSingleAccuracyMap(m_XSectionCount, m_YSectionCount);
-            if (e.PressureValue >= MAXKPALIMIT)
+            if (e.PressureValue >= PressureForm.MaxThreshold)
             {
                 m_bMaxKpaFlag = true;
                 //超过最大值，报警，并停止泵
@@ -1688,7 +1687,7 @@ namespace FQC
                 Logger.Instance().Info("======AlertTestResult() 生成压力数据文件 begin=====");
                 var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
-                string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                string fileName = string.Format("{0}_{1}_{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
                 if (!System.IO.Directory.Exists(path))
                     System.IO.Directory.CreateDirectory(path);
                 string saveFileName = path + "\\" + fileName + ".xlsx";
@@ -2053,7 +2052,6 @@ namespace FQC
             if (m_LocalPid == PumpID.GrasebyF8_2 || m_LocalPid == PumpID.GrasebyF6_2 || m_LocalPid == PumpID.WZS50F6_2)
             {
                 //第一道测试完成，判断是否合格，不合格要提示，是否重测
-                string strError = "";
                 List<LevelTips> strErrorList = new List<LevelTips>();
                 if (IsAuto())
                 {

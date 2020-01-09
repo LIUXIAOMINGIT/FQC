@@ -258,7 +258,6 @@
             this.tbOprator.Name = "tbOprator";
             this.tbOprator.Size = new System.Drawing.Size(116, 26);
             this.tbOprator.TabIndex = 3;
-            this.tbOprator.Text = "12345678";
             // 
             // label3
             // 
@@ -310,11 +309,12 @@
             this.chart2.Enabled = false;
             this.chart2.Location = new System.Drawing.Point(516, 3);
             this.chart2.Name = "chart2";
+            this.chart2.Operator = "";
             this.chart2.PumpNo = "";
             this.chart2.SampleInterval = 500;
             this.chart2.Size = new System.Drawing.Size(505, 608);
             this.chart2.TabIndex = 3;
-            
+            this.chart2.ToolingNo = "";
             // 
             // chart1
             // 
@@ -324,11 +324,12 @@
             this.chart1.Enabled = false;
             this.chart1.Location = new System.Drawing.Point(3, 3);
             this.chart1.Name = "chart1";
+            this.chart1.Operator = "";
             this.chart1.PumpNo = "";
             this.chart1.SampleInterval = 500;
             this.chart1.Size = new System.Drawing.Size(504, 608);
             this.chart1.TabIndex = 3;
-           
+            this.chart1.ToolingNo = "";
             // 
             // PressureForm
             // 
