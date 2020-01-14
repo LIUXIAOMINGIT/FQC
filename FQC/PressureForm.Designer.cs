@@ -376,7 +376,7 @@
         private System.Windows.Forms.Label label5;
         private Chart chart2;
         private Chart chart1;
-        private System.Windows.Forms.TextBox tbOprator;
         private System.Windows.Forms.Label label3;
+        public System.Windows.Forms.TextBox tbOprator;
     }
 }

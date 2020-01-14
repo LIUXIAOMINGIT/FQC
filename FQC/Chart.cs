@@ -24,6 +24,7 @@ namespace FQC
 {
     public partial class Chart : UserControl
     {
+        private PressureForm mainForm = null;
         private const string DoublePumpLevelTips = "{0}道{1}档压力{2}Kpa,合格范围{3}~{4}Kpa;";
         private const string SinglePumpLevelTips = "{0}档压力{1}Kpa,合格范围{2}~{3}Kpa;";
         private const string VOL                                              = "Kpa";
@@ -110,7 +111,6 @@ namespace FQC
         public event EventHandler<EventArgs> OnPortFreshedSuccess;  //F8双通道模式下，第一道泵成功刷新后，第二道泵串口一起刷新
         public event EventHandler<EventArgs> Clear2ndChannelData;  //F8双通道模式下，第一道泵成功启动，清空第二道数据
         public event EventHandler<OpratorNumberArgs> OpratorNumberInput;
-
         #endregion
 
         #region 属性
@@ -217,6 +217,11 @@ namespace FQC
             m_Channel = channel;
             m_gh = WavelinePanel.CreateGraphics();
             m_Rect = WavelinePanel.ClientRectangle;
+        }
+
+        public void SetMainForm(PressureForm form)
+        {
+            this.mainForm = form;
         }
         #endregion
 
@@ -767,22 +772,21 @@ namespace FQC
 
             #region 参数输入检查
 
-            //if (string.IsNullOrEmpty(tbOprator.Text))
-            //{
-            //    MessageBox.Show("请输入操作员工号");
-            //    return;
-            //}
-            //if (tbOprator.Text.Length != 8)
-            //{
-            //    MessageBox.Show("请输入正确操作员工号");
-            //    return;
-            //}
+            if (string.IsNullOrEmpty(mainForm.tbOprator.Text))
+            {
+                MessageBox.Show("请输入操作员工号");
+                return;
+            }
+            if (mainForm.tbOprator.Text.Length != 8)
+            {
+                MessageBox.Show("请输入正确操作员工号");
+                return;
+            }
 
             if (SamplingStartOrStop != null)
             {
                 SamplingStartOrStop(this, new StartOrStopArgs(true));
             }
-
             if (string.IsNullOrEmpty(PumpNo))
             {
                 MessageBox.Show("请输入产品序号");

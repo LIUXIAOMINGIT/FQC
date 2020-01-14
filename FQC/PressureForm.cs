@@ -624,7 +624,8 @@ namespace FQC
             chart2.ClearPumpNoWhenCompleteTest += OnClearPumpNoWhenCompleteTest;
             chart1.Clear2ndChannelData += OnClear2ndChannelData;
             chart1.OpratorNumberInput += OnOpratorNumberInput;
-
+            chart1.SetMainForm(this);
+            chart2.SetMainForm(this);
             SampleDataList.Clear();
         }
 
@@ -1116,7 +1117,6 @@ namespace FQC
             }
 
         }
-
         private void tlpTitle_MouseDown(object sender, MouseEventArgs e)
         {
             if (this.WindowState == FormWindowState.Maximized)
