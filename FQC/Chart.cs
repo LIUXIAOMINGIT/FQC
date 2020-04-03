@@ -909,7 +909,6 @@ namespace FQC
                 MessageBox.Show("串口被占用，请关闭本软件后重新测试!");
                 return;
             }
-            m_ConnResponse.SetStartControl();
 
             RemoveHandler();
             AddHandler();
@@ -1205,7 +1204,8 @@ namespace FQC
             {
                 Logger.Instance().ErrorFormat("命令'GetSyringSize'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
                 StopTestWithoutStartPump();
-                ErrorDialog dlg = new ErrorDialog("读注射器尺寸失败！");
+                //ErrorDialog dlg = new ErrorDialog("读注射器尺寸失败！");//2020-04-03 根据“FQC Tool软件修改需求20200330.docx”要求修改
+                ErrorDialog dlg = new ErrorDialog("串口不可用！");
                 dlg.Show();
             }
             else
@@ -1226,7 +1226,8 @@ namespace FQC
             {
                 Logger.Instance().ErrorFormat("命令'GetInfusionParameter'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
                 StopTestWithoutStartPump();
-                ErrorDialog dlg = new ErrorDialog("读注射器尺寸失败！");
+                //ErrorDialog dlg = new ErrorDialog("读注射器尺寸失败！");//2020-04-03 根据“FQC Tool软件修改需求20200330.docx”要求修改
+                ErrorDialog dlg = new ErrorDialog("串口不可用！");
                 dlg.Show();
             }
             else
@@ -1273,7 +1274,8 @@ namespace FQC
             if (String.Empty != args.ErrorMessage)
             {
                 Logger.Instance().ErrorFormat("命令'SetStartControl'指令返回错误！ErrorMessage={0}", args.ErrorMessage);
-                ErrorDialog dlg = new ErrorDialog("启动泵失败！");
+                //ErrorDialog dlg = new ErrorDialog("启动泵失败！");//2020-04-03 根据“FQC Tool软件修改需求20200330.docx”要求修改
+                ErrorDialog dlg = new ErrorDialog("串口不可用！");
                 dlg.Show();
             }
             else
@@ -1371,7 +1373,36 @@ namespace FQC
                     {
                         StopTimer();
                         StopTimerGauge();
-                        this.InvokeOnClick(this.picStop, null);
+                        if (HasMotorErrorAlarm(m_ProductModel, paras))
+                        {
+                            StopTest4Alarm(); //只弹错误对话框，不要测试结果等其他对话框
+                            ShowErrorDialog("电机驱动出错");
+                        }
+                        else if(HasPlungerDisengagedAlarm(m_ProductModel, paras))
+                        {
+                            StopTest4Alarm();
+                            ShowErrorDialog("推头未正确安装");
+                        }
+                        else if (HasBarrelClampOpenedAlarm(m_ProductModel, paras))
+                        {
+                            StopTest4Alarm();
+                            ShowErrorDialog("注射器压块打开");
+                        }
+                        else if (HasInvalidSyringeSizeAlarm(m_ProductModel, paras))
+                        {
+                            StopTest4Alarm();
+                            ShowErrorDialog("读注射器尺寸失败");
+                        }
+                        else if (HasSyringeLoadingInvalidAlarm(m_ProductModel, paras))
+                        {
+                            StopTest4Alarm();
+                            ShowErrorDialog("装夹错误");
+                        }
+                        else
+                        {
+                            //其他报警默认要弹出测试结果框
+                            this.InvokeOnClick(this.picStop, null);
+                        }
                         break;
                     }
                 }
@@ -1545,6 +1576,16 @@ namespace FQC
                 return;
             }
             Program.EnableContols(bEnabled);
+            if (bEnabled)
+            {
+                picStart.Image = global::FQC.Properties.Resources.icon_start_Blue;
+                picStop.Image = global::FQC.Properties.Resources.icon_stop_gray;
+            }
+            else
+            {
+                picStart.Image = global::FQC.Properties.Resources.icon_start_gray;
+                picStop.Image = global::FQC.Properties.Resources.icon_stop_blue;
+            }
             cbToolingPort.Enabled = bEnabled;
             cbPumpPort.Enabled = bEnabled;
             tbRate.Enabled = bEnabled;
@@ -1733,7 +1774,7 @@ namespace FQC
         private void AlertMaxKpa()
         {
             Thread.Sleep(1000);
-            MaxKpaAlertForm dlg = new MaxKpaAlertForm();
+            MaxKpaAlertForm dlg = new MaxKpaAlertForm(PressureForm.MaxThreshold);
             dlg.ShowDialog();
             m_bMaxKpaFlag = false;
         }
@@ -2025,6 +2066,18 @@ namespace FQC
             ContinueStopTest();
         }
 
+        /// <summary>
+        /// 推头报警 拉杆报警 驱动出错ERR 等意外的报警出现时，不要弹出测试结果，直接结束
+        /// </summary>
+        private void StopTest4Alarm()
+        {
+            StopTimer();
+            StopTimerGauge();
+            m_ConnResponse.ClearAllCommand();
+            InvokeOnClick(btnStopAlarm, null);
+            TerminateTest();
+        }
+
         private void StopTestWithoutStartPump()
         {
             StopTimer();
@@ -2120,6 +2173,31 @@ namespace FQC
                 PumpCloseConnectionSub();
             }
             Logger.Instance().Info("======ContinueStopTest()函数调用 end=====");
+        }
+
+        /// <summary>
+        /// 不要弹出任何关于测试结果的对话框
+        /// </summary>
+        private void TerminateTest()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new DelegateContinueStopTest(TerminateTest), null);
+                return;
+            }
+            Logger.Instance().Info("======TerminateTest()函数调用 begin=====");
+
+            lock (m_RequestCommands)
+            {
+                m_RequestCommands.Clear();
+            }
+            m_GaugeTool.Close();
+            EnableContols(true);
+            //自动模式下，完成测试后要归到最低档
+            if (cmbPattern.SelectedIndex == 0)
+                cmbLevel.SelectedIndex = 0;
+            PumpCloseConnectionSub();
+            Logger.Instance().Info("======TerminateTest()函数调用 end=====");
         }
 
         private void BeginStopTestThread()
@@ -2454,5 +2532,112 @@ namespace FQC
           
 
         }
+
+        /// <summary>
+        /// 判断是否马达出错
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasMotorErrorAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if( model == ProductModel.GrasebyC6 
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm1)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 推头报警
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasPlungerDisengagedAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC6
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm4)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 压板打开
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasBarrelClampOpenedAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC6
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm5)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 读注射器尺寸失败, C8 F8才有
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasInvalidSyringeSizeAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC8 || model == ProductModel.GrasebyF8)
+            {
+                if (alarm.alarm4)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 装夹错误, C8 F8才有
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasSyringeLoadingInvalidAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC8 || model == ProductModel.GrasebyF8)
+            {
+                if (alarm.alarm20)
+                    return true;
+            }
+            return false;
+        }
+
+        
+
     }
 }

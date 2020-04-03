@@ -83,6 +83,10 @@ namespace FQC
             LoadSettings();
             LoadConfig();
             InitPumpType();
+#if DEBUG
+            tbPumpNo.Text = "012345678901234567890123456";
+            tbOprator.Text = "12345678";
+#endif
         }
 
         /// <summary>

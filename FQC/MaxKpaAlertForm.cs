@@ -32,7 +32,13 @@ namespace FQC
             //    lbResult.ForeColor = Color.Red;
             //}
         }
-         
+
+        public MaxKpaAlertForm(int maxThreshold)
+        {
+            InitializeComponent();
+            lbResult.Text = string.Format("超过最大压力值上限{0}Kpa", maxThreshold);
+        }
+
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
