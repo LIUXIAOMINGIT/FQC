@@ -2339,21 +2339,43 @@ namespace FQC
 
         private float FindMaxPressure()
         {
-           if (m_Ch1SampleDataList.Count == 0)
+            if (m_Ch1SampleDataList.Count == 0)
+            {
+                Logger.Instance().Warn("FindMaxPressure() Warn: Count = 0!");
                 return 0;
-           float max = 0;
-           lock (m_Ch1SampleDataList)
-           {
-               try
-               {
-                  max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
-               }
-               catch(Exception e)
-               {
-                   Logger.Instance().Error("FindMaxPressure Error:" + e.Message);
-               }
-           }
-           return max;
+            }
+            float max = 0;
+            lock (m_Ch1SampleDataList)
+            {
+                PrintSampleDataList();//先打印出来,只是为了分析日志
+                try
+                {
+                    max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
+                    Logger.Instance().Info("FindMaxPressure(), the max pressure value is : " + max.ToString());
+                }
+                catch (Exception e)
+                {
+                    Logger.Instance().Error("FindMaxPressure Error:" + e.Message);
+                }
+            }
+            return max;
+        }
+
+        /// <summary>
+        /// 打印采样数据，为了分析BUG
+        /// </summary>
+        private void PrintSampleDataList()
+        {
+            Logger.Instance().Info("==========Print Sample Data List Begin=============");
+            if(m_Ch1SampleDataList?.Count>0)
+            {
+                string strFormat = "Sample Time = {0},  Pressure Value = {1}";
+                foreach(var data in m_Ch1SampleDataList)
+                {
+                    Logger.Instance().Info(string.Format(strFormat, data.m_SampleTime.ToShortTimeString(), data.m_PressureValue));
+                }
+            }
+            Logger.Instance().Info("==========Print Sample Data List End=============");
         }
 
         /// <summary>
