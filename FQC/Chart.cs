@@ -2347,10 +2347,10 @@ namespace FQC
             float max = 0;
             lock (m_Ch1SampleDataList)
             {
-                PrintSampleDataList();//先打印出来,只是为了分析日志
                 try
                 {
                     max = m_Ch1SampleDataList.Max(x => { return x.m_PressureValue; });
+                    PrintSampleDataList();//先打印出来,只是为了分析日志
                     Logger.Instance().Info("FindMaxPressure(), the max pressure value is : " + max.ToString());
                 }
                 catch (Exception e)
@@ -2367,13 +2367,10 @@ namespace FQC
         private void PrintSampleDataList()
         {
             Logger.Instance().Info("==========Print Sample Data List Begin=============");
-            if(m_Ch1SampleDataList?.Count>0)
+            string strFormat = "Sample Time = {0},  Pressure Value = {1}";
+            for (int i = 0; i < m_Ch1SampleDataList.Count; i++)
             {
-                string strFormat = "Sample Time = {0},  Pressure Value = {1}";
-                foreach(var data in m_Ch1SampleDataList)
-                {
-                    Logger.Instance().Info(string.Format(strFormat, data.m_SampleTime.ToShortTimeString(), data.m_PressureValue));
-                }
+                Logger.Instance().Info(string.Format(strFormat, m_Ch1SampleDataList[i].m_SampleTime.ToLongTimeString(), m_Ch1SampleDataList[i].m_PressureValue));
             }
             Logger.Instance().Info("==========Print Sample Data List End=============");
         }
