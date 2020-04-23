@@ -191,7 +191,7 @@
             this.tbPumpNo.Margin = new System.Windows.Forms.Padding(0);
             this.tbPumpNo.Name = "tbPumpNo";
             this.tbPumpNo.Size = new System.Drawing.Size(345, 24);
-            this.tbPumpNo.TabIndex = 3;
+            this.tbPumpNo.TabIndex = 1;
             this.tbPumpNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbPumpNo_KeyPress);
             // 
             // label2
@@ -313,7 +313,7 @@
             this.chart2.PumpNo = "";
             this.chart2.SampleInterval = 500;
             this.chart2.Size = new System.Drawing.Size(505, 608);
-            this.chart2.TabIndex = 3;
+            this.chart2.TabIndex = 5;
             this.chart2.ToolingNo = "";
             // 
             // chart1
@@ -328,7 +328,7 @@
             this.chart1.PumpNo = "";
             this.chart1.SampleInterval = 500;
             this.chart1.Size = new System.Drawing.Size(504, 608);
-            this.chart1.TabIndex = 3;
+            this.chart1.TabIndex = 4;
             this.chart1.ToolingNo = "";
             // 
             // PressureForm

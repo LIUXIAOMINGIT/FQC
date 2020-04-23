@@ -203,7 +203,7 @@
             this.label4.Location = new System.Drawing.Point(0, 56);
             this.label4.Margin = new System.Windows.Forms.Padding(0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(41, 20);
+            this.label4.Size = new System.Drawing.Size(57, 20);
             this.label4.TabIndex = 1;
             this.label4.Text = "泵频道";
             // 
@@ -235,9 +235,10 @@
             // 
             this.cbToolingPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbToolingPort.BackColor = System.Drawing.Color.White;
+            this.cbToolingPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbToolingPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cbToolingPort.FormattingEnabled = true;
-            this.cbToolingPort.Location = new System.Drawing.Point(75, 9);
+            this.cbToolingPort.Location = new System.Drawing.Point(75, 10);
             this.cbToolingPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbToolingPort.Name = "cbToolingPort";
             this.cbToolingPort.Size = new System.Drawing.Size(209, 24);
@@ -249,9 +250,10 @@
             // 
             this.cbPumpPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbPumpPort.BackColor = System.Drawing.Color.White;
+            this.cbPumpPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbPumpPort.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cbPumpPort.FormattingEnabled = true;
-            this.cbPumpPort.Location = new System.Drawing.Point(394, 9);
+            this.cbPumpPort.Location = new System.Drawing.Point(394, 10);
             this.cbPumpPort.Margin = new System.Windows.Forms.Padding(0);
             this.cbPumpPort.Name = "cbPumpPort";
             this.cbPumpPort.Size = new System.Drawing.Size(80, 24);
@@ -267,16 +269,17 @@
             this.tbRate.Margin = new System.Windows.Forms.Padding(0);
             this.tbRate.Name = "tbRate";
             this.tbRate.Size = new System.Drawing.Size(209, 26);
-            this.tbRate.TabIndex = 3;
+            this.tbRate.TabIndex = 1;
             this.tbRate.Text = "300";
             // 
             // cmbSetBrand
             // 
             this.cmbSetBrand.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbSetBrand.BackColor = System.Drawing.Color.White;
+            this.cmbSetBrand.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbSetBrand.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cmbSetBrand.FormattingEnabled = true;
-            this.cmbSetBrand.Location = new System.Drawing.Point(75, 53);
+            this.cmbSetBrand.Location = new System.Drawing.Point(75, 54);
             this.cmbSetBrand.Margin = new System.Windows.Forms.Padding(0);
             this.cmbSetBrand.Name = "cmbSetBrand";
             this.cmbSetBrand.Size = new System.Drawing.Size(209, 24);
@@ -287,9 +290,10 @@
             // 
             this.cmbLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbLevel.BackColor = System.Drawing.Color.White;
+            this.cmbLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cmbLevel.FormattingEnabled = true;
-            this.cmbLevel.Location = new System.Drawing.Point(394, 53);
+            this.cmbLevel.Location = new System.Drawing.Point(394, 54);
             this.cmbLevel.Margin = new System.Windows.Forms.Padding(0);
             this.cmbLevel.Name = "cmbLevel";
             this.cmbLevel.Size = new System.Drawing.Size(80, 24);
@@ -347,12 +351,13 @@
             // 
             this.cmbPattern.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbPattern.BackColor = System.Drawing.Color.White;
+            this.cmbPattern.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbPattern.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.cmbPattern.FormattingEnabled = true;
             this.cmbPattern.Items.AddRange(new object[] {
             "自动",
             "手动"});
-            this.cmbPattern.Location = new System.Drawing.Point(394, 97);
+            this.cmbPattern.Location = new System.Drawing.Point(394, 98);
             this.cmbPattern.Margin = new System.Windows.Forms.Padding(0);
             this.cmbPattern.Name = "cmbPattern";
             this.cmbPattern.Size = new System.Drawing.Size(80, 24);

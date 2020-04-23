@@ -79,7 +79,7 @@ namespace FQC
         protected bool                                m_bMaxKpaFlag           = false;                                     //是否是超过了200Kpa并停止泵
         private FQCData mFQCData                                              = new FQCData();
         private int                                   m_LevelTryCount         = 0;                                         //当压力档命令没有响应超过2次，就完全停止测试
-
+        private object lockSampleDataList = new object();
         private int m_CuurentPatterIndex = 0;
 
         private DateTime m_OcclusionTimeStamp = DateTime.Now;//换档成功并且泵停止后立即读报警信息，可能会有一条阻塞报警，导致直接从L档升到H档,所以过滤前10秒的报警信息
@@ -400,7 +400,10 @@ namespace FQC
         {
             if (m_bMaxKpaFlag)
                 return;
-            m_Ch1SampleDataList.Add(new SampleData(DateTime.Now, e.PressureValue));
+            lock(lockSampleDataList)
+            {
+                m_Ch1SampleDataList.Add(new SampleData(DateTime.Now, e.PressureValue));
+            }
             float count = m_XCoordinateMaxValue * 1000 / m_GaugeSampleInterval;
             if (m_Ch1SampleDataList.Count > count)
                 ReDrawCoordinate();
@@ -1346,7 +1349,6 @@ namespace FQC
                     m_AlarmInfo = paras;
                 AlarmsInformation alarmMessage = new AlarmsInformation(m_ProductModel, SalesRegion.ZH);
                 List<String> alarmList = alarmMessage.GetAlarmsString(paras);
-
                 StringBuilder sb = new StringBuilder();
                 foreach (String s in alarmList)
                 {
@@ -1354,60 +1356,49 @@ namespace FQC
                     sb.Append(";");
                 }
                 Logger.Instance().InfoFormat("命令'GetPumpAlarms'指令返回成功！报警={0}", sb.ToString());
-                //此处要加其他的报警排除项
-                foreach (String s in alarmList)
+                if (HasMotorErrorAlarm(m_ProductModel, paras))
                 {
-                    if ("Occlusion" == s)
-                    {
-                        Logger.Instance().Info("命令'GetPumpAlarms'测到Occlusion报警，启动停止泵线程");
-                        InvokeOnClick(btnStopAlarm, null);
-                        BeginPauseTestThread();
-                        break;
-                    }
-                    else if (s.Contains("Near Empty"))
-                    {
-                        SendNextRequest();
-                        continue;
-                    }
-                    else
-                    {
-                        StopTimer();
-                        StopTimerGauge();
-                        if (HasMotorErrorAlarm(m_ProductModel, paras))
-                        {
-                            StopTest4Alarm(); //只弹错误对话框，不要测试结果等其他对话框
-                            ShowErrorDialog("电机驱动出错");
-                        }
-                        else if(HasPlungerDisengagedAlarm(m_ProductModel, paras))
-                        {
-                            StopTest4Alarm();
-                            ShowErrorDialog("推头未正确安装");
-                        }
-                        else if (HasBarrelClampOpenedAlarm(m_ProductModel, paras))
-                        {
-                            StopTest4Alarm();
-                            ShowErrorDialog("注射器压块打开");
-                        }
-                        else if (HasInvalidSyringeSizeAlarm(m_ProductModel, paras))
-                        {
-                            StopTest4Alarm();
-                            ShowErrorDialog("读注射器尺寸失败");
-                        }
-                        else if (HasSyringeLoadingInvalidAlarm(m_ProductModel, paras))
-                        {
-                            StopTest4Alarm();
-                            ShowErrorDialog("装夹错误");
-                        }
-                        else
-                        {
-                            //其他报警默认要弹出测试结果框
-                            this.InvokeOnClick(this.picStop, null);
-                        }
-                        break;
-                    }
+                    StopTest4Alarm(); //只弹错误对话框，不要测试结果等其他对话框
+                    ShowErrorDialog("电机驱动出错");
+                }
+                else if (HasPlungerDisengagedAlarm(m_ProductModel, paras))
+                {
+                    StopTest4Alarm();
+                    ShowErrorDialog("推头未正确安装");
+                }
+                else if (HasBarrelClampOpenedAlarm(m_ProductModel, paras))
+                {
+                    StopTest4Alarm();
+                    ShowErrorDialog("注射器压块打开");
+                }
+                else if (HasInvalidSyringeSizeAlarm(m_ProductModel, paras))
+                {
+                    StopTest4Alarm();
+                    ShowErrorDialog("读注射器尺寸失败");
+                }
+                else if (HasSyringeLoadingInvalidAlarm(m_ProductModel, paras))
+                {
+                    StopTest4Alarm();
+                    ShowErrorDialog("装夹错误");
+                }
+                else if(HasOtherAlarm(m_ProductModel, paras)) //此处排除了几个报警，不要处理
+                {
+                    StopTimer();
+                    StopTimerGauge();
+                    //其他报警默认要弹出测试结果框
+                    this.InvokeOnClick(this.picStop, null);
+                }
+                else if(HasOcclusionAlarm(m_ProductModel, paras))
+                {
+                    Logger.Instance().Info("命令'GetPumpAlarms'测到Occlusion报警，启动停止泵线程");
+                    InvokeOnClick(btnStopAlarm, null);
+                    BeginPauseTestThread();
+                }
+                else
+                {
+                   //没有报警
                 }
             }
-
         }
 
         /// <summary>
@@ -2139,36 +2130,6 @@ namespace FQC
             }
             else
             {
-                //不能在这里生成excel，等弹出框弹出，由用户选择是否生成
-                //Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 begin=====");
-
-                //var pid = ProductIDConvertor.PumpID2ProductID(m_LocalPid);
-                ////string path = Path.GetDirectoryName(Assembly.GetAssembly(typeof(PressureForm)).Location) + "\\数据导出";
-                //string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data";
-                //string fileName = string.Format("{0}{1}{2}", pid.ToString(), m_PumpNo, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
-                //if (!System.IO.Directory.Exists(path))
-                //    System.IO.Directory.CreateDirectory(path);
-                //string saveFileName = path + "\\" + fileName + ".xlsx";
-
-                //string path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\压力数据Pressure Data\\Data Copy";
-                //if (!System.IO.Directory.Exists(path2))
-                //    System.IO.Directory.CreateDirectory(path2);
-                //string saveFileName2 = path2 + "\\" + fileName + ".xlsx";
-                //try
-                //{
-                //    GenReport(saveFileName, saveFileName2);
-                //}
-                //catch(Exception ex)
-                //{
-                //    Logger.Instance().ErrorFormat("======ContinueStopTest() 生成压力数据文件出错,错误信息={0}", ex.Message);
-                //}
-                //if (ClearPumpNoWhenCompleteTest != null)
-                //{
-                //    ClearPumpNoWhenCompleteTest(this, null);
-                //}
-
-                //Logger.Instance().Info("======ContinueStopTest() 生成压力数据文件 end=====");
-
                 AlertTestResultSub();
                 PumpCloseConnectionSub();
             }
@@ -2345,7 +2306,7 @@ namespace FQC
                 return 0;
             }
             float max = 0;
-            lock (m_Ch1SampleDataList)
+            lock (lockSampleDataList)
             {
                 try
                 {
@@ -2623,6 +2584,186 @@ namespace FQC
             }
             return false;
         }
+
+
+        /// <summary>
+        /// 这个VTBI输液过程结束报警要忽略掉
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasVTBIInfusionCompleteAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC6
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm6)
+                    return true;
+            }
+            else if (model == ProductModel.GrasebyC8 || model == ProductModel.GrasebyF8)
+            {
+                if (alarm.alarm17)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 这个低电报警要忽略掉
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasBatteryLowAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC6
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm8)
+                    return true;
+            }
+            else if (model == ProductModel.GrasebyC8 || model == ProductModel.GrasebyF8)
+            {
+                if (alarm.alarm0)
+                    return true;
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// 存在压力报警
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasOcclusionAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC6
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm2)
+                    return true;
+            }
+            else if (model == ProductModel.GrasebyC8 || model == ProductModel.GrasebyF8)
+            {
+                if (alarm.alarm19)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 除了指定的几个报警以外的报警
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="alarm"></param>
+        /// <returns></returns>
+        private bool HasOtherAlarm(ProductModel model, Misc.AlarmInfo alarm)
+        {
+            if (model == ProductModel.GrasebyC6
+               || model == ProductModel.GrasebyC6T
+               || model == ProductModel.GrasebyF6
+               || model == ProductModel.Graseby2000
+               || model == ProductModel.Graseby2100
+               || model == ProductModel.WZ50C6
+               || model == ProductModel.WZS50F6
+               || model == ProductModel.WZ50C6T
+                )
+            {
+                if (alarm.alarm0) return true;
+                if (alarm.alarm1) return true;
+                //if (alarm.alarm2) return true; Occlusion 排除
+                //if (alarm.alarm3) return true; Depleted Battery 排除
+                if (alarm.alarm4) return true;
+                if (alarm.alarm5) return true;
+                //if (alarm.alarm6) return true; VTBI Infusion Complete 排除
+                if (alarm.alarm7) return true;
+                //if (alarm.alarm8) return true; BatteryLow 排除
+                if (alarm.alarm9) return true;
+                if (alarm.alarm10) return true;
+                if (alarm.alarm11) return true;
+                //if (alarm.alarm12) return true; Syringe Near Empty 排除
+                if (alarm.alarm13) return true;
+                if (alarm.alarm14) return true;
+                if (alarm.alarm15) return true;
+                if (alarm.alarm16) return true;
+                if (alarm.alarm17) return true;
+                if (alarm.alarm18) return true;
+                if (alarm.alarm19) return true;
+                if (alarm.alarm20) return true;
+                if (alarm.alarm21) return true;
+                if (alarm.alarm22) return true;
+                if (alarm.alarm23) return true;
+                if (alarm.alarm24) return true;
+                if (alarm.alarm25) return true;
+                if (alarm.alarm26) return true;
+                if (alarm.alarm27) return true;
+                if (alarm.alarm28) return true;
+                if (alarm.alarm29) return true;
+                if (alarm.alarm30) return true;
+                if (alarm.alarm31) return true;
+            }
+            else if (model == ProductModel.GrasebyC8 || model == ProductModel.GrasebyF8)
+            {
+                //if (alarm.alarm0) return true;BatteryLow 排除
+                if (alarm.alarm1) return true;
+                //if (alarm.alarm2) return true; Infusion Near Complete 排除
+                if (alarm.alarm3) return true;
+                if (alarm.alarm4) return true;
+                if (alarm.alarm5) return true;
+                if (alarm.alarm6) return true; 
+                if (alarm.alarm7) return true;
+                if (alarm.alarm8) return true; 
+                if (alarm.alarm9) return true;
+                if (alarm.alarm10) return true;
+                if (alarm.alarm11) return true;
+                if (alarm.alarm12) return true;
+                if (alarm.alarm13) return true;
+                if (alarm.alarm14) return true;
+                if (alarm.alarm15) return true;
+                //if (alarm.alarm16) return true;Battery Depleted 排除
+                //if (alarm.alarm17) return true;VTBI Infusion Complete 排除
+                if (alarm.alarm18) return true;
+                //if (alarm.alarm19) return true;Occlusion 排除
+                if (alarm.alarm20) return true;
+                if (alarm.alarm21) return true;
+                if (alarm.alarm22) return true;
+                if (alarm.alarm23) return true;
+                if (alarm.alarm24) return true;
+                if (alarm.alarm25) return true;
+                if (alarm.alarm26) return true;
+                if (alarm.alarm27) return true;
+                if (alarm.alarm28) return true;
+                if (alarm.alarm29) return true;
+                if (alarm.alarm30) return true;
+                if (alarm.alarm31) return true;
+            }
+            return false;
+        }
+
+
 
         /// <summary>
         /// 读注射器尺寸失败, C8 F8才有
